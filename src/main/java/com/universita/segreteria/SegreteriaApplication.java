@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SegreteriaApplication {
 
 	public static void main(String[] args) {
+		System.out.println("Ciao");
 		SpringApplication.run(SegreteriaApplication.class, args);
 	}
 
