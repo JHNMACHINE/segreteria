@@ -16,18 +16,19 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Studente
-{
+public class Studente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome, cognome, matricola, residenza;
+    private String nome;
+    private String cognome;
+    private String matricola;
+    private String residenza;
     private LocalDate dataDiNascita;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "piano_id")
+    @Enumerated(EnumType.STRING)
     private PianoDiStudi pianoDiStudi;
 
     @OneToMany(mappedBy = "studente", cascade = CascadeType.ALL)
@@ -39,5 +40,5 @@ public class Studente
 
     @OneToMany(mappedBy = "studente", cascade = CascadeType.ALL)
     private List<Esame> esami;
-
 }
+
