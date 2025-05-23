@@ -26,7 +26,8 @@ public class Voto {
     @JsonBackReference
     private Esame esame;
 
-
     private int voto;
-    private Boolean accettato; // true = accettato, false = rifiutato, null = in attesa
+
+    @Enumerated(EnumType.STRING)
+    private StatoVoto stato = StatoVoto.IN_ATTESA;
 }
