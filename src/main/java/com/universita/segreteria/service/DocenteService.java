@@ -1,8 +1,11 @@
 package com.universita.segreteria.service;
 
+
+import com.universita.segreteria.model.Docente;
 import com.universita.segreteria.model.Esame;
 import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.Voto;
+import com.universita.segreteria.repository.DocenteRepository;
 import com.universita.segreteria.repository.EsameRepository;
 import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.VotoRepository;
@@ -17,6 +20,7 @@ public class DocenteService {
     private final EsameRepository esameRepo;
     private final VotoRepository votoRepo;
     private final StudenteRepository studenteRepo;
+    private final DocenteRepository docenteRepo;
 
     public Esame inserisciAppello(Esame esame) {
         return esameRepo.save(esame);
@@ -34,6 +38,47 @@ public class DocenteService {
         votoEntity.setVoto(voto);
 
         return votoRepo.save(votoEntity);
+    }
+
+    // 🔹 Crea un nuovo esame
+    public Esame creaEsame(Long docenteId, Esame esame) {
+        Docente docente = docenteRepo.findById(docenteId)
+                .orElseThrow(() -> new RuntimeException("Docente non trovato"));
+        esame.setDocente(docente);
+        return esameRepo.save(esame);
+    }
+
+    // 🔹 Leggi un esame per ID
+    public Esame getEsameById(Long esameId) {
+        return esameRepo.findById(esameId)
+                .orElseThrow(() -> new RuntimeException("Esame non trovato"));
+    }
+
+    // 🔹 Trova tutti gli esami di un docente
+    public List<Esame> getEsamiByDocente(Long docenteId) {
+        Docente docente = docenteRepo.findById(docenteId)
+                .orElseThrow(() -> new RuntimeException("Docente non trovato"));
+        return esameRepo.findByDocente(docente);
+    }
+
+    // 🔹 Aggiorna un esame
+    public Esame aggiornaEsame(Long esameId, Esame aggiornato) {
+        Esame esame = esameRepo.findById(esameId)
+                .orElseThrow(() -> new RuntimeException("Esame non trovato"));
+
+        esame.setNome(aggiornato.getNome());
+        esame.setDate(aggiornato.getDate());
+        esame.setStatoEsame(aggiornato.getStatoEsame());
+
+        return esameRepo.save(esame);
+    }
+
+    // 🔹 Elimina un esame
+    public void eliminaEsame(Long esameId) {
+        if (!esameRepo.existsById(esameId)) {
+            throw new RuntimeException("Esame non trovato");
+        }
+        esameRepo.deleteById(esameId);
     }
 
     public List<Studente> visualizzaPrenotazioniEsame(Long esameId) {
