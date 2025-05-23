@@ -1,19 +1,17 @@
 package com.universita.segreteria.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Segretario {
+public class Segretario extends Utente{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
