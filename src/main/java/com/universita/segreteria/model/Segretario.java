@@ -1,50 +1,23 @@
 package com.universita.segreteria.model;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Segretario
 {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String nome, cognome, matricola;
-    private List<Esame> appelli;
-    private List<Voto> voti;
 
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getCognome() {
-        return cognome;
-    }
-
-    public void setCognome(String cognome) {
-        this.cognome = cognome;
-    }
-
-    public String getMatricola() {
-        return matricola;
-    }
-
-    public void setMatricola(String matricola) {
-        this.matricola = matricola;
-    }
-
-    public List<Esame> getAppelli() {
-        return appelli;
-    }
-
-    public void setAppelli(List<Esame> appelli) {
-        this.appelli = appelli;
-    }
-
-    public List<Voto> getVoti() {
-        return voti;
-    }
-
-    public void setVoti(List<Voto> voti) {
-        this.voti = voti;
-    }
 }
