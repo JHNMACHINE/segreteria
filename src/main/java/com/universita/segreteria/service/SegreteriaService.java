@@ -14,8 +14,8 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class SegreteriaService {
-    private StudenteRepository studenteRepo;
-    private VotoRepository votoRepo;
+    private final StudenteRepository studenteRepo;
+    private final VotoRepository votoRepo;
 
     public Studente inserisciStudente(Studente studente) {
         return studenteRepo.save(studente);
@@ -35,7 +35,7 @@ public class SegreteriaService {
     public Optional<Studente> cercaStudentePerMatricola(String matricola) {
         return studenteRepo.findByMatricola(matricola);
     }
-    
+
     public Studente cambiaPianoDiStudi(Long studenteId, PianoDiStudi nuovoPiano) {
         Studente studente = studenteRepo.findById(studenteId)
                 .orElseThrow(() -> new RuntimeException("Studente non trovato"));
