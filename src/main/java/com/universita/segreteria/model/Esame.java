@@ -42,5 +42,10 @@ public class Esame {
     private List<Voto> voti;
 
     @ManyToMany
+    @JoinTable(
+            name = "esame_prenotazioni",
+            joinColumns = @JoinColumn(name = "esame_id"),
+            inverseJoinColumns = @JoinColumn(name = "studente_id")
+    )
     private List<Studente> studentiPrenotati;
 }

@@ -9,6 +9,8 @@ import com.universita.segreteria.repository.VotoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DocenteService {
@@ -33,4 +35,12 @@ public class DocenteService {
 
         return votoRepo.save(votoEntity);
     }
+
+    public List<Studente> visualizzaPrenotazioniEsame(Long esameId) {
+        Esame esame = esameRepo.findById(esameId)
+                .orElseThrow(() -> new RuntimeException("Esame non trovato"));
+
+        return esame.getStudentiPrenotati();
+    }
+
 }

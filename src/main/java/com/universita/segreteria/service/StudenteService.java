@@ -16,21 +16,22 @@ public class StudenteService
     private final StudenteRepository studenteRepo;
     private final VotoRepository votoRepo;
 
-    //PRENOTA ESAME
     public void prenotaEsame(Long studenteId, Long esameId)
     {
         Studente studente = studenteRepo.findById(studenteId).orElseThrow(()-> new RuntimeException("Studente non trovato"));
         Esame esame = esameRepo.findById(esameId).orElseThrow(()-> new RuntimeException("Esame non trovato"));
-
+        esame.getStudentiPrenotati().add(studente);
         studente.getEsami().add(esame);
         studenteRepo.save(studente);
     }
+
     //Consulta piano di studi
     public PianoDiStudi consultaPianoStudi(Long studenteId)
     {
         Studente studente = studenteRepo.findById(studenteId).orElseThrow(()-> new RuntimeException("Studente non trovato"));
         return studente.getPianoDiStudi();
     }
+
     //aggiorna stato esame
     public Voto aggiornaStatoVoto(Long votoId, boolean accetta)
     {
