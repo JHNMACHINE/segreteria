@@ -1,10 +1,12 @@
 package com.universita.segreteria.service;
 
 
+import com.universita.segreteria.component.VotoNotifier;
 import com.universita.segreteria.model.Docente;
 import com.universita.segreteria.model.Esame;
 import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.Voto;
+import com.universita.segreteria.observer.StudenteObserver;
 import com.universita.segreteria.repository.DocenteRepository;
 import com.universita.segreteria.repository.EsameRepository;
 import com.universita.segreteria.repository.StudenteRepository;
@@ -21,6 +23,7 @@ public class DocenteService {
     private final VotoRepository votoRepo;
     private final StudenteRepository studenteRepo;
     private final DocenteRepository docenteRepo;
+    private final VotoNotifier votoNotifier;
 
     public Esame inserisciAppello(Esame esame) {
         return esameRepo.save(esame);
@@ -37,7 +40,19 @@ public class DocenteService {
         votoEntity.setEsame(esame);
         votoEntity.setVoto(voto);
 
-        return votoRepo.save(votoEntity);
+        Voto savedVoto = votoRepo.save(votoEntity);
+
+        // Crea e registra observer
+        StudenteObserver observer = new StudenteObserver(studente);
+        votoNotifier.attach(observer);
+
+        // Notifica il voto
+        votoNotifier.notifyObservers(savedVoto);
+
+        // Rimuovi l'observer se è one-shot
+        votoNotifier.detach(observer);
+
+        return savedVoto;
     }
 
     public Esame creaEsame(Long docenteId, Esame esame) {
