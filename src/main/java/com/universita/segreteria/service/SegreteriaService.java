@@ -1,8 +1,10 @@
 package com.universita.segreteria.service;
 
+import com.universita.segreteria.component.AccettazioneNotifier;
 import com.universita.segreteria.model.PianoDiStudi;
 import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.Voto;
+import com.universita.segreteria.observer.SegreteriaObserver;
 import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.VotoRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import java.util.Optional;
 public class SegreteriaService {
     private final StudenteRepository studenteRepo;
     private final VotoRepository votoRepo;
+    private final AccettazioneNotifier accettazioneNotifier;
 
     public Studente inserisciStudente(Studente studente) {
         return studenteRepo.save(studente);
@@ -24,7 +27,18 @@ public class SegreteriaService {
     public Voto confermaVoto(Long votoId) {
         Voto voto = votoRepo.findById(votoId)
                 .orElseThrow(() -> new RuntimeException("Voto non trovato"));
-        return votoRepo.save(voto);
+
+
+        votoRepo.save(voto);
+
+        // Observer segreteria
+        SegreteriaObserver segreteria = new SegreteriaObserver();
+        accettazioneNotifier.attach(segreteria);
+
+        accettazioneNotifier.notifyObservers(voto);
+        accettazioneNotifier.detach(segreteria);
+
+        return voto;
     }
 
     public List<Studente> cercaStudente(String nome, String cognome) {
