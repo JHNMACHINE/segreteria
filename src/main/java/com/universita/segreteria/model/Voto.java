@@ -23,7 +23,9 @@ public class Voto {
     private Studente studente;
 
     @ManyToOne
+    @JsonBackReference
     private Esame esame;
+
 
     private int voto;
     private Boolean accettato; // true = accettato, false = rifiutato, null = in attesa

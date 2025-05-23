@@ -13,11 +13,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Segretario
-{
+public class Segretario {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nome, cognome, matricola;
 
+    private String nome;
+    private String cognome;
+    private String matricola;
 }

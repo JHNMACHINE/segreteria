@@ -1,41 +1,30 @@
 package com.universita.segreteria.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
-public class Docente
-{
-    private String nome, cognome, matricola;
-    private List<Esame> apelli;
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Docente {
 
-    public String getNome() {
-        return nome;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public String getCognome() {
-        return cognome;
-    }
+    private String nome;
+    private String cognome;
+    private String matricola;
 
-    public String getMatricola() {
-        return matricola;
-    }
-
-    public List<Esame> getApelli() {
-        return apelli;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public void setCognome(String cognome) {
-        this.cognome = cognome;
-    }
-
-    public void setMatricola(String matricola) {
-        this.matricola = matricola;
-    }
-
-    public void setApelli(List<Esame> apelli) {
-        this.apelli = apelli;
-    }
+    @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Esame> appelli;
 }

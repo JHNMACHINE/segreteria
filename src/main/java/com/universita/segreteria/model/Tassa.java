@@ -12,16 +12,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Tassa
-{
+public class Tassa {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String nome;
     private int prezzo;
     private boolean pagata;
+
     @ManyToOne
+    @JsonBackReference
     private Studente studente;
-
-
 }
