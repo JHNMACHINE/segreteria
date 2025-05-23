@@ -88,11 +88,12 @@ public class DocenteService {
     }
 
 
-    public void eliminaEsame(Long esameId) {
+    public Object eliminaEsame(Long esameId) {
         if (!esameRepo.existsById(esameId)) {
             throw new RuntimeException("Esame non trovato");
         }
         esameRepo.deleteById(esameId);
+        return null;
     }
 
     public List<Studente> visualizzaPrenotazioniEsame(Long esameId) {

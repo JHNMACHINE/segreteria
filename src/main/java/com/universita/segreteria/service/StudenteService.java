@@ -16,13 +16,14 @@ public class StudenteService
     private final StudenteRepository studenteRepo;
     private final VotoRepository votoRepo;
 
-    public void prenotaEsame(Long studenteId, Long esameId)
+    public Object prenotaEsame(Long studenteId, Long esameId)
     {
         Studente studente = studenteRepo.findById(studenteId).orElseThrow(()-> new RuntimeException("Studente non trovato"));
         Esame esame = esameRepo.findById(esameId).orElseThrow(()-> new RuntimeException("Esame non trovato"));
         esame.getStudentiPrenotati().add(studente);
         studente.getEsami().add(esame);
         studenteRepo.save(studente);
+        return null;
     }
 
     //Consulta piano di studi
