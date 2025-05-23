@@ -40,7 +40,6 @@ public class DocenteService {
         return votoRepo.save(votoEntity);
     }
 
-    // 🔹 Crea un nuovo esame
     public Esame creaEsame(Long docenteId, Esame esame) {
         Docente docente = docenteRepo.findById(docenteId)
                 .orElseThrow(() -> new RuntimeException("Docente non trovato"));
@@ -48,20 +47,20 @@ public class DocenteService {
         return esameRepo.save(esame);
     }
 
-    // 🔹 Leggi un esame per ID
+
     public Esame getEsameById(Long esameId) {
         return esameRepo.findById(esameId)
                 .orElseThrow(() -> new RuntimeException("Esame non trovato"));
     }
 
-    // 🔹 Trova tutti gli esami di un docente
+
     public List<Esame> getEsamiByDocente(Long docenteId) {
         Docente docente = docenteRepo.findById(docenteId)
                 .orElseThrow(() -> new RuntimeException("Docente non trovato"));
         return esameRepo.findByDocente(docente);
     }
 
-    // 🔹 Aggiorna un esame
+
     public Esame aggiornaEsame(Long esameId, Esame aggiornato) {
         Esame esame = esameRepo.findById(esameId)
                 .orElseThrow(() -> new RuntimeException("Esame non trovato"));
@@ -73,7 +72,7 @@ public class DocenteService {
         return esameRepo.save(esame);
     }
 
-    // 🔹 Elimina un esame
+
     public void eliminaEsame(Long esameId) {
         if (!esameRepo.existsById(esameId)) {
             throw new RuntimeException("Esame non trovato");
