@@ -6,6 +6,7 @@ import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.TipoUtente;
 import com.universita.segreteria.proxy.UtenteService;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +15,7 @@ public class UtenteServiceProxy implements UtenteService {
     private  SegreteriaService segreteriaService;
     private  StudenteService studenteService;
     private  DocenteService docenteService;
+    @Setter
     private  TipoUtente ruolo;
 
     @Override
