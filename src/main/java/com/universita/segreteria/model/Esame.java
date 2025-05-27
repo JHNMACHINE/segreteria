@@ -37,6 +37,11 @@ public class Esame {
     @JsonBackReference
     private Docente docente;
 
+    @ManyToOne
+    @JsonBackReference
+    @JoinColumn(name = "studente_id")
+    private Studente studente;
+
     @OneToMany(mappedBy = "esame", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Voto> voti;

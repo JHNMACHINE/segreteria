@@ -24,5 +24,6 @@ public class Tassa {
 
     @ManyToOne
     @JsonBackReference
+    @JoinColumn(name = "studente_id")
     private Studente studente;
 }

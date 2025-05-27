@@ -20,6 +20,7 @@ public class Voto {
 
     @ManyToOne
     @JsonBackReference
+    @JoinColumn(name = "studente_id")
     private Studente studente;
 
     @ManyToOne
