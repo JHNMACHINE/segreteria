@@ -7,14 +7,15 @@ import com.universita.segreteria.model.TipoUtente;
 import com.universita.segreteria.proxy.UtenteService;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @NoArgsConstructor
-public class UtenteServiceProxy implements UtenteService {
-    private  SegreteriaService segreteriaService;
-    private  StudenteService studenteService;
-    private  DocenteService docenteService;
+public class UserServiceProxy implements UtenteService {
+    @Autowired private  SegreteriaService segreteriaService;
+    @Autowired private  StudenteService studenteService;
+    @Autowired private  DocenteService docenteService;
     @Setter
     private  TipoUtente ruolo;
 
@@ -24,7 +25,6 @@ public class UtenteServiceProxy implements UtenteService {
             case SEGRETARIO -> operazioneSegreteria(operazione, parametri);
             case STUDENTE -> operazioneStudente(operazione, parametri);
             case DOCENTE -> operazioneDocente(operazione, parametri);
-            default -> throw new SecurityException("Ruolo non riconosciuto.");
         };
     }
 

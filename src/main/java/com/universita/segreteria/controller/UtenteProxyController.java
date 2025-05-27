@@ -1,9 +1,8 @@
 package com.universita.segreteria.controller;
 
 import com.universita.segreteria.dto.RichiestaOperazione;
-import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.TipoUtente;
-import com.universita.segreteria.service.UtenteServiceProxy;
+import com.universita.segreteria.service.UserServiceProxy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UtenteProxyController {
 
-    private final UtenteServiceProxy utenteProxy;
+    private final UserServiceProxy utenteProxy;
 
     // Simulazione ruolo utente (in un'app reale viene da token, sessione, ecc.)
     private TipoUtente getRuoloDaContesto() {
