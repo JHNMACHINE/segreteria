@@ -1,5 +1,6 @@
 package com.universita.segreteria.controller;
 
+import com.universita.segreteria.dto.RichiestaOperazione;
 import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.TipoUtente;
 import com.universita.segreteria.service.UtenteServiceProxy;
@@ -19,27 +20,22 @@ public class UtenteProxyController {
         return TipoUtente.STUDENTE; // oppure DOCENTE, SEGRETARIO per test
     }
 
-    @PostMapping("/inserisciStudente")
-    public ResponseEntity<Studente> inserisciStudente(@RequestBody Studente studente) {
-        utenteProxy.setRuolo(getRuoloDaContesto());
-        Studente risultato = (Studente) utenteProxy.eseguiOperazione("inserisciStudente", studente);
+
+
+    /* ESEMPIO JSON
+    {
+        "nomeOperazione": "accettaVoto",
+        "parametri": [12, true]
+    }
+     */
+    @PostMapping("/operazione")
+    public ResponseEntity<?> esegui(@RequestBody RichiestaOperazione richiesta) {
+        TipoUtente ruolo = getRuoloDaContesto();
+        utenteProxy.setRuolo(ruolo);
+        Object risultato = utenteProxy.eseguiOperazione(
+                richiesta.getNomeOperazione(),
+                richiesta.getParametri()
+        );
         return ResponseEntity.ok(risultato);
     }
-
-    @PostMapping("/accettaVoto/{votoId}")
-    public ResponseEntity<Void> accettaVoto(@PathVariable Long votoId) {
-        utenteProxy.setRuolo(getRuoloDaContesto());
-        utenteProxy.eseguiOperazione("accettaVoto", votoId, true);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/rifiutaVoto/{votoId}")
-    public ResponseEntity<Void> rifiutaVoto(@PathVariable Long votoId) {
-        utenteProxy.setRuolo(getRuoloDaContesto());
-        utenteProxy.eseguiOperazione("accettaVoto", votoId, false);
-        return ResponseEntity.ok().build();
-    }
-
-    // Altri endpoint proxy a seconda dei ruoli
-
 }
