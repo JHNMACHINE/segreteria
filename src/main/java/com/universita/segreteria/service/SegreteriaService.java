@@ -1,6 +1,6 @@
 package com.universita.segreteria.service;
 
-import com.universita.segreteria.component.AccettazioneNotifier;
+import com.universita.segreteria.notifier.AccettazioneNotifier;
 import com.universita.segreteria.model.PianoDiStudi;
 import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.Voto;

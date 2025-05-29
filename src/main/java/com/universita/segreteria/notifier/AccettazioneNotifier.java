@@ -1,4 +1,4 @@
-package com.universita.segreteria.component;
+package com.universita.segreteria.notifier;
 
 import com.universita.segreteria.model.Voto;
 import com.universita.segreteria.observer.Observer;
@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class VotoNotifier implements Subject {
+public class AccettazioneNotifier implements Subject {
+
     private final List<Observer> observers = new ArrayList<>();
 
     @Override

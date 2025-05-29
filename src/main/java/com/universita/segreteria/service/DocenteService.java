@@ -1,7 +1,7 @@
 package com.universita.segreteria.service;
 
 
-import com.universita.segreteria.component.VotoNotifier;
+import com.universita.segreteria.notifier.VotoNotifier;
 import com.universita.segreteria.model.Docente;
 import com.universita.segreteria.model.Esame;
 import com.universita.segreteria.model.Studente;

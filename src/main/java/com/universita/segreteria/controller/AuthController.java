@@ -3,6 +3,7 @@ package com.universita.segreteria.controller;
 import com.universita.segreteria.dto.AuthRequest;
 import com.universita.segreteria.dto.AuthResponse;
 import com.universita.segreteria.dto.RegisterRequest;
+import com.universita.segreteria.factory.UtenteFactory;
 import com.universita.segreteria.model.*;
 import com.universita.segreteria.model.Segretario;
 import com.universita.segreteria.repository.UtenteRepository;
@@ -32,13 +33,10 @@ public class AuthController {
         }
 
         Utente nuovo;
-        switch (request.ruolo()) {
-            case STUDENTE -> nuovo = new Studente();
-            case DOCENTE -> nuovo = new Docente();
-            case SEGRETARIO -> nuovo = new Segretario();
-            default -> {
-                return ResponseEntity.badRequest().body("Ruolo non valido");
-            }
+        try {
+            nuovo = UtenteFactory.creaUtente(request.ruolo());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Ruolo non valido");
         }
 
         nuovo.setEmail(request.email());
