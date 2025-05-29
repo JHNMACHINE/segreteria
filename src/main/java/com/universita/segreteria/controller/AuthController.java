@@ -8,6 +8,7 @@ import com.universita.segreteria.model.Segretario;
 import com.universita.segreteria.repository.UtenteRepository;
 import com.universita.segreteria.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,9 +21,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UtenteRepository utenteRepo;
-    private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired private UtenteRepository utenteRepo;
+    @Autowired private JwtUtil jwtUtil;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {

@@ -25,8 +25,12 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
+        if (secret == null || secret.length() < 32) {
+            throw new IllegalArgumentException("jwt.secret must be at least 32 characters long");
+        }
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
+
 
     // Crea un nuovo token per un utente
     public String generateToken(Utente utente) {
