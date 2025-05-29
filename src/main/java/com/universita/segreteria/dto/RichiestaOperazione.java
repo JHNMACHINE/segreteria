@@ -1,5 +1,6 @@
 package com.universita.segreteria.dto;
 
+import com.universita.segreteria.model.TipoUtente;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,4 +9,5 @@ import lombok.Setter;
 public class RichiestaOperazione {
     private String nomeOperazione;
     private Object[] parametri;
+    private TipoUtente ruolo;
 }

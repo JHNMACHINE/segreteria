@@ -14,22 +14,15 @@ public class UtenteProxyController {
 
     private final UserServiceProxy utenteProxy;
 
-    // Simulazione ruolo utente (in un'app reale viene da token, sessione, ecc.)
-    private TipoUtente getRuoloDaContesto() {
-        return TipoUtente.STUDENTE; // oppure DOCENTE, SEGRETARIO per test
-    }
-
-
-
     /* ESEMPIO JSON
     {
-        "nomeOperazione": "accettaVoto",
+        "nomeOperazione": "aggiornaStatoVoto",
         "parametri": [12, true]
     }
      */
     @PostMapping("/operazione")
     public ResponseEntity<?> esegui(@RequestBody RichiestaOperazione richiesta) {
-        TipoUtente ruolo = getRuoloDaContesto();
+        TipoUtente ruolo = richiesta.getRuolo();
         utenteProxy.setRuolo(ruolo);
         Object risultato = utenteProxy.eseguiOperazione(
                 richiesta.getNomeOperazione(),
