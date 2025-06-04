@@ -31,7 +31,8 @@ public class SegreteriaService {
     private AccettazioneNotifier accettazioneNotifier;
     @Autowired
     private PianoStudiService pianoStudiService;
-    @Autowired private DocenteRepository docenteRepository;
+    @Autowired
+    private DocenteRepository docenteRepository;
 
     public StudenteDTO inserisciStudente(StudenteDTO studenteDTO) {
         Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
