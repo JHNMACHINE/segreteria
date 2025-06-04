@@ -1,7 +1,6 @@
 package com.universita.segreteria.model;
 
-public enum PianoDiStudi
-{
+public enum PianoDiStudi {
     INFORMATICA,
     MATEMATICA,
     BIOLOGIA,

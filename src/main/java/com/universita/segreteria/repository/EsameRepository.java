@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface EsameRepository extends JpaRepository<Esame, Long> {
     List<Esame> findByNome(String nome);
+
     List<Esame> findByDocenteId(Long docenteId);
 
     List<Esame> findByDocente(Docente docente);

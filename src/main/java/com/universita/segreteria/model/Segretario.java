@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Segretario extends Utente{
+public class Segretario extends Utente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

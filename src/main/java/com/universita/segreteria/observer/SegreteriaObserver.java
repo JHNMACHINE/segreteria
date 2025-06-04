@@ -2,7 +2,7 @@ package com.universita.segreteria.observer;
 
 import com.universita.segreteria.model.Voto;
 
-public class SegreteriaObserver implements Observer{
+public class SegreteriaObserver implements Observer {
     @Override
     public void update(Voto voto) {
         String azione = switch (voto.getStato()) {

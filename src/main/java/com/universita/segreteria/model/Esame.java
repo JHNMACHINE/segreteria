@@ -13,6 +13,7 @@ import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -47,10 +48,6 @@ public class Esame {
     private List<Voto> voti;
 
     @ManyToMany
-    @JoinTable(
-            name = "esame_prenotazioni",
-            joinColumns = @JoinColumn(name = "esame_id"),
-            inverseJoinColumns = @JoinColumn(name = "studente_id")
-    )
+    @JoinTable(name = "esame_prenotazioni", joinColumns = @JoinColumn(name = "esame_id"), inverseJoinColumns = @JoinColumn(name = "studente_id"))
     private List<Studente> studentiPrenotati;
 }

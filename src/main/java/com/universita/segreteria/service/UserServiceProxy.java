@@ -14,11 +14,14 @@ import org.springframework.stereotype.Service;
 @Service
 @NoArgsConstructor
 public class UserServiceProxy implements UtenteService {
-    @Autowired private  SegreteriaService segreteriaService;
-    @Autowired private  StudenteService studenteService;
-    @Autowired private  DocenteService docenteService;
+    @Autowired
+    private SegreteriaService segreteriaService;
+    @Autowired
+    private StudenteService studenteService;
+    @Autowired
+    private DocenteService docenteService;
     @Setter
-    private  TipoUtente ruolo;
+    private TipoUtente ruolo;
 
     @Override
     public Object eseguiOperazione(String operazione, Object... parametri) {
@@ -32,10 +35,11 @@ public class UserServiceProxy implements UtenteService {
     private Object operazioneSegreteria(String operazione, Object... parametri) {
         return switch (operazione) {
             case "inserisciStudente" -> segreteriaService.inserisciStudente((Studente) parametri[0]);
-            case "confermaVoto" -> segreteriaService.confermaVoto((StudenteDTO) parametri[0],(Long) parametri[1]);
+            case "confermaVoto" -> segreteriaService.confermaVoto((StudenteDTO) parametri[0], (Long) parametri[1]);
             case "cercaStudente" -> segreteriaService.cercaStudente((String) parametri[0], (String) parametri[1]);
             case "cercaStudentePerMatricola" -> segreteriaService.cercaStudentePerMatricola((String) parametri[0]);
-            case "cambiaPianoDiStudi" -> segreteriaService.cambiaPianoDiStudi((Long) parametri[0], (PianoDiStudi) parametri[1]);
+            case "cambiaPianoDiStudi" ->
+                    segreteriaService.cambiaPianoDiStudi((Long) parametri[0], (PianoDiStudi) parametri[1]);
             default -> throw new UnsupportedOperationException("Operazione non consentita per la segreteria.");
         };
     }
@@ -52,7 +56,8 @@ public class UserServiceProxy implements UtenteService {
 
     private Object operazioneDocente(String operazione, Object... parametri) {
         return switch (operazione) {
-            case "inserisciVoto" -> docenteService.inserisciVoto((Long) parametri[0], (Long) parametri[1], (int) parametri[2], (boolean) parametri[3]);
+            case "inserisciVoto" ->
+                    docenteService.inserisciVoto((Long) parametri[0], (Long) parametri[1], (int) parametri[2], (boolean) parametri[3]);
             case "creaEsame" -> docenteService.creaEsame((Long) parametri[0], (Esame) parametri[1]);
             case "visualizzaPrenotazioniEsame" -> docenteService.visualizzaPrenotazioniEsame((Long) parametri[0]);
             case "eliminaEsame" -> docenteService.eliminaEsame((Long) parametri[0]);

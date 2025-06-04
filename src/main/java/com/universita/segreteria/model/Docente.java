@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Docente extends Utente{
+public class Docente extends Utente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

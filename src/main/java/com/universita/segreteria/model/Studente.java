@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Studente extends Utente{
+public class Studente extends Utente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

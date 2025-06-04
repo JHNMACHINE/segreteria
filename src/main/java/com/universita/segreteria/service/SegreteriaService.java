@@ -28,11 +28,12 @@ public class SegreteriaService {
         Voto voto = votoRepo.findById(votoId)
                 .orElseThrow(() -> new RuntimeException("Voto non trovato"));
 
-        if (Objects.isNull(studenteDTO.matricola())) throw new RuntimeException("Matricola mancate, inserire matricola");
+        if (Objects.isNull(studenteDTO.matricola()))
+            throw new RuntimeException("Matricola mancate, inserire matricola");
 
         String matricola = studenteDTO.matricola();
 
-        Studente studente  = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
+        Studente studente = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
 
         // Verifica che il voto appartenga allo studente
         if (!voto.getStudente().getId().equals(studente.getId())) {

@@ -5,5 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class SegreteriaApplication {
-	public static void main(String[] args) {SpringApplication.run(SegreteriaApplication.class, args);}
+    public static void main(String[] args) {
+        SpringApplication.run(SegreteriaApplication.class, args);
+    }
 }

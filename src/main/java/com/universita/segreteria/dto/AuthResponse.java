@@ -1,3 +1,4 @@
 package com.universita.segreteria.dto;
 
-public record AuthResponse(String token) {}
+public record AuthResponse(String token) {
+}
