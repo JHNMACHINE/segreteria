@@ -1,5 +1,6 @@
 package com.universita.segreteria.service;
 
+import com.universita.segreteria.dto.EsameDTO;
 import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.model.Esame;
 import com.universita.segreteria.model.PianoDiStudi;
@@ -60,12 +61,15 @@ public class UserServiceProxy implements UtenteService {
         return switch (operazione) {
             case "inserisciVoto" ->
                     docenteService.inserisciVoto((Long) parametri[0], (Long) parametri[1], (int) parametri[2]);
-            case "creaEsame" -> docenteService.creaEsame((Long) parametri[0], (Esame) parametri[1]);
+            case "creaEsame" -> docenteService.creaEsame((Long) parametri[0], (EsameDTO) parametri[1]);
             case "visualizzaPrenotazioniEsame" -> docenteService.visualizzaPrenotazioniEsame((Long) parametri[0]);
             case "eliminaEsame" -> docenteService.eliminaEsame((Long) parametri[0]);
-            case "aggiornaEsame" -> docenteService.aggiornaEsame((Long) parametri[0], (Esame) parametri[1]);
+            case "aggiornaEsame" -> docenteService.aggiornaEsame((Long) parametri[0], (EsameDTO) parametri[1]);
             case "getEsamiByDocente" -> docenteService.getEsamiByDocente((Long) parametri[0]);
             case "getEsameById" -> docenteService.getEsameById((Long) parametri[0]);
+            case "modificaVoto" -> docenteService.modificaVoto((Long) parametri[0], (Integer) parametri[1]);
+            case "getVotiPerEsame" -> docenteService.getVotiPerEsame((Long) parametri[0]);
+            case "eliminaVoto" -> docenteService.eliminaVoto((Long) parametri[0]);
             default -> throw new UnsupportedOperationException("Operazione non consentita per il docente.");
         };
     }

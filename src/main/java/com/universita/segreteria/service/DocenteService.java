@@ -1,5 +1,6 @@
 package com.universita.segreteria.service;
 
+import com.universita.segreteria.dto.EsameDTO;
 import com.universita.segreteria.model.*;
 import com.universita.segreteria.notifier.VotoNotifier;
 import com.universita.segreteria.observer.StudenteObserver;
@@ -11,6 +12,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -24,11 +26,36 @@ public class DocenteService {
     private final VotoNotifier votoNotifier;
 
     @Transactional
-    public Esame creaEsame(Long docenteId, Esame esame) {
+    public EsameDTO creaEsame(Long docenteId, EsameDTO esameDTO) {
         Docente docente = docenteRepo.findById(docenteId)
                 .orElseThrow(() -> new RuntimeException("Docente non trovato"));
+
+        // Controllo sulla data
+        if (esameDTO.getData() == null || !esameDTO.getData().isAfter(LocalDate.now())) {
+            throw new RuntimeException("La data dell'esame deve essere futura");
+        }
+
+        Esame esame = convertiDaDTO(esameDTO);
         esame.setDocente(docente);
-        return esameRepo.save(esame);
+        esameRepo.save(esame);
+        return convertiInDTO(esame);
+    }
+
+
+    private EsameDTO convertiInDTO(Esame esame) {
+        return EsameDTO.builder()
+                .nome(esame.getNome())
+                .data(esame.getDate())
+                .statoEsame(esame.getStatoEsame())
+                .build();
+    }
+
+    private Esame convertiDaDTO(EsameDTO dto) {
+        return Esame.builder()
+                .nome(dto.getNome())
+                .date(dto.getData())
+                .statoEsame(dto.getStatoEsame())
+                .build();
     }
 
     @Transactional
@@ -58,25 +85,37 @@ public class DocenteService {
         return savedVoto;
     }
 
-    public List<Esame> getEsamiByDocente(Long docenteId) {
+    public List<EsameDTO> getEsamiByDocente(Long docenteId) {
         Docente docente = docenteRepo.findById(docenteId)
                 .orElseThrow(() -> new RuntimeException("Docente non trovato"));
-        return esameRepo.findByDocente(docente);
+
+        return esameRepo.findByDocente(docente).stream()
+                .map(this::convertiInDTO)
+                .toList();
     }
 
-    public Esame getEsameById(Long esameId) {
-        return esameRepo.findById(esameId)
-                .orElseThrow(() -> new RuntimeException("Esame non trovato"));
-    }
-
-    public Esame aggiornaEsame(Long esameId, Esame aggiornato) {
+    public EsameDTO getEsameById(Long esameId) {
         Esame esame = esameRepo.findById(esameId)
                 .orElseThrow(() -> new RuntimeException("Esame non trovato"));
-        esame.setNome(aggiornato.getNome());
-        esame.setDate(aggiornato.getDate());
-        esame.setStatoEsame(aggiornato.getStatoEsame());
-        return esameRepo.save(esame);
+        return convertiInDTO(esame);
     }
+
+
+    public EsameDTO aggiornaEsame(Long esameId, EsameDTO aggiornato) {
+        Esame esame = esameRepo.findById(esameId)
+                .orElseThrow(() -> new RuntimeException("Esame non trovato"));
+
+        if (aggiornato.getData() == null || !aggiornato.getData().isAfter(LocalDate.now())) {
+            throw new RuntimeException("La data dell'esame deve essere futura");
+        }
+
+        esame.setNome(aggiornato.getNome());
+        esame.setDate(aggiornato.getData());
+        esame.setStatoEsame(aggiornato.getStatoEsame());
+        esameRepo.save(esame);
+        return convertiInDTO(esame);
+    }
+
 
     public boolean eliminaEsame(Long esameId) {
         if (!esameRepo.existsById(esameId)) {
@@ -92,14 +131,12 @@ public class DocenteService {
         return esame.getStudentiPrenotati();
     }
 
-    // ✅ Nuovo metodo: visualizza i voti per un esame
     public List<Voto> getVotiPerEsame(Long esameId) {
         Esame esame = esameRepo.findById(esameId)
                 .orElseThrow(() -> new RuntimeException("Esame non trovato"));
         return votoRepo.findByEsame(esame);
     }
 
-    // ✅ Nuovo metodo: modifica voto (se non ancora accettato o rifiutato)
     public Voto modificaVoto(Long votoId, Integer nuovoVoto) {
         Voto voto = votoRepo.findById(votoId)
                 .orElseThrow(() -> new RuntimeException("Voto non trovato"));
@@ -112,11 +149,11 @@ public class DocenteService {
         return votoRepo.save(voto);
     }
 
-    // ✅ Nuovo metodo: elimina voto (per reset o errore)
-    public void eliminaVoto(Long votoId) {
+    public boolean eliminaVoto(Long votoId) {
         if (!votoRepo.existsById(votoId)) {
             throw new RuntimeException("Voto non trovato");
         }
         votoRepo.deleteById(votoId);
+        return true;
     }
 }
