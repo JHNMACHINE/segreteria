@@ -1,12 +1,15 @@
 package com.universita.segreteria.service;
 
+import com.universita.segreteria.dto.DocenteDTO;
 import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.dto.VotoDTO;
+import com.universita.segreteria.mapper.DocenteMapper;
 import com.universita.segreteria.mapper.StudentMapper;
 import com.universita.segreteria.mapper.VotoMapper;
 import com.universita.segreteria.model.*;
 import com.universita.segreteria.notifier.AccettazioneNotifier;
 import com.universita.segreteria.observer.SegreteriaObserver;
+import com.universita.segreteria.repository.DocenteRepository;
 import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.VotoRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ public class SegreteriaService {
     private AccettazioneNotifier accettazioneNotifier;
     @Autowired
     private PianoStudiService pianoStudiService;
+    @Autowired private DocenteRepository docenteRepository;
 
     public StudenteDTO inserisciStudente(StudenteDTO studenteDTO) {
         Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
@@ -42,6 +46,12 @@ public class SegreteriaService {
         }
         studenteRepo.save(studente);
         return StudentMapper.convertiStudenteInDTO(studente);
+    }
+
+    public DocenteDTO inserisciDocente(DocenteDTO docenteDTO) {
+        Docente docente = DocenteMapper.fromDTO(docenteDTO);
+        Docente saved = docenteRepository.save(docente);
+        return DocenteMapper.toDTO(saved);
     }
 
 

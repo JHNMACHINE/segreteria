@@ -1,5 +1,6 @@
 package com.universita.segreteria.service;
 
+import com.universita.segreteria.dto.DocenteDTO;
 import com.universita.segreteria.dto.EsameDTO;
 import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.model.Esame;
@@ -36,6 +37,7 @@ public class UserServiceProxy implements UtenteService {
     private Object operazioneSegreteria(String operazione, Object... parametri) {
         return switch (operazione) {
             case "inserisciStudente" -> segreteriaService.inserisciStudente((StudenteDTO) parametri[0]);
+            case "inserisciDocente" -> segreteriaService.inserisciDocente((DocenteDTO) parametri[0]);
             case "confermaVoto" -> segreteriaService.confermaVoto((StudenteDTO) parametri[0], (Long) parametri[1]);
             case "cercaStudente" -> segreteriaService.cercaStudente((String) parametri[0], (String) parametri[1]);
             case "cercaStudentePerMatricola" -> segreteriaService.cercaStudentePerMatricola((String) parametri[0]);

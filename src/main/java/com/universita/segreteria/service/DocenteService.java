@@ -40,8 +40,7 @@ public class DocenteService {
         }
 
         // il docente ha già un esame nello stesso giorno?
-        boolean esisteGiaEsame = esameRepo.findByDocente(docente).stream()
-                .anyMatch(e -> e.getDate().equals(esameDTO.getDate()));
+        boolean esisteGiaEsame = esameRepo.findByDocente(docente).stream().anyMatch(e -> e.getDate().equals(esameDTO.getDate()));
 
         if (esisteGiaEsame) {
             throw new RuntimeException("Il docente ha già un esame previsto in questa data");
