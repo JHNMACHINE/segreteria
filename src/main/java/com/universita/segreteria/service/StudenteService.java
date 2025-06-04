@@ -66,9 +66,11 @@ public class StudenteService {
         return votoRepo.save(voto);
     }
 
-    public List<Esame> getEsamiDaSostenere(Long studenteId) {
-        Studente studente = studenteRepo.findById(studenteId)
-                .orElseThrow(() -> new RuntimeException("Studente non trovato"));
+    public List<Esame> getEsamiDaSostenere(StudenteDTO studenteDTO) {
+        String matricola = studenteDTO.matricola();
+
+        Studente studente = studenteRepo.findByMatricola(matricola)
+                .orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
 
         return studente.getVoti().stream()
                 .filter(v -> v.getStato() != StatoVoto.ACCETTATO)

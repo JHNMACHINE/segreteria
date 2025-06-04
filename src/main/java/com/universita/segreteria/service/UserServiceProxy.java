@@ -50,6 +50,7 @@ public class UserServiceProxy implements UtenteService {
             case "consultaPianoStudi" -> studenteService.consultaPianoStudi((Long) parametri[0]);
             case "prenotaEsame" -> studenteService.prenotaEsame((Long) parametri[0], (Long) parametri[1]);
             case "esamiSuperati" -> studenteService.esamiSuperati((StudenteDTO) parametri[0]);
+            case "getEsamiDaSostenere" -> studenteService.getEsamiDaSostenere((StudenteDTO) parametri[0]);
             default -> throw new UnsupportedOperationException("Operazione non consentita per lo studente.");
         };
     }
