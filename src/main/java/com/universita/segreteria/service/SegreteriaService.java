@@ -1,9 +1,8 @@
 package com.universita.segreteria.service;
 
+import com.universita.segreteria.dto.StudenteDTO;
+import com.universita.segreteria.model.*;
 import com.universita.segreteria.notifier.AccettazioneNotifier;
-import com.universita.segreteria.model.PianoDiStudi;
-import com.universita.segreteria.model.Studente;
-import com.universita.segreteria.model.Voto;
 import com.universita.segreteria.observer.SegreteriaObserver;
 import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.VotoRepository;
@@ -11,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -24,22 +24,36 @@ public class SegreteriaService {
         return studenteRepo.save(studente);
     }
 
-    public Voto confermaVoto(Long votoId) {
+    public Voto confermaVoto(StudenteDTO studenteDTO, Long votoId) {
         Voto voto = votoRepo.findById(votoId)
                 .orElseThrow(() -> new RuntimeException("Voto non trovato"));
 
+        if (Objects.isNull(studenteDTO.matricola())) throw new RuntimeException("Matricola mancate, inserire matricola");
 
-        votoRepo.save(voto);
+        String matricola = studenteDTO.matricola();
 
-        // Observer segreteria
+        Studente studente  = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, stundente non trovato"));
+
+        // Verifica che il voto appartenga allo studente
+        if (!voto.getStudente().getId().equals(studente.getId())) {
+            throw new RuntimeException("Questo voto non appartiene allo studente");
+        }
+
+        // Cambia lo stato se necessario
+        if (voto.getStato() == StatoVoto.IN_ATTESA) {
+            voto.setStato(StatoVoto.ACCETTATO);
+            voto = votoRepo.save(voto);
+        }
+
+        // Notifica la segreteria
         SegreteriaObserver segreteria = new SegreteriaObserver();
         accettazioneNotifier.attach(segreteria);
-
         accettazioneNotifier.notifyObservers(voto);
         accettazioneNotifier.detach(segreteria);
 
         return voto;
     }
+
 
     public List<Studente> cercaStudente(String nome, String cognome) {
         return studenteRepo.findByNomeAndCognome(nome, cognome);
