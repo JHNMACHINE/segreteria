@@ -32,7 +32,7 @@ public class SegreteriaService {
 
         String matricola = studenteDTO.matricola();
 
-        Studente studente  = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, stundente non trovato"));
+        Studente studente  = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
 
         // Verifica che il voto appartenga allo studente
         if (!voto.getStudente().getId().equals(studente.getId())) {

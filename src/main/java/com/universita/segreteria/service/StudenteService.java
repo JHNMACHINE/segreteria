@@ -21,11 +21,11 @@ public class StudenteService
     private final VotoRepository votoRepo;
 
     public List<Esame> esamiSuperati(StudenteDTO studenteDTO){
-        if (Objects.isNull(studenteDTO.matricola())) throw new RuntimeException("Matricola mancate, inserire matricola");
+        if (Objects.isNull(studenteDTO.matricola())) throw new RuntimeException("Matricola mancante, inserire matricola");
 
         String matricola = studenteDTO.matricola();
 
-        Studente studente  = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, stundente non trovato"));
+        Studente studente  = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
 
         return studente.getVoti().stream()
                 .filter(v -> v.getStato() == StatoVoto.ACCETTATO)
