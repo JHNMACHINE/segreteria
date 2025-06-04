@@ -3,7 +3,9 @@ package com.universita.segreteria.service;
 import com.universita.segreteria.dto.EsameDTO;
 import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.dto.VotoDTO;
+import com.universita.segreteria.mapper.EsameMapper;
 import com.universita.segreteria.mapper.StudentMapper;
+import com.universita.segreteria.mapper.VotoMapper;
 import com.universita.segreteria.model.*;
 import com.universita.segreteria.notifier.VotoNotifier;
 import com.universita.segreteria.observer.StudenteObserver;
@@ -37,27 +39,10 @@ public class DocenteService {
             throw new RuntimeException("La data dell'esame deve essere futura");
         }
 
-        Esame esame = convertiDaDTO(esameDTO);
+        Esame esame = EsameMapper.fromDTO(esameDTO, docente);
         esame.setDocente(docente);
         esameRepo.save(esame);
-        return convertiInDTO(esame);
-    }
-
-
-    private EsameDTO convertiInDTO(Esame esame) {
-        return EsameDTO.builder().nome(esame.getNome()).date(esame.getDate()).statoEsame(esame.getStatoEsame()).build();
-    }
-
-    private Esame convertiDaDTO(EsameDTO dto) {
-        return Esame.builder().nome(dto.getNome()).date(dto.getDate()).statoEsame(dto.getStatoEsame()).build();
-    }
-
-    private VotoDTO convertiInDTO(Voto voto) {
-        return VotoDTO.builder().id(voto.getId()).studenteId(voto.getStudente().getId()).studenteMatricola(voto.getStudente().getMatricola()).studenteNome(voto.getStudente().getNome()).studenteCognome(voto.getStudente().getCognome()).esameId(voto.getEsame().getId()).esameNome(voto.getEsame().getNome()).voto(voto.getVoto()).stato(voto.getStato()).build();
-    }
-
-    private Voto convertiDaDTO(VotoDTO votoDTO, Studente studente, Esame esame) {
-        return Voto.builder().id(votoDTO.getId()).studente(studente).esame(esame).voto(votoDTO.getVoto()).stato(votoDTO.getStato()).build();
+        return EsameMapper.toDTO(esame);
     }
 
     @Transactional
@@ -84,19 +69,19 @@ public class DocenteService {
         votoNotifier.detach(observer);
 
         // Conversione e ritorno del DTO
-        return convertiInDTO(savedVoto);
+        return VotoMapper.convertiInDTO(savedVoto);
     }
 
 
     public List<EsameDTO> getEsamiByDocente(Long docenteId) {
         Docente docente = docenteRepo.findById(docenteId).orElseThrow(() -> new RuntimeException("Docente non trovato"));
-
-        return esameRepo.findByDocente(docente).stream().map(this::convertiInDTO).toList();
+        List<Esame> esami = esameRepo.findByDocente(docente);
+        return EsameMapper.convertListEsamiToDTO(esami);
     }
 
     public EsameDTO getEsameById(Long esameId) {
         Esame esame = esameRepo.findById(esameId).orElseThrow(() -> new RuntimeException("Esame non trovato"));
-        return convertiInDTO(esame);
+        return EsameMapper.toDTO(esame);
     }
 
 
@@ -111,7 +96,7 @@ public class DocenteService {
         esame.setDate(aggiornato.getDate());
         esame.setStatoEsame(aggiornato.getStatoEsame());
         esameRepo.save(esame);
-        return convertiInDTO(esame);
+        return EsameMapper.toDTO(esame);
     }
 
 
@@ -132,8 +117,8 @@ public class DocenteService {
 
     public List<VotoDTO> getVotiPerEsame(Long esameId) {
         Esame esame = esameRepo.findById(esameId).orElseThrow(() -> new RuntimeException("Esame non trovato"));
-
-        return votoRepo.findByEsame(esame).stream().map(this::convertiInDTO).toList();
+        List<Voto> voti = votoRepo.findByEsame(esame);
+        return VotoMapper.convertListToDTO(voti);
     }
 
 
@@ -146,7 +131,7 @@ public class DocenteService {
 
         voto.setVoto(nuovoVoto);
         Voto updated = votoRepo.save(voto);
-        return convertiInDTO(updated);
+        return VotoMapper.convertiInDTO(updated);
     }
 
 
