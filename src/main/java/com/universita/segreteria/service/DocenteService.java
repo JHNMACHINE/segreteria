@@ -39,6 +39,14 @@ public class DocenteService {
             throw new RuntimeException("La data dell'esame deve essere futura");
         }
 
+        // il docente ha già un esame nello stesso giorno?
+        boolean esisteGiaEsame = esameRepo.findByDocente(docente).stream()
+                .anyMatch(e -> e.getDate().equals(esameDTO.getDate()));
+
+        if (esisteGiaEsame) {
+            throw new RuntimeException("Il docente ha già un esame previsto in questa data");
+        }
+
         Esame esame = EsameMapper.fromDTO(esameDTO, docente);
         esame.setDocente(docente);
         esameRepo.save(esame);
