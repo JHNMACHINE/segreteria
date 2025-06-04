@@ -51,6 +51,7 @@ public class UserServiceProxy implements UtenteService {
             case "prenotaEsame" -> studenteService.prenotaEsame((Long) parametri[0], (Long) parametri[1]);
             case "esamiSuperati" -> studenteService.esamiSuperati((StudenteDTO) parametri[0]);
             case "getEsamiDaSostenere" -> studenteService.getEsamiDaSostenere((StudenteDTO) parametri[0]);
+            case "esamiPrenotabili" -> studenteService.esamiPrenotabili((StudenteDTO) parametri[0]);
             default -> throw new UnsupportedOperationException("Operazione non consentita per lo studente.");
         };
     }
@@ -58,13 +59,12 @@ public class UserServiceProxy implements UtenteService {
     private Object operazioneDocente(String operazione, Object... parametri) {
         return switch (operazione) {
             case "inserisciVoto" ->
-                    docenteService.inserisciVoto((Long) parametri[0], (Long) parametri[1], (int) parametri[2], (boolean) parametri[3]);
+                    docenteService.inserisciVoto((Long) parametri[0], (Long) parametri[1], (int) parametri[2]);
             case "creaEsame" -> docenteService.creaEsame((Long) parametri[0], (Esame) parametri[1]);
             case "visualizzaPrenotazioniEsame" -> docenteService.visualizzaPrenotazioniEsame((Long) parametri[0]);
             case "eliminaEsame" -> docenteService.eliminaEsame((Long) parametri[0]);
             case "aggiornaEsame" -> docenteService.aggiornaEsame((Long) parametri[0], (Esame) parametri[1]);
             case "getEsamiByDocente" -> docenteService.getEsamiByDocente((Long) parametri[0]);
-            case "inserisciAppello" -> docenteService.inserisciAppello((Esame) parametri[0]);
             case "getEsameById" -> docenteService.getEsameById((Long) parametri[0]);
             default -> throw new UnsupportedOperationException("Operazione non consentita per il docente.");
         };
