@@ -5,11 +5,10 @@ import com.universita.segreteria.model.Esame;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EsameRepository extends JpaRepository<Esame, Long> {
-    List<Esame> findByNome(String nome);
-
-    List<Esame> findByDocenteId(Long docenteId);
+    Optional<Esame> findByNome(String nome);
 
     List<Esame> findByDocente(Docente docente);
 

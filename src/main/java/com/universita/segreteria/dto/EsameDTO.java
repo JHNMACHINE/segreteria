@@ -13,7 +13,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class EsameDTO {
+    private Long id;
     private String nome;
-    private LocalDate data;
+    private LocalDate date;
     private StatoEsame statoEsame;
+    private Long docenteId;
 }

@@ -6,12 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED) // Se hai sottoclassi tipo Studente, Docente...
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
+@MappedSuperclass
 public abstract class Utente {
 
     @Id

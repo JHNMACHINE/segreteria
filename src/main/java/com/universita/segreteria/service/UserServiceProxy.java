@@ -35,7 +35,7 @@ public class UserServiceProxy implements UtenteService {
 
     private Object operazioneSegreteria(String operazione, Object... parametri) {
         return switch (operazione) {
-            case "inserisciStudente" -> segreteriaService.inserisciStudente((Studente) parametri[0]);
+            case "inserisciStudente" -> segreteriaService.inserisciStudente((StudenteDTO) parametri[0]);
             case "confermaVoto" -> segreteriaService.confermaVoto((StudenteDTO) parametri[0], (Long) parametri[1]);
             case "cercaStudente" -> segreteriaService.cercaStudente((String) parametri[0], (String) parametri[1]);
             case "cercaStudentePerMatricola" -> segreteriaService.cercaStudentePerMatricola((String) parametri[0]);
@@ -60,7 +60,7 @@ public class UserServiceProxy implements UtenteService {
     private Object operazioneDocente(String operazione, Object... parametri) {
         return switch (operazione) {
             case "inserisciVoto" ->
-                    docenteService.inserisciVoto((Long) parametri[0], (Long) parametri[1], (int) parametri[2]);
+                    docenteService.inserisciVoto((StudenteDTO) parametri[0], (EsameDTO) parametri[1], (int) parametri[2]);
             case "creaEsame" -> docenteService.creaEsame((Long) parametri[0], (EsameDTO) parametri[1]);
             case "visualizzaPrenotazioniEsame" -> docenteService.visualizzaPrenotazioniEsame((Long) parametri[0]);
             case "eliminaEsame" -> docenteService.eliminaEsame((Long) parametri[0]);

@@ -1,6 +1,9 @@
 package com.universita.segreteria.service;
 
 import com.universita.segreteria.dto.StudenteDTO;
+import com.universita.segreteria.dto.VotoDTO;
+import com.universita.segreteria.mapper.StudentMapper;
+import com.universita.segreteria.mapper.VotoMapper;
 import com.universita.segreteria.model.*;
 import com.universita.segreteria.notifier.AccettazioneNotifier;
 import com.universita.segreteria.observer.SegreteriaObserver;
@@ -26,7 +29,8 @@ public class SegreteriaService {
     @Autowired
     private PianoStudiService pianoStudiService;
 
-    public Studente inserisciStudente(Studente studente) {
+    public StudenteDTO inserisciStudente(StudenteDTO studenteDTO) {
+        Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
         List<Esame> esami = pianoStudiService.getEsamiPerPiano(studente.getPianoDiStudi());
 
         for (Esame esame : esami) {
@@ -36,19 +40,18 @@ public class SegreteriaService {
             voto.setStato(StatoVoto.IN_ATTESA);
             studente.getVoti().add(voto);
         }
-
-        return studenteRepo.save(studente);
+        studenteRepo.save(studente);
+        return StudentMapper.convertiStudenteInDTO(studente);
     }
 
 
-    public Voto confermaVoto(StudenteDTO studenteDTO, Long votoId) {
-        Voto voto = votoRepo.findById(votoId)
-                .orElseThrow(() -> new RuntimeException("Voto non trovato"));
+    public VotoDTO confermaVoto(StudenteDTO studenteDTO, Long votoId) {
+        Voto voto = votoRepo.findById(votoId).orElseThrow(() -> new RuntimeException("Voto non trovato"));
 
-        if (Objects.isNull(studenteDTO.matricola()))
+        if (Objects.isNull(studenteDTO.getMatricola()))
             throw new RuntimeException("Matricola mancate, inserire matricola");
 
-        String matricola = studenteDTO.matricola();
+        String matricola = studenteDTO.getMatricola();
 
         Studente studente = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
 
@@ -69,23 +72,25 @@ public class SegreteriaService {
         accettazioneNotifier.notifyObservers(voto);
         accettazioneNotifier.detach(segreteria);
 
-        return voto;
+        return VotoMapper.convertiInDTO(voto);
     }
 
 
-    public List<Studente> cercaStudente(String nome, String cognome) {
-        return studenteRepo.findByNomeAndCognome(nome, cognome);
+    public List<StudenteDTO> cercaStudente(String nome, String cognome) {
+        List<Studente> studenti = studenteRepo.findByNomeAndCognome(nome, cognome);
+        return StudentMapper.convertListStudentiToDTO(studenti);
     }
 
 
-    public Optional<Studente> cercaStudentePerMatricola(String matricola) {
-        return studenteRepo.findByMatricola(matricola);
+    public StudenteDTO cercaStudentePerMatricola(String matricola) {
+        Studente studente = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
+        return StudentMapper.convertiStudenteInDTO(studente);
     }
 
-    public Studente cambiaPianoDiStudi(Long studenteId, PianoDiStudi nuovoPiano) {
-        Studente studente = studenteRepo.findById(studenteId)
-                .orElseThrow(() -> new RuntimeException("Studente non trovato"));
+    public StudenteDTO cambiaPianoDiStudi(Long studenteId, PianoDiStudi nuovoPiano) {
+        Studente studente = studenteRepo.findById(studenteId).orElseThrow(() -> new RuntimeException("Studente non trovato"));
         studente.setPianoDiStudi(nuovoPiano);
-        return studenteRepo.save(studente);
+        studenteRepo.save(studente);
+        return StudentMapper.convertiStudenteInDTO(studente);
     }
 }
