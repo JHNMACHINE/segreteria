@@ -12,4 +12,6 @@ public interface EsameRepository extends JpaRepository<Esame, Long> {
     List<Esame> findByDocenteId(Long docenteId);
 
     List<Esame> findByDocente(Docente docente);
+
+    List<Esame> findByNomeIn(List<String> list);
 }

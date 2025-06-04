@@ -7,6 +7,7 @@ import com.universita.segreteria.observer.SegreteriaObserver;
 import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.VotoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,13 +17,29 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class SegreteriaService {
-    private final StudenteRepository studenteRepo;
-    private final VotoRepository votoRepo;
-    private final AccettazioneNotifier accettazioneNotifier;
+    @Autowired
+    private StudenteRepository studenteRepo;
+    @Autowired
+    private VotoRepository votoRepo;
+    @Autowired
+    private AccettazioneNotifier accettazioneNotifier;
+    @Autowired
+    private PianoStudiService pianoStudiService;
 
     public Studente inserisciStudente(Studente studente) {
+        List<Esame> esami = pianoStudiService.getEsamiPerPiano(studente.getPianoDiStudi());
+
+        for (Esame esame : esami) {
+            Voto voto = new Voto();
+            voto.setEsame(esame);
+            voto.setStudente(studente);
+            voto.setStato(StatoVoto.IN_ATTESA);
+            studente.getVoti().add(voto);
+        }
+
         return studenteRepo.save(studente);
     }
+
 
     public Voto confermaVoto(StudenteDTO studenteDTO, Long votoId) {
         Voto voto = votoRepo.findById(votoId)
