@@ -23,6 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class SegreteriaService {
+
     @Autowired
     private StudenteRepository studenteRepo;
     @Autowired

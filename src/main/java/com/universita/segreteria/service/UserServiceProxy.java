@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 @NoArgsConstructor
 public class UserServiceProxy implements UtenteService {
+
     @Autowired
     private SegreteriaService segreteriaService;
     @Autowired
@@ -72,7 +73,8 @@ public class UserServiceProxy implements UtenteService {
             case "modificaVoto" -> docenteService.modificaVoto((Long) parametri[0], (Integer) parametri[1]);
             case "getVotiPerEsame" -> docenteService.getVotiPerEsame((Long) parametri[0]);
             case "eliminaVoto" -> docenteService.eliminaVoto((Long) parametri[0]);
-            case "studenteAssente" -> docenteService.studenteAssente((StudenteDTO) parametri[0], (EsameDTO) parametri[1], (Integer) parametri[2]);
+            case "studenteAssente" ->
+                    docenteService.studenteAssente((StudenteDTO) parametri[0], (EsameDTO) parametri[1], (Integer) parametri[2]);
             default -> throw new UnsupportedOperationException("Operazione non consentita per il docente.");
         };
     }
