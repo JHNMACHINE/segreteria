@@ -8,7 +8,6 @@ import com.universita.segreteria.model.*;
 import com.universita.segreteria.repository.EsameRepository;
 import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.VotoRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class StudenteService {
 
     @Autowired
@@ -77,7 +75,7 @@ public class StudenteService {
 
     public Voto aggiornaStatoVoto(Long votoId, boolean accetta) {
         Voto voto = votoRepo.findById(votoId).orElseThrow(() -> new RuntimeException("Voto non assegnato"));
-        if (voto.getStato() != StatoVoto.IN_ATTESA) {
+        if (voto.getStato() != StatoVoto.ATTESA) {
             throw new RuntimeException("Il voto è già stato accettato o rifiutato");
         }
         voto.setStato(accetta ? StatoVoto.ACCETTATO : StatoVoto.RIFIUTATO);

@@ -76,7 +76,7 @@ public class DocenteService {
         Voto votoEntity;
         if (voto < 18)
             votoEntity = Voto.builder().studente(studente).esame(esame).voto(voto).stato(StatoVoto.RIFIUTATO).build();
-        else votoEntity = Voto.builder().studente(studente).esame(esame).voto(voto).stato(StatoVoto.IN_ATTESA).build();
+        else votoEntity = Voto.builder().studente(studente).esame(esame).voto(voto).stato(StatoVoto.ATTESA).build();
 
         // Salvataggio e notifica
         Voto savedVoto = votoRepo.save(votoEntity);
@@ -161,7 +161,7 @@ public class DocenteService {
     public VotoDTO modificaVoto(Long votoId, Integer nuovoVoto) {
         Voto voto = votoRepo.findById(votoId).orElseThrow(() -> new RuntimeException("Voto non trovato"));
 
-        if (voto.getStato() != StatoVoto.IN_ATTESA) {
+        if (voto.getStato() != StatoVoto.ATTESA) {
             throw new RuntimeException("Impossibile modificare: il voto è già stato accettato o rifiutato");
         }
 

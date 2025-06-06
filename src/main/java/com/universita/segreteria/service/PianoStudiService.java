@@ -10,6 +10,7 @@ import java.util.List;
 
 @Component
 public class PianoStudiService {
+
     @Autowired
     private EsameRepository esameRepo;
 
@@ -20,6 +21,9 @@ public class PianoStudiService {
             case MATEMATICA -> esameRepo.findByNomeIn(List.of("Analisi", "Algebra", "Geometria"));
             case BIOLOGIA -> esameRepo.findByNomeIn(List.of("Genetica", "Biochimica", "Zoologia"));
             case GRAFICA -> esameRepo.findByNomeIn(List.of("Design", "Colori", "Tipografia"));
+            case INGEGNERIA -> esameRepo.findByNomeIn(List.of("Fisica", "Chimica", "Matematica I"));
+            case MEDICINA -> esameRepo.findByNomeIn(List.of("Biologia", "Biochimica", "Farmacologia"));
+            case GIURISPRUDENZA -> esameRepo.findByNomeIn(List.of("Diritto Privato", "Procedura Civile", "Economia Politica"));
         };
     }
 }

@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -67,7 +66,7 @@ public class SegreteriaService {
         }
 
         // Cambia lo stato se necessario
-        if (voto.getStato() == StatoVoto.IN_ATTESA) {
+        if (voto.getStato() == StatoVoto.ATTESA) {
             voto.setStato(StatoVoto.ACCETTATO);
             voto = votoRepo.save(voto);
         }

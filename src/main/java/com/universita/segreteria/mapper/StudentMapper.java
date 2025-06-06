@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 @Component
 public final class StudentMapper {
     public static StudenteDTO convertiStudenteInDTO(Studente studente) {
-        return StudenteDTO.builder().matricola(studente.getMatricola()).nome(studente.getNome()).cognome(studente.getCognome()).build();
+        return StudenteDTO.builder().matricola(studente.getMatricola()).nome(studente.getNome()).cognome(studente.getCognome()).pianoDiStudi(studente.getPianoDiStudi()).build();
     }
 
     public static Studente convertiStudenteDaDTO(StudenteDTO dto) {

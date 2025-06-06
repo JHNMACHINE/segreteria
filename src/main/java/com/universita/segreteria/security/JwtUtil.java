@@ -42,7 +42,7 @@ public class JwtUtil {
                 .setSubject(utente.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
-                .signWith(SignatureAlgorithm.HS256, key)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 

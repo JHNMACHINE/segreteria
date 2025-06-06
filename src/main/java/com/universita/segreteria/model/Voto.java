@@ -31,5 +31,5 @@ public class Voto {
     private int voto;
 
     @Enumerated(EnumType.STRING)
-    private StatoVoto stato = StatoVoto.IN_ATTESA;
+    private StatoVoto stato = StatoVoto.ATTESA;
 }
