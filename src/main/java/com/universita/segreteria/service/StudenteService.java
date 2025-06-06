@@ -90,4 +90,6 @@ public class StudenteService {
 
         return studente.getVoti().stream().filter(v -> v.getStato() != StatoVoto.ACCETTATO).map(Voto::getEsame).collect(Collectors.toList());
     }
+
+
 }

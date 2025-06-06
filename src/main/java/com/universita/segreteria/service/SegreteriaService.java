@@ -38,13 +38,7 @@ public class SegreteriaService {
         Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
         List<Esame> esami = pianoStudiService.getEsamiPerPiano(studente.getPianoDiStudi());
 
-        for (Esame esame : esami) {
-            Voto voto = new Voto();
-            voto.setEsame(esame);
-            voto.setStudente(studente);
-            voto.setStato(StatoVoto.IN_ATTESA);
-            studente.getVoti().add(voto);
-        }
+        studente.setEsami(esami);
         studenteRepo.save(studente);
         return StudentMapper.convertiStudenteInDTO(studente);
     }

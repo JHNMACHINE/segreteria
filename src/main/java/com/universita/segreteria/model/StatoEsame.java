@@ -4,5 +4,7 @@ public enum StatoEsame {
     SUPERATO,
     NON_SUPERATO,
     CANCELLATO,
-    NON_AMMESSO
+    NON_AMMESSO,
+    AMMESSO,
+    ASSENTE
 }

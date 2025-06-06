@@ -67,6 +67,19 @@ public class DocenteService {
         // Creazione entità Voto
         Voto votoEntity = Voto.builder().studente(studente).esame(esame).voto(voto).stato(StatoVoto.IN_ATTESA).build();
 
+        try {
+            if (votoEntity.getVoto() < 0) {
+                throw new IllegalArgumentException("Il voto non può essere minore di 0");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            // opzionalmente puoi rilanciare o loggare
+            // throw e;
+        }
+
+        if(votoEntity.getVoto() < 18)
+            votoEntity.setStato(StatoVoto.RIFIUTATO);
+
         // Salvataggio e notifica
         Voto savedVoto = votoRepo.save(votoEntity);
 
@@ -79,6 +92,25 @@ public class DocenteService {
         return VotoMapper.convertiInDTO(savedVoto);
     }
 
+    public VotoDTO studenteAssente(StudenteDTO studenteDTO, EsameDTO esameDTO, Integer voto)
+    {
+        Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Studente non trovato"));
+        Esame esame = esameRepo.findByNome(esameDTO.getNome()).orElseThrow(() -> new RuntimeException("Esame non trovato"));
+
+        esame.setStatoEsame(StatoEsame.ASSENTE);
+
+        Voto votoEntity = Voto.builder().studente(studente).esame(esame).voto(0).stato(StatoVoto.RIFIUTATO).build();
+
+        Voto savedVoto = votoRepo.save(votoEntity);
+
+        StudenteObserver observer = new StudenteObserver(studente);
+        votoNotifier.attach(observer);
+        votoNotifier.notifyObservers(savedVoto);
+        votoNotifier.detach(observer);
+
+        return VotoMapper.convertiInDTO(savedVoto);
+
+    }
 
     public List<EsameDTO> getEsamiByDocente(Long docenteId) {
         Docente docente = docenteRepo.findById(docenteId).orElseThrow(() -> new RuntimeException("Docente non trovato"));

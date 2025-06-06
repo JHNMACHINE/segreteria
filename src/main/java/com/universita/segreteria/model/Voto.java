@@ -27,6 +27,7 @@ public class Voto {
     @JsonBackReference
     private Esame esame;
 
+
     private int voto;
 
     @Enumerated(EnumType.STRING)
