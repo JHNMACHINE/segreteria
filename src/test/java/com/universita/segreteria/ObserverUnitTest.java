@@ -18,7 +18,6 @@ class ObserverUnitTest {
     private Voto voto;
 
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    private final PrintStream originalOut = System.out;
 
     @BeforeEach
     void setUp() {
@@ -90,7 +89,4 @@ class ObserverUnitTest {
         assertTrue(output.toString().contains(expected));
     }
 
-    public PrintStream getOriginalOut() {
-        return originalOut;
-    }
 }
