@@ -15,6 +15,7 @@ import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.VotoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,11 +25,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DocenteService {
 
-    private final EsameRepository esameRepo;
-    private final VotoRepository votoRepo;
-    private final StudenteRepository studenteRepo;
-    private final DocenteRepository docenteRepo;
-    private final VotoNotifier votoNotifier;
+    @Autowired
+    private EsameRepository esameRepo;
+    @Autowired
+    private VotoRepository votoRepo;
+    @Autowired
+    private StudenteRepository studenteRepo;
+    @Autowired
+    private DocenteRepository docenteRepo;
+    @Autowired
+    private VotoNotifier votoNotifier;
 
     @Transactional
     public EsameDTO creaEsame(Long docenteId, EsameDTO esameDTO) {
@@ -54,6 +60,9 @@ public class DocenteService {
 
     @Transactional
     public VotoDTO inserisciVoto(StudenteDTO studenteDTO, EsameDTO esameDTO, Integer voto) {
+        // check sul voto negativo
+        if (voto < 0) throw new RuntimeException("Il voto non può essere negativo");
+
         // Recupero entità dal database usando gli ID dai DTO
         Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Studente non trovato"));
 
@@ -64,21 +73,10 @@ public class DocenteService {
             throw new RuntimeException("Il voto per questo studente è già stato assegnato");
         }
 
-        // Creazione entità Voto
-        Voto votoEntity = Voto.builder().studente(studente).esame(esame).voto(voto).stato(StatoVoto.IN_ATTESA).build();
-
-        try {
-            if (votoEntity.getVoto() < 0) {
-                throw new IllegalArgumentException("Il voto non può essere minore di 0");
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-            // opzionalmente puoi rilanciare o loggare
-            // throw e;
-        }
-
-        if(votoEntity.getVoto() < 18)
-            votoEntity.setStato(StatoVoto.RIFIUTATO);
+        Voto votoEntity;
+        if (voto < 18)
+            votoEntity = Voto.builder().studente(studente).esame(esame).voto(voto).stato(StatoVoto.RIFIUTATO).build();
+        else votoEntity = Voto.builder().studente(studente).esame(esame).voto(voto).stato(StatoVoto.IN_ATTESA).build();
 
         // Salvataggio e notifica
         Voto savedVoto = votoRepo.save(votoEntity);
@@ -92,8 +90,7 @@ public class DocenteService {
         return VotoMapper.convertiInDTO(savedVoto);
     }
 
-    public VotoDTO studenteAssente(StudenteDTO studenteDTO, EsameDTO esameDTO, Integer voto)
-    {
+    public VotoDTO studenteAssente(StudenteDTO studenteDTO, EsameDTO esameDTO, Integer voto) {
         Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Studente non trovato"));
         Esame esame = esameRepo.findByNome(esameDTO.getNome()).orElseThrow(() -> new RuntimeException("Esame non trovato"));
 
