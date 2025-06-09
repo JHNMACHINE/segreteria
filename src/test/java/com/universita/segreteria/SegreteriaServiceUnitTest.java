@@ -5,7 +5,7 @@ import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.dto.VotoDTO;
 import com.universita.segreteria.mapper.DocenteMapper;
 import com.universita.segreteria.model.*;
-import com.universita.segreteria.notifier.AccettazioneNotifier;
+import com.universita.segreteria.notifier.AcceptationNotifier;
 import com.universita.segreteria.observer.SegreteriaObserver;
 import com.universita.segreteria.repository.DocenteRepository;
 import com.universita.segreteria.repository.StudenteRepository;
@@ -28,7 +28,7 @@ class SegreteriaServiceUnitTest {
 	@Mock
 	private VotoRepository votoRepo;
 	@Mock
-	private AccettazioneNotifier accettazioneNotifier;
+	private AcceptationNotifier acceptationNotifier;
 	@Mock
 	private PianoStudiService pianoStudiService;
 	@Mock
@@ -109,9 +109,9 @@ class SegreteriaServiceUnitTest {
 		assertNotNull(result);
 		assertEquals("Analisi Matematica I", result.getEsameNome());
 		verify(votoRepo).save(voto);
-		verify(accettazioneNotifier).attach(any(SegreteriaObserver.class));
-		verify(accettazioneNotifier).notifyObservers(voto);
-		verify(accettazioneNotifier).detach(any(SegreteriaObserver.class));
+		verify(acceptationNotifier).attach(any(SegreteriaObserver.class));
+		verify(acceptationNotifier).notifyObservers(voto);
+		verify(acceptationNotifier).detach(any(SegreteriaObserver.class));
 	}
 
 

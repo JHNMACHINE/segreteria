@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class AccettazioneNotifier implements Subject {
+public class AcceptationNotifier implements Subject {
 
     private final List<Observer> observers = new ArrayList<>();
 
