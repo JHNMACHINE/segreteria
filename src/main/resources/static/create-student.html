@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creazione Studente</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f9;
+    }
+
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+
+    .form-group button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .form-group button:hover {
+        background-color: #45a049;
+    }
+
+    .error-message {
+        color: red;
+        text-align: center;
+    }
+
+    .success-message {
+        color: green;
+        text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <h2>Creazione Studente</h2>
+
+  <!-- Form per inserire lo studente -->
+  <form id="create-student-form">
+    <div class="form-group">
+      <label for="nome">Nome:</label>
+      <input type="text" id="nome" name="nome" required>
+    </div>
+    <div class="form-group">
+      <label for="cognome">Cognome:</label>
+      <input type="text" id="cognome" name="cognome" required>
+    </div>
+    <div class="form-group">
+      <label for="matricola">Matricola:</label>
+      <input type="text" id="matricola" name="matricola" required>
+    </div>
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <div class="form-group">
+      <label for="residenza">Residenza:</label>
+      <input type="text" id="residenza" name="residenza" required>
+    </div>
+    <div class="form-group">
+      <label for="pianoDiStudi">Piano di Studi:</label>
+      <select id="pianoDiStudi" name="pianoDiStudi" required>
+        <option value="INFORMATICA">Informatica</option>
+        <option value="MATEMATICA">Matematica</option>
+        <option value="BIOLOGIA">Biologia</option>
+        <option value="GIURISPRUDENZA">Giurisprudenza</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <button type="submit">Crea Studente</button>
+    </div>
+
+    <!-- Messaggio di errore o successo -->
+    <div id="response-message" class="error-message"></div>
+  </form>
+</div>
+
+<script>
+  // Funzione per inviare il form e creare lo studente
+  document.getElementById('create-student-form').addEventListener('submit', function(event) {
+      event.preventDefault(); // Evita il comportamento di submit del form
+
+      // Prendere i dati dal form
+      const nome = document.getElementById('nome').value;
+      const cognome = document.getElementById('cognome').value;
+      const matricola = document.getElementById('matricola').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const residenza = document.getElementById('residenza').value;
+      const pianoDiStudi = document.getElementById('pianoDiStudi').value;
+
+      // Creare un oggetto StudenteDTO per il registro
+      const studenteDTO = {
+          nome: nome,
+          cognome: cognome,
+          matricola: matricola,
+          email: email,
+          password: password,
+          residenza: residenza,
+          pianoDiStudi: pianoDiStudi,
+          ruolo: 'STUDENTE',  // Probabilmente il ruolo "STUDENTE" va incluso
+          tasse: [
+              {
+                  nome: "Salute",
+                  prezzo: 50,
+                  pagata: false
+              },
+              {
+                  nome: "Formazione",
+                  prezzo: 100,
+                  pagata: false
+              },
+              {
+                  nome: "Formazione",
+                  prezzo: 100,
+                  pagata: false
+              }
+          ]
+      };
+
+      console.log(studenteDTO);
+
+      // Chiamata fetch al backend per creare lo studente
+      fetch('/api/v1/auth/register', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(studenteDTO)
+      })
+      .then(response => {
+          if (!response.ok) {
+              // Se la risposta non è "ok", gestisci gli errori
+              if (response.status === 409) {
+                  // Se l'errore è "409 Conflict", l'utente esiste già
+                  throw new Error('L\'utente con questa email o matricola esiste già.');
+              } else {
+                  throw new Error('Errore durante la creazione dello studente!');
+              }
+          }
+          return response.json(); // Se la risposta è OK, ritorna i dati in formato JSON
+      })
+      .then(data => {
+          if (data.token) {
+              // Mostra un messaggio di successo
+              document.getElementById('response-message').classList.remove('error-message');
+              document.getElementById('response-message').classList.add('success-message');
+              document.getElementById('response-message').innerText = 'Studente creato con successo!';
+          }
+      })
+      .catch(error => {
+          // Gestisci eventuali errori (es. utente già esistente, errore di connessione, ecc.)
+          document.getElementById('response-message').classList.remove('success-message');
+          document.getElementById('response-message').classList.add('error-message');
+          document.getElementById('response-message').innerText = error.message; // Mostra il messaggio di errore
+      });
+  });
+</script>
+</body>
+</html>
