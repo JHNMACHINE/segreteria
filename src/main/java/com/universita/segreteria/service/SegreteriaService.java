@@ -7,7 +7,7 @@ import com.universita.segreteria.mapper.DocenteMapper;
 import com.universita.segreteria.mapper.StudentMapper;
 import com.universita.segreteria.mapper.VotoMapper;
 import com.universita.segreteria.model.*;
-import com.universita.segreteria.notifier.AccettazioneNotifier;
+import com.universita.segreteria.notifier.AcceptationNotifier;
 import com.universita.segreteria.observer.SegreteriaObserver;
 import com.universita.segreteria.repository.DocenteRepository;
 import com.universita.segreteria.repository.StudenteRepository;
@@ -28,7 +28,7 @@ public class SegreteriaService {
     @Autowired
     private VotoRepository votoRepo;
     @Autowired
-    private AccettazioneNotifier accettazioneNotifier;
+    private AcceptationNotifier acceptationNotifier;
     @Autowired
     private PianoStudiService pianoStudiService;
     @Autowired
@@ -73,9 +73,9 @@ public class SegreteriaService {
 
         // Notifica la segreteria
         SegreteriaObserver segreteria = new SegreteriaObserver();
-        accettazioneNotifier.attach(segreteria);
-        accettazioneNotifier.notifyObservers(voto);
-        accettazioneNotifier.detach(segreteria);
+        acceptationNotifier.attach(segreteria);
+        acceptationNotifier.notifyObservers(voto);
+        acceptationNotifier.detach(segreteria);
 
         return VotoMapper.convertiInDTO(voto);
     }
