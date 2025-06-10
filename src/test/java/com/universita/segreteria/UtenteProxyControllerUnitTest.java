@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-        import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.*;
 
 class UtenteProxyControllerUnitTest {
 

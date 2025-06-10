@@ -1,20 +1,8 @@
 package com.universita.segreteria;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import com.universita.segreteria.dto.EsameDTO;
 import com.universita.segreteria.dto.StudenteDTO;
-import com.universita.segreteria.model.Esame;
-import com.universita.segreteria.model.PianoDiStudi;
-import com.universita.segreteria.model.StatoVoto;
-import com.universita.segreteria.model.Voto;
-import com.universita.segreteria.model.Studente;
+import com.universita.segreteria.model.*;
 import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.service.PianoStudiService;
 import com.universita.segreteria.service.StudenteService;
@@ -23,6 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 class StudenteServiceUnitTest {
 

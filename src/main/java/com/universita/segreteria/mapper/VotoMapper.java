@@ -1,8 +1,6 @@
 package com.universita.segreteria.mapper;
 
-import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.dto.VotoDTO;
-import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.Voto;
 import org.springframework.stereotype.Component;
 
