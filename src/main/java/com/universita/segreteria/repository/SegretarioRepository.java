@@ -11,4 +11,6 @@ public interface SegretarioRepository extends JpaRepository<Segretario, Long> {
     Optional<Segretario> findByMatricola(String matricola);
 
     List<Segretario> findByNomeAndCognome(String nome, String cognome);
+
+    Optional<Segretario> findByEmail(String email);
 }

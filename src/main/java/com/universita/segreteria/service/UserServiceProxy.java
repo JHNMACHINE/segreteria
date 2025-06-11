@@ -35,6 +35,7 @@ public class UserServiceProxy implements UtenteService {
 
     private Object operazioneSegreteria(String operazione, Object... parametri) {
         return switch (operazione) {
+            case "getProfilo" -> segreteriaService.getProfilo();
             case "inserisciStudente" -> segreteriaService.inserisciStudente((StudenteDTO) parametri[0]);
             case "inserisciDocente" -> segreteriaService.inserisciDocente((DocenteDTO) parametri[0]);
             case "confermaVoto" -> segreteriaService.confermaVoto((StudenteDTO) parametri[0], (Long) parametri[1]);

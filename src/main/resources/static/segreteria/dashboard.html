@@ -34,6 +34,7 @@
 <div class="container mt-5">
 
   <h1 class="text-center mb-4">Dashboard Segreteria</h1>
+  <div id="welcomeMsg" class="mb-4 fw-bold"></div>
 
   <!-- Sezione Studenti -->
   <h4 class="section-title">Gestione Studenti</h4>
@@ -43,7 +44,7 @@
         <div class="card-body">
           <h5 class="card-title">Aggiungi Studente</h5>
           <p class="card-text">Registra un nuovo studente nel sistema.</p>
-          <a href="create-student.html" class="btn btn-success">Aggiungi</a>
+          <a href="/segreteria/dashboard/crea-studente.html" class="btn btn-success">Aggiungi</a>
         </div>
       </div>
     </div>
@@ -52,7 +53,7 @@
         <div class="card-body">
           <h5 class="card-title">Elenco Studenti</h5>
           <p class="card-text">Visualizza e gestisci tutti gli studenti registrati.</p>
-          <a href="/segreteria/studenti" class="btn btn-primary">Visualizza</a>
+          <a href="/segreteria/dashboard/visualizza-studenti.html" class="btn btn-primary">Visualizza</a>
         </div>
       </div>
     </div>
@@ -66,7 +67,7 @@
         <div class="card-body">
           <h5 class="card-title">Aggiungi Docente</h5>
           <p class="card-text">Registra un nuovo docente nel sistema.</p>
-          <a href="/segreteria/docenti/aggiungi" class="btn btn-success">Aggiungi</a>
+          <a href="/segreteria/dashboard/crea-docente.html" class="btn btn-success">Aggiungi</a>
         </div>
       </div>
     </div>
@@ -75,7 +76,7 @@
         <div class="card-body">
           <h5 class="card-title">Elenco Docenti</h5>
           <p class="card-text">Visualizza e gestisci tutti i docenti registrati.</p>
-          <a href="/segreteria/docenti" class="btn btn-primary">Visualizza</a>
+          <a href="/segreteria/dashboard/visualizza-docenti.html" class="btn btn-primary">Visualizza</a>
         </div>
       </div>
     </div>
@@ -89,7 +90,7 @@
         <div class="card-body">
           <h5 class="card-title">Crea Esame</h5>
           <p class="card-text">Definisci un nuovo esame con nome e CFU.</p>
-          <a href="/segreteria/esami/crea" class="btn btn-secondary">Crea</a>
+          <a href="/segreteria/dashboard/crea-esame.html" class="btn btn-secondary">Crea</a>
         </div>
       </div>
     </div>
@@ -98,7 +99,7 @@
         <div class="card-body">
           <h5 class="card-title">Crea Appello</h5>
           <p class="card-text">Associa un esame a un docente e imposta una data.</p>
-          <a href="/segreteria/appelli/crea" class="btn btn-secondary">Crea</a>
+          <a href="/segreteria/dashboard/crea-appello.html" class="btn btn-secondary">Crea</a>
         </div>
       </div>
     </div>
@@ -107,7 +108,7 @@
         <div class="card-body">
           <h5 class="card-title">Visualizza Appelli</h5>
           <p class="card-text">Gestisci gli appelli creati e le prenotazioni.</p>
-          <a href="/segreteria/appelli" class="btn btn-primary">Visualizza</a>
+          <a href="/segreteria/dashboard/visualizza-appelli.html" class="btn btn-primary">Visualizza</a>
         </div>
       </div>
     </div>
@@ -121,6 +122,24 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+   async function caricaProfilo() {
+    const response = await fetchWithAuth("/api/v1/operazione", {
+      method: "POST",
+      body: JSON.stringify({
+        nomeOperazione: "getProfilo",
+        parametri: []
+      })
+    });
 
+    console.log(response);
+
+    const data = await response.json();
+    welcomeMsg.textContent = `Benvenuto, ${data.nome} ${data.cognome}`;
+  }
+
+  caricaProfilo();
+</script>
 </body>
 </html>
