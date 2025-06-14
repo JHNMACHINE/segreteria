@@ -20,24 +20,23 @@ import java.util.List;
 @SuperBuilder
 public class Studente extends Utente {
 
-
-    private String residenza;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dataDiNascita;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
 
     @Enumerated(EnumType.STRING)
     private PianoDiStudi pianoDiStudi;
 
-    @OneToMany(mappedBy = "studente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "studente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Tassa> tassePagate;
 
-    @OneToMany(mappedBy = "studente", cascade = CascadeType.ALL)
+
+    @OneToMany(mappedBy = "studente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Voto> voti;
 
-    @OneToMany(mappedBy = "studente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "studente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Esame> esami;
 }
 

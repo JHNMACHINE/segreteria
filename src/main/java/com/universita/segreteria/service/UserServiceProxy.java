@@ -1,5 +1,6 @@
 package com.universita.segreteria.service;
 
+import com.universita.segreteria.controller.UtenteProxyController;
 import com.universita.segreteria.dto.DocenteDTO;
 import com.universita.segreteria.dto.EsameDTO;
 import com.universita.segreteria.dto.StudenteDTO;
@@ -8,12 +9,18 @@ import com.universita.segreteria.model.TipoUtente;
 import com.universita.segreteria.proxy.UtenteService;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 
 @Service
 @NoArgsConstructor
 public class UserServiceProxy implements UtenteService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserServiceProxy.class);
 
     @Autowired
     private SegreteriaService segreteriaService;
@@ -26,6 +33,7 @@ public class UserServiceProxy implements UtenteService {
 
     @Override
     public Object eseguiOperazione(String operazione, Object... parametri) {
+        log.info("Eseguo operazione '{}' con parametri {} per ruolo {}", operazione, parametri, ruolo);
         return switch (ruolo) {
             case SEGRETARIO -> operazioneSegreteria(operazione, parametri);
             case STUDENTE -> operazioneStudente(operazione, parametri);
@@ -43,20 +51,28 @@ public class UserServiceProxy implements UtenteService {
             case "cercaStudentePerMatricola" -> segreteriaService.cercaStudentePerMatricola((String) parametri[0]);
             case "cambiaPianoDiStudi" ->
                     segreteriaService.cambiaPianoDiStudi((Long) parametri[0], (PianoDiStudi) parametri[1]);
-            default -> throw new UnsupportedOperationException("Operazione non consentita per la segreteria.");
+            default -> throw new RuntimeException("Operazione non consentita per la segreteria.");
         };
     }
 
     private Object operazioneStudente(String operazione, Object... parametri) {
+        log.info("Operazione STUDENTE richiesta: '{}', parametri: {}", operazione, Arrays.toString(parametri));
         return switch (operazione) {
             case "aggiornaStatoVoto" -> studenteService.aggiornaStatoVoto((Long) parametri[0], (boolean) parametri[1]);
-            case "consultaPianoStudi" -> studenteService.consultaPianoStudi((Long) parametri[0]);
+            case "consultaPianoStudi" -> studenteService.consultaPianoStudi((String) parametri[0]);
             case "prenotaEsame" -> studenteService.prenotaEsame((Long) parametri[0], (Long) parametri[1]);
             case "esamiSuperati" -> studenteService.esamiSuperati((StudenteDTO) parametri[0]);
             case "getEsamiDaSostenere" -> studenteService.getEsamiDaSostenere((StudenteDTO) parametri[0]);
-            case "esamiPrenotabili" -> studenteService.esamiPrenotabili((StudenteDTO) parametri[0]);
+            case "esamiPrenotabili" -> studenteService.esamiPrenotabili((String) parametri[0]);
             case "getInfoStudente" -> studenteService.getInfoStudente((String) parametri[0]);
-            default -> throw new UnsupportedOperationException("Operazione non consentita per lo studente.");
+
+            // Nuove operazioni viste nei log:
+            case "getPianoDiStudi" -> studenteService.consultaPianoStudi((String) parametri[0]);
+            case "getVotiDaAccettare" -> studenteService.getVotiDaAccettare((StudenteDTO) parametri[0]);
+            default -> {
+                log.error("Operazione '{}' non consentita per ruolo STUDENTE", operazione);
+                throw new RuntimeException("Operazione non consentita per lo studente.");
+            }
         };
     }
 
@@ -75,7 +91,7 @@ public class UserServiceProxy implements UtenteService {
             case "eliminaVoto" -> docenteService.eliminaVoto((Long) parametri[0]);
             case "studenteAssente" ->
                     docenteService.studenteAssente((StudenteDTO) parametri[0], (EsameDTO) parametri[1], (Integer) parametri[2]);
-            default -> throw new UnsupportedOperationException("Operazione non consentita per il docente.");
+            default -> throw new RuntimeException("Operazione non consentita per il docente.");
         };
     }
 }

@@ -1,6 +1,7 @@
 package com.universita.segreteria.service;
 
 
+import com.universita.segreteria.controller.UtenteProxyController;
 import com.universita.segreteria.dto.EsameDTO;
 import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.dto.TassaDTO;
@@ -9,6 +10,10 @@ import com.universita.segreteria.model.*;
 import com.universita.segreteria.repository.EsameRepository;
 import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.VotoRepository;
+import jakarta.transaction.Transactional;
+import jdk.jshell.spi.ExecutionControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class StudenteService {
+    private static final Logger log = LoggerFactory.getLogger(StudenteService.class);
 
     @Autowired
     private EsameRepository esameRepo;
@@ -29,8 +35,8 @@ public class StudenteService {
     @Autowired
     private PianoStudiService pianoStudiService;
 
-    public List<EsameDTO> esamiPrenotabili(StudenteDTO studenteDTO) {
-        Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Studente non trovato"));
+    public List<EsameDTO> esamiPrenotabili(String email) {
+        Studente studente = studenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Studente non trovato"));
 
         List<Voto> voti = studente.getVoti();
         List<Esame> superati = voti.stream().filter(v -> v.getStato() == StatoVoto.ACCETTATO).map(Voto::getEsame).toList();
@@ -69,8 +75,8 @@ public class StudenteService {
         return EsameMapper.toDTO(esame);
     }
 
-    public PianoDiStudi consultaPianoStudi(Long studenteId) {
-        Studente studente = studenteRepo.findById(studenteId).orElseThrow(() -> new RuntimeException("Studente non trovato"));
+    public PianoDiStudi consultaPianoStudi(String email) {
+        Studente studente = studenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Studente non trovato"));
         return studente.getPianoDiStudi();
     }
 
@@ -91,8 +97,9 @@ public class StudenteService {
         return studente.getVoti().stream().filter(v -> v.getStato() != StatoVoto.ACCETTATO).map(Voto::getEsame).collect(Collectors.toList());
     }
 
-    public StudenteDTO getInfoStudente(String matricola) {
-        Studente studente = studenteRepo.findByMatricola(matricola)
+    @Transactional  // <-- LAZY LOADING NON RIMUOVERE
+    public StudenteDTO getInfoStudente(String email) {
+        Studente studente = studenteRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Studente non trovato"));
 
         List<TassaDTO> tasse = studente.getTassePagate().stream()
@@ -113,4 +120,8 @@ public class StudenteService {
     }
 
 
+    public Object getVotiDaAccettare(StudenteDTO studenteDTO) {
+        log.error("TO BE IMPLEMENTED!");
+        return null;
+    }
 }

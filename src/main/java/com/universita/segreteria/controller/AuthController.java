@@ -9,7 +9,11 @@ import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.Utente;
 import com.universita.segreteria.repository.UtenteRepository;
 import com.universita.segreteria.security.JwtUtil;
+import com.universita.segreteria.service.SegreteriaService;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.simple.SimpleLoggerContextFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +26,8 @@ import java.util.Optional;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
+    Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private UtenteRepository utenteRepo;
@@ -49,6 +55,8 @@ public class AuthController {
         nuovo.setNome(request.nome());
         nuovo.setCognome(request.cognome());
         nuovo.setMatricola(request.matricola());
+        nuovo.setDataDiNascita(request.dataDiNascita());
+        nuovo.setResidenza(request.residenza());
 
         // Aggiungi i nuovi campi
         if (nuovo instanceof Studente studente) {
@@ -57,13 +65,16 @@ public class AuthController {
             studente.setResidenza(request.residenza());
 
             // Aggiungi log per verificare i valori
-            System.out.println("Registrando studente con data di nascita: " + studente.getDataDiNascita());
-            System.out.println("Registrando studente con residenza: " + studente.getResidenza());
+            logger.info("Registrando studente con data di nascita: {}", studente.getDataDiNascita());
+            logger.info("Registrando studente con residenza: {}", studente.getResidenza());
         }
 
         utenteRepo.save(nuovo);
+        logger.info("User registered successfully!");
 
         String token = jwtUtil.generateToken(nuovo);
+
+        logger.info("Auth Token: {}", token);
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
@@ -74,7 +85,7 @@ public class AuthController {
         Optional<Utente> utenteOpt = utenteRepo.findByEmail(request.email());
 
         if (utenteOpt.isEmpty() || !passwordEncoder.matches(request.password(), utenteOpt.get().getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenziali non valide");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credentials not valid");
         }
 
         String token = jwtUtil.generateToken(utenteOpt.get());

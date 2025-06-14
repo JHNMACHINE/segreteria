@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDate;
+
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED) // Se hai sottoclassi tipo Studente, Docente...
 @Data
@@ -32,4 +34,6 @@ public abstract class Utente {
     private String nome;
     private String cognome;
     private String matricola;
+    private LocalDate dataDiNascita;
+    private String residenza;
 }
