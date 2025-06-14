@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,5 +18,7 @@ public class StudenteDTO {
     private String cognome;
     private String matricola;
     private PianoDiStudi pianoDiStudi;
-
+    private List<TassaDTO> tassePagate;
+    private String residenza;
+    private LocalDate dataDiNascita;
 }

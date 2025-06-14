@@ -3,6 +3,7 @@ package com.universita.segreteria.service;
 
 import com.universita.segreteria.dto.EsameDTO;
 import com.universita.segreteria.dto.StudenteDTO;
+import com.universita.segreteria.dto.TassaDTO;
 import com.universita.segreteria.mapper.EsameMapper;
 import com.universita.segreteria.model.*;
 import com.universita.segreteria.repository.EsameRepository;
@@ -88,6 +89,27 @@ public class StudenteService {
         Studente studente = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
 
         return studente.getVoti().stream().filter(v -> v.getStato() != StatoVoto.ACCETTATO).map(Voto::getEsame).collect(Collectors.toList());
+    }
+
+    public StudenteDTO getInfoStudente(String matricola) {
+        Studente studente = studenteRepo.findByMatricola(matricola)
+                .orElseThrow(() -> new RuntimeException("Studente non trovato"));
+
+        List<TassaDTO> tasse = studente.getTassePagate().stream()
+                .map(t -> TassaDTO.builder()
+                        .nome(t.getNome())
+                        .prezzo(t.getPrezzo())
+                        .pagata(t.isPagata())
+                        .build())
+                .toList();
+
+        return StudenteDTO.builder()
+                .nome(studente.getNome())
+                .cognome(studente.getCognome())
+                .matricola(studente.getMatricola())
+                .pianoDiStudi(studente.getPianoDiStudi())
+                .tassePagate(tasse)
+                .build();
     }
 
 

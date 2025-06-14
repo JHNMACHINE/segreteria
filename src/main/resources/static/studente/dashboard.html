@@ -15,6 +15,11 @@
       justify-content: space-between;
       align-items: center;
     }
+    footer {
+      background-color: #f8f9fa;
+      border-top: 1px solid #ddd;
+      padding: 20px;
+    }
   </style>
 </head>
 <body>
@@ -29,7 +34,7 @@
 
 <div class="container mt-4">
   <div id="contenuto-dashboard">
-    <h2>Bentornato!</h2>
+    <h2>Bentornato! <span id="nomeCompleto"></span></h2> <!-- Aggiungi un span per il nome e cognome -->
     <p>Qui potrai gestire il tuo piano di studi, prenotarti agli appelli e accettare i voti.</p>
 
     <div id="sezione-piano-studi" class="my-4">
@@ -54,16 +59,24 @@
 </footer>
 
 <script>
-  const token = localStorage.getItem('jwtToken');
+  const token = localStorage.getItem('token');
   if (!token) {
     window.location.href = '/login.html';
   }
 
   function logout() {
-    localStorage.removeItem('jwtToken');
-    window.location.href = '/login.html';
+    localStorage.removeItem('token');
+    window.location.href = '/studente/login.html';
   }
 
+  function getMatricolaFromToken() {
+    const jwt = JSON.parse(atob(token.split('.')[1])); // Decodifica il payload del token JWT
+    return jwt.matricola; // Presupponendo che la matricola sia nel payload
+  }
+
+  const matricola = getMatricolaFromToken();
+
+  // Funzione per eseguire le operazioni (come chiamate API)
   function eseguiOperazione(nomeOperazione, parametri = []) {
     return fetch('/api/v1/operazione', {
       method: 'POST',
@@ -84,15 +97,16 @@
     });
   }
 
-  // Carica i dati dello studente (nome e cognome)
-  eseguiOperazione('getInfoStudente')
+  // Carica le informazioni dello studente (nome e cognome)
+  eseguiOperazione('getInfoStudente', [matricola])
     .then(data => {
       document.getElementById('nomeStudente').innerText = data.nome + ' ' + data.cognome;
+      document.getElementById('nomeCompleto').innerText = data.nome + ' ' + data.cognome; // Aggiungi nome e cognome al saluto
     })
     .catch(err => console.error('Errore caricamento info studente:', err));
 
   // Carica il piano di studi
-  eseguiOperazione('getPianoDiStudi')
+  eseguiOperazione('getPianoDiStudi', [matricola])
     .then(esami => {
       const lista = document.getElementById('lista-esami');
       esami.forEach(e => {
@@ -104,30 +118,75 @@
     })
     .catch(err => console.error('Errore caricamento piano di studi:', err));
 
-  // TODO: Carica appelli e voti da accettare con operazioni simili
-  eseguiOperazione('getAppelliPrenotabili')
+  // Carica gli appelli prenotabili
+  eseguiOperazione('getAppelliPrenotabili', [matricola])
     .then(appelli => {
       const lista = document.getElementById('lista-appelli');
       appelli.forEach(a => {
         const item = document.createElement('li');
         item.className = 'list-group-item';
         item.innerText = `${a.nomeEsame} - ${a.data}`;
+
+        // Crea un pulsante per prenotare l'esame
+        const prenotaBtn = document.createElement('button');
+        prenotaBtn.className = 'btn btn-primary btn-sm ms-3';
+        prenotaBtn.innerText = 'Prenota';
+        prenotaBtn.onclick = () => prenotaEsame(a.id);
+
+        item.appendChild(prenotaBtn);
         lista.appendChild(item);
       });
     })
     .catch(err => console.error('Errore caricamento appelli:', err));
 
-  eseguiOperazione('getVotiDaAccettare')
+  // Carica i voti da accettare
+  eseguiOperazione('getVotiDaAccettare', [matricola])
     .then(voti => {
       const lista = document.getElementById('lista-voti');
       voti.forEach(v => {
         const item = document.createElement('li');
         item.className = 'list-group-item';
         item.innerText = `${v.esame.nome} - Voto: ${v.valutazione}`;
+
+        // Crea pulsanti per accettare e rifiutare il voto
+        const accettaBtn = document.createElement('button');
+        accettaBtn.className = 'btn btn-success btn-sm ms-3';
+        accettaBtn.innerText = 'Accetta';
+        accettaBtn.onclick = () => accettaVoto(v.id);
+
+        const rifiutaBtn = document.createElement('button');
+        rifiutaBtn.className = 'btn btn-danger btn-sm ms-2';
+        rifiutaBtn.innerText = 'Rifiuta';
+        rifiutaBtn.onclick = () => rifiutaVoto(v.id);
+
+        item.appendChild(accettaBtn);
+        item.appendChild(rifiutaBtn);
         lista.appendChild(item);
       });
     })
     .catch(err => console.error('Errore caricamento voti:', err));
+
+  // Funzione per accettare un voto
+  function accettaVoto(votoId) {
+    eseguiOperazione('aggiornaStatoVoto', [votoId, true])
+      .then(() => alert('Voto accettato'))
+      .catch(err => alert('Errore nell\'accettazione del voto: ' + err));
+  }
+
+  // Funzione per rifiutare un voto
+  function rifiutaVoto(votoId) {
+    eseguiOperazione('aggiornaStatoVoto', [votoId, false])
+      .then(() => alert('Voto rifiutato'))
+      .catch(err => alert('Errore nel rifiuto del voto: ' + err));
+  }
+
+  // Funzione per prenotare un esame
+  function prenotaEsame(appelloId) {
+    eseguiOperazione('prenotaEsame', [appelloId, matricola])
+      .then(() => alert('Esame prenotato con successo'))
+      .catch(err => alert('Errore nella prenotazione dell\'esame: ' + err));
+  }
 </script>
+
 </body>
 </html>

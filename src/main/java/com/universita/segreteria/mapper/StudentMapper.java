@@ -10,12 +10,27 @@ import java.util.stream.Collectors;
 
 @Component
 public final class StudentMapper {
+
     public static StudenteDTO convertiStudenteInDTO(Studente studente) {
-        return StudenteDTO.builder().matricola(studente.getMatricola()).nome(studente.getNome()).cognome(studente.getCognome()).pianoDiStudi(studente.getPianoDiStudi()).build();
+        return StudenteDTO.builder()
+                .matricola(studente.getMatricola())
+                .nome(studente.getNome())
+                .cognome(studente.getCognome())
+                .pianoDiStudi(studente.getPianoDiStudi())
+                .residenza(studente.getResidenza())  // Aggiunto
+                .dataDiNascita(studente.getDataDiNascita())  // Aggiunto
+                .build();
     }
 
     public static Studente convertiStudenteDaDTO(StudenteDTO dto) {
-        return Studente.builder().matricola(dto.getMatricola()).nome(dto.getNome()).cognome(dto.getCognome()).build();
+        return Studente.builder()
+                .matricola(dto.getMatricola())
+                .nome(dto.getNome())
+                .cognome(dto.getCognome())
+                .pianoDiStudi(dto.getPianoDiStudi())  // Aggiunto
+                .residenza(dto.getResidenza())  // Aggiunto
+                .dataDiNascita(dto.getDataDiNascita())  // Aggiunto
+                .build();
     }
 
     public static List<StudenteDTO> convertListStudentiToDTO(List<Studente> studenti) {
@@ -29,5 +44,6 @@ public final class StudentMapper {
 
         return dtos.stream().map(StudentMapper::convertiStudenteDaDTO).collect(Collectors.toList());
     }
-
 }
+
+

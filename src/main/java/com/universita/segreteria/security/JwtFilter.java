@@ -31,27 +31,34 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
-
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             String email = jwtUtil.extractUsername(token);
 
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                Optional<Utente> utenteOpt = utenteRepo.findByEmail(email);
-                if (utenteOpt.isPresent() && jwtUtil.isTokenValid(token, utenteOpt.get())) {
-                    Utente utente = utenteOpt.get();
+            try {
+                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    Optional<Utente> utenteOpt = utenteRepo.findByEmail(email);
+                    if (utenteOpt.isPresent() && jwtUtil.isTokenValid(token, utenteOpt.get())) {
+                        Utente utente = utenteOpt.get();
 
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    utente, null, List.of(new SimpleGrantedAuthority("ROLE_" + utente.getRuolo()))
-                            );
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        utente, null, List.of(new SimpleGrantedAuthority("ROLE_" + utente.getRuolo()))
+                                );
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    } else {
+                        // Log per errore di token
+                        logger.warn("Token non valido per l'utente: " + email);
+                    }
                 }
+            } catch (Exception e) {
+                logger.error("Errore durante la validazione del token JWT", e);
             }
         }
 
         filterChain.doFilter(request, response);
     }
+
 }

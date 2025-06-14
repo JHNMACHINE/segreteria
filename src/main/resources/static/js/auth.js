@@ -39,7 +39,8 @@ async function register({
   emailId,
   passwordId,
   ruoloId,
-  matricolaId,
+  matricolaId,  // Aggiungi l'ID della matricola
+  pianoDiStudiId,  // Aggiungi l'ID del piano di studi
   errorId,
   successId,
   redirectUrl,
@@ -58,13 +59,14 @@ async function register({
     const email = document.getElementById(emailId).value.trim();
     const password = document.getElementById(passwordId).value;
     const ruolo = document.getElementById(ruoloId).value;
-    const matricola = document.getElementById(matricolaId).value.trim();
+    const matricola = ruolo === "STUDENTE" ? document.getElementById(matricolaId).value.trim() : null; // Matricola solo per studenti
+    const pianoDiStudi = ruolo === "STUDENTE" ? document.getElementById(pianoDiStudiId).value : null; // Piano di studi solo per studenti
 
     try {
       const response = await fetch(`${AUTH_BASE_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, cognome, email, password, ruolo, matricola }),
+        body: JSON.stringify({ nome, cognome, email, password, ruolo, matricola, pianoDiStudi }), // Invia matricola e piano di studi solo per gli studenti
       });
 
       if (response.ok) {
@@ -83,6 +85,8 @@ async function register({
     }
   });
 }
+
+
 
 async function refreshToken() {
   const oldToken = localStorage.getItem("token");

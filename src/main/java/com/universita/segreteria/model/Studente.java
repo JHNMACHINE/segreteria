@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,12 +20,12 @@ import java.util.List;
 @SuperBuilder
 public class Studente extends Utente {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     private String residenza;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataDiNascita;
+
 
     @Enumerated(EnumType.STRING)
     private PianoDiStudi pianoDiStudi;

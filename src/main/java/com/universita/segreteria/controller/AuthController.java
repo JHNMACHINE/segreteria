@@ -4,6 +4,8 @@ import com.universita.segreteria.dto.AuthRequest;
 import com.universita.segreteria.dto.AuthResponse;
 import com.universita.segreteria.dto.RegisterRequest;
 import com.universita.segreteria.factory.UtenteFactory;
+import com.universita.segreteria.model.PianoDiStudi;
+import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.Utente;
 import com.universita.segreteria.repository.UtenteRepository;
 import com.universita.segreteria.security.JwtUtil;
@@ -48,11 +50,24 @@ public class AuthController {
         nuovo.setCognome(request.cognome());
         nuovo.setMatricola(request.matricola());
 
+        // Aggiungi i nuovi campi
+        if (nuovo instanceof Studente studente) {
+            studente.setDataDiNascita(request.dataDiNascita());
+            studente.setPianoDiStudi(PianoDiStudi.valueOf(request.pianoDiStudi()));  // Aggiungi la conversione
+            studente.setResidenza(request.residenza());
+
+            // Aggiungi log per verificare i valori
+            System.out.println("Registrando studente con data di nascita: " + studente.getDataDiNascita());
+            System.out.println("Registrando studente con residenza: " + studente.getResidenza());
+        }
+
         utenteRepo.save(nuovo);
 
         String token = jwtUtil.generateToken(nuovo);
         return ResponseEntity.ok(new AuthResponse(token));
     }
+
+
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
