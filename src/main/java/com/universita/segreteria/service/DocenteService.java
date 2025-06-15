@@ -1,8 +1,6 @@
 package com.universita.segreteria.service;
 
-import com.universita.segreteria.dto.EsameDTO;
-import com.universita.segreteria.dto.StudenteDTO;
-import com.universita.segreteria.dto.VotoDTO;
+import com.universita.segreteria.dto.*;
 import com.universita.segreteria.mapper.EsameMapper;
 import com.universita.segreteria.mapper.StudentMapper;
 import com.universita.segreteria.mapper.VotoMapper;
@@ -15,15 +13,23 @@ import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.VotoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class DocenteService {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private EsameRepository esameRepo;
@@ -35,6 +41,11 @@ public class DocenteService {
     private DocenteRepository docenteRepo;
     @Autowired
     private VotoNotifier votoNotifier;
+    @Autowired
+    private PianoStudiService pianoStudiService;
+
+    private static final Logger logger = LoggerFactory.getLogger(DocenteService.class);
+
 
     @Transactional
     public EsameDTO creaEsame(Long docenteId, EsameDTO esameDTO) {
@@ -178,4 +189,29 @@ public class DocenteService {
         votoRepo.deleteById(votoId);
         return true;
     }
+
+    public Utente initDocente(RegisterRequest request) {
+        logger.info("Inizializzazione nuovo studente con email: {}", request.email());
+
+        PianoDiStudi piano = PianoDiStudi.valueOf(request.pianoDiStudi());
+        logger.info("Piano di studi selezionato: {}", piano);
+
+        List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(piano);
+        logger.info("Numero di esami assegnati al piano: {}", esamiDelPiano.size());
+
+        return Docente.builder()
+                .nome(request.nome())
+                .cognome(request.cognome())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .ruolo(TipoUtente.DOCENTE)
+                .appelli(esamiDelPiano)
+                .build();
+    }
+
+    public DocenteDTO getInfoDocente(String email) {
+        Docente docente = docenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Docente non trovato"));
+        return DocenteDTO.builder().id(docente.getId()).nome(docente.getNome()).cognome(docente.getCognome()).matricola(docente.getMatricola()).email(docente.getEmail()).build();
+    }
+
 }

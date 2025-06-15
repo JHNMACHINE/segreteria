@@ -22,7 +22,7 @@ public class Docente extends Utente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Esame> appelli;
 }

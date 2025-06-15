@@ -77,7 +77,6 @@
       <label for="residenza" class="form-label">Residenza</label>
       <input type="text" id="residenza" class="form-control" required />
     </div>
-    <input type="hidden" id="ruolo" value="STUDENTE" />
     <button type="submit" class="btn btn-success w-100">Registrati</button>
   </form>
 
@@ -86,16 +85,16 @@
   </p>
 </div>
 
-<script src="/js/auth.js"></script>
-<script>
-  register({
+
+<script type="module">
+  import { registerStudent } from '/js/auth.js';
+  registerStudent({
     formId: "registerForm",
     nomeId: "nome",
     cognomeId: "cognome",
     emailId: "email",
     passwordId: "password",
     matricolaId: "matricola",
-    ruoloId: "ruolo",
     dataDiNascitaId: "dataDiNascita",
     pianoDiStudiId: "pianoDiStudi",
     residenzaId: "residenza",

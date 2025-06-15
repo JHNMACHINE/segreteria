@@ -32,7 +32,11 @@ async function login({ formId, emailId, passwordId, errorId, redirectUrl }) {
   });
 }
 
-async function register({
+export async function registerSegretario(){
+
+}
+
+export async function registerStudent({
   formId,
   nomeId,
   cognomeId,
@@ -60,9 +64,9 @@ async function register({
     const cognome = document.getElementById(cognomeId).value.trim();
     const email = document.getElementById(emailId).value.trim();
     const password = document.getElementById(passwordId).value;
-    const ruolo = document.getElementById(ruoloId).value;
-    const matricola = ruolo === "STUDENTE" ? document.getElementById(matricolaId).value.trim() : null; // Matricola solo per studenti
-    const pianoDiStudi = ruolo === "STUDENTE" ? document.getElementById(pianoDiStudiId).value : null; // Piano di studi solo per studenti
+    const ruolo = "STUDENTE";
+    const matricola = document.getElementById(matricolaId).value;
+    const pianoDiStudi = document.getElementById(pianoDiStudiId).value;
     const dataDiNascita = document.getElementById(dataDiNascitaId).value;
     const residenza = document.getElementById(residenzaId).value;
 
@@ -88,6 +92,62 @@ async function register({
       errorDiv.textContent = "Errore di rete durante la registrazione.";
     }
   });
+}
+
+export async function registerDocente({
+    formId,
+     nomeId,
+     cognomeId,
+     emailId,
+     passwordId,
+     ruoloId,
+     pianoDiStudiId,  // Aggiungi l'ID del piano di studi
+     residenzaId,
+     dataDiNascitaId,
+     errorId,
+     successId,
+     redirectUrl,
+}) {
+     const form = document.getElementById(formId);
+      const errorDiv = document.getElementById(errorId);
+      const successDiv = document.getElementById(successId);
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        errorDiv.textContent = "";
+        successDiv.textContent = "";
+
+        const nome = document.getElementById(nomeId).value.trim();
+        const cognome = document.getElementById(cognomeId).value.trim();
+        const email = document.getElementById(emailId).value.trim();
+        const password = document.getElementById(passwordId).value;
+        const ruolo = "DOCENTE";
+        const pianoDiStudi = document.getElementById(pianoDiStudiId).value;
+        const dataDiNascita = document.getElementById(dataDiNascitaId).value;
+        const residenza = document.getElementById(residenzaId).value;
+
+        try {
+          const response = await fetch(`${AUTH_BASE_URL}/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome, cognome, email, password, ruolo, pianoDiStudi, dataDiNascita, residenza }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem("token", data.token);
+            successDiv.textContent = "Registrazione completata! Sei loggato.";
+            if (redirectUrl) {
+              setTimeout(() => window.location.href = redirectUrl, 1500);
+            }
+          } else {
+            const errText = await response.text();
+            errorDiv.textContent = errText || "Registrazione fallita.";
+          }
+        } catch {
+          errorDiv.textContent = "Errore di rete durante la registrazione.";
+        }
+      });
 }
 
 

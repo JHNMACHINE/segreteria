@@ -4,11 +4,13 @@ import com.universita.segreteria.dto.AuthRequest;
 import com.universita.segreteria.dto.AuthResponse;
 import com.universita.segreteria.dto.RegisterRequest;
 import com.universita.segreteria.factory.UtenteFactory;
+import com.universita.segreteria.model.Docente;
 import com.universita.segreteria.model.PianoDiStudi;
 import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.Utente;
 import com.universita.segreteria.repository.UtenteRepository;
 import com.universita.segreteria.security.JwtUtil;
+import com.universita.segreteria.service.DocenteService;
 import com.universita.segreteria.service.SegreteriaService;
 import com.universita.segreteria.service.StudenteService;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +40,12 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private StudenteService studenteService;
+    @Autowired
+    DocenteService docenteService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        logger.info(String.valueOf(request));
         if (utenteRepo.findByEmail(request.email()).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Email già registrata");
         }
@@ -55,6 +60,8 @@ public class AuthController {
         // Aggiungi i nuovi campi
         if (nuovo instanceof Studente) {
             nuovo = studenteService.initStudente(request);
+        } else if (nuovo instanceof Docente){
+            nuovo = docenteService.initDocente(request);
         }
 
         utenteRepo.save(nuovo);

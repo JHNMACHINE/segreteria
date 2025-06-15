@@ -10,4 +10,6 @@ public interface DocenteRepository extends JpaRepository<Docente, Long> {
     Optional<Docente> findByMatricola(String matricola);
 
     List<Docente> findByNomeAndCognome(String nome, String cognome);
+
+    Optional<Docente> findByEmail(String email);
 }
