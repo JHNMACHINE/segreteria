@@ -45,8 +45,10 @@
   </p>
 </div>
 
-<script src="/js/auth.js"></script>
-<script>
+<script type="module" src="/js/auth.js"></script>
+<script type="module">
+  import { login } from '/js/auth.js';
+
   login({
     formId: "loginForm",
     emailId: "email",

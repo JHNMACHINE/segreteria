@@ -45,8 +45,12 @@
     </p>
 </div>
 
-<script src="/js/auth.js"></script>
-<script>
+<script type="module" src="/js/auth.js"></script>
+
+<!-- questo diventa modulo: importi ed esegui login -->
+<script type="module">
+    import { login } from '/js/auth.js';
+
     login({
       formId: "loginForm",
       emailId: "email",

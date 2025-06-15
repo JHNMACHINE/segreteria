@@ -1,6 +1,6 @@
 const AUTH_BASE_URL = "/api/v1/auth";
 
-async function login({ formId, emailId, passwordId, errorId, redirectUrl }) {
+export async function login({ formId, emailId, passwordId, errorId, redirectUrl }) {
   const form = document.getElementById(formId);
   const errorDiv = document.getElementById(errorId);
 
