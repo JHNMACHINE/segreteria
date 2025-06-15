@@ -69,7 +69,7 @@ public class AuthController {
 
         String token = jwtUtil.generateToken(nuovo);
 
-        logger.info("Auth Token: {}", token);
+        logger.debug("Auth Token: {}", token);
         return ResponseEntity.ok(new AuthResponse(token));
     }
 

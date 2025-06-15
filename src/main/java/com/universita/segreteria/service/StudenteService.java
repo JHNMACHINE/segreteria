@@ -57,7 +57,7 @@ public class StudenteService {
                 .filter(e -> !superati.contains(e))           // esclude esami già superati
                 .filter(e -> !giaValutati.contains(e))        // esclude esami già valutati (es. anche rifiutati)
                 .filter(e -> !giaPrenotati.contains(e))       // esclude esami già prenotati
-                .filter(e -> e.getDate().isAfter(oggi))       // considera solo esami con data futura
+                .filter(e -> e.getData().isAfter(oggi))       // considera solo esami con data futura
                 .toList();
         return EsameMapper.convertListEsamiToDTO(finalList);
     }
@@ -206,7 +206,7 @@ public class StudenteService {
                 }
             } else {
                 // Nessun voto trovato => esame NON prenotato, prenotabile se data futura
-                if (e.getDate() != null && e.getDate().isAfter(oggi)) {
+                if (e.getData() != null && e.getData().isAfter(oggi)) {
                     stato = "NON_SUPERATO";
                 } else {
                     stato = "NON_DISPONIBILE";
@@ -217,7 +217,7 @@ public class StudenteService {
                     e.getId(),               // id esame
                     e.getNome(),             // nome esame
                     e.getCfu(),              // CFU esame
-                    e.getDate(),             // data esame (se presente)
+                    e.getData(),             // data esame (se presente)
                     StatoEsame.valueOf(stato), // lo stato calcolato (es. SUPERATO, NON_SUPERATO, PRENOTATO)
                     idVotoPrenotazione,      // id del voto/prenotazione associata, o null
                     e.getDocente() != null ? e.getDocente().getId() : null // id docente, se presente

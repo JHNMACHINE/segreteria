@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +58,7 @@ public class DocenteService {
         }
 
         // il docente ha già un esame nello stesso giorno?
-        boolean esisteGiaEsame = esameRepo.findByDocente(docente).stream().anyMatch(e -> e.getDate().equals(esameDTO.getDate()));
+        boolean esisteGiaEsame = esameRepo.findByDocente(docente).stream().anyMatch(e -> e.getData().equals(esameDTO.getDate()));
 
         if (esisteGiaEsame) {
             throw new RuntimeException("Il docente ha già un esame previsto in questa data");
@@ -140,7 +141,7 @@ public class DocenteService {
         }
 
         esame.setNome(aggiornato.getNome());
-        esame.setDate(aggiornato.getDate());
+        esame.setData(aggiornato.getDate());
         esame.setStatoEsame(aggiornato.getStatoEsame());
         esameRepo.save(esame);
         return EsameMapper.toDTO(esame);
@@ -191,7 +192,7 @@ public class DocenteService {
     }
 
     public Utente initDocente(RegisterRequest request) {
-        logger.info("Inizializzazione nuovo studente con email: {}", request.email());
+        logger.info("Inizializzazione nuovo docente con email: {}", request.email());
 
         PianoDiStudi piano = PianoDiStudi.valueOf(request.pianoDiStudi());
         logger.info("Piano di studi selezionato: {}", piano);
@@ -199,19 +200,46 @@ public class DocenteService {
         List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(piano);
         logger.info("Numero di esami assegnati al piano: {}", esamiDelPiano.size());
 
-        return Docente.builder()
+        Docente docente = Docente.builder()
                 .nome(request.nome())
                 .cognome(request.cognome())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .ruolo(TipoUtente.DOCENTE)
-                .appelli(esamiDelPiano)
                 .build();
+
+        // Imposta il docente sugli esami (relazione bidirezionale)
+        for (Esame esame : esamiDelPiano) {
+            esame.setDocente(docente);
+        }
+        // Imposta anche la lista nel docente (se necessario)
+        docente.setAppelli(esamiDelPiano);
+
+        return docente;
     }
 
     public DocenteDTO getInfoDocente(String email) {
         Docente docente = docenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Docente non trovato"));
         return DocenteDTO.builder().id(docente.getId()).nome(docente.getNome()).cognome(docente.getCognome()).matricola(docente.getMatricola()).email(docente.getEmail()).build();
     }
+
+
+    @Transactional
+    public List<AppelloDTO> getAppelli(String emailDocente) {
+        Docente docente = docenteRepo.findByEmail(emailDocente)
+                .orElseThrow(() -> new RuntimeException("Docente non trovato"));
+
+        List<Esame> appelli = docente.getAppelli();
+
+        return appelli.stream()
+                .map(esame -> AppelloDTO.builder()
+                        .id(esame.getId())
+                        .nome(esame.getNome())
+                        .cfu(esame.getCfu())
+                        .data(esame.getData())
+                        .build()
+                ).collect(Collectors.toList());
+    }
+
 
 }

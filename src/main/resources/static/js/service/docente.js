@@ -15,3 +15,19 @@ export function getInfoDocente() {
     const email = getEmailOrRedirect();
     return eseguiOperazione('getInfoDocente', [email]);
 }
+
+export function getAppelli(){
+    const email = getEmailOrRedirect();
+    return eseguiOperazione('getAppelli', [email]);
+}
+
+
+export function inserisciVoto(data){
+    const email = getEmailOrRedirect();
+    return eseguiOperazione('getAppelli', [email, data]);
+}
+
+export function creaAppello(data){
+    const email = getEmailOrRedirect();
+    return eseguiOperazione('getAppelli', [email, data]);
+}
