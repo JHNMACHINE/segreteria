@@ -6,19 +6,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; }
+        body {
+          background-color: #f8f9fa;
+        }
+
         header {
-          background-color: #0d6efd;
+          background-color: #198754;
           color: white;
-          padding: 20px;
+          padding: 20px 40px;
           display: flex;
           justify-content: space-between;
           align-items: center;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+
+        header h1 {
+          margin: 0;
+          font-size: 1.75rem;
+        }
+
+        .btn-light {
+          background-color: white;
+          color: #198754;
+          border: none;
+          transition: background-color 0.3s;
+        }
+
+        .btn-light:hover {
+          background-color: #e2f4ec;
+        }
+
+        .card {
+          border: none;
+          box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .card-header {
+          background-color: #198754;
+          color: white;
+          font-weight: bold;
+        }
+
+        .list-group-item {
+          border: 1px solid #ddd;
+          border-radius: 0.5rem;
+          margin-bottom: 10px;
+          padding: 15px;
+          background-color: white;
+        }
+
+        .list-group-item:hover {
+          background-color: #f1fdf7;
+        }
+
+        h2, h4 {
+          color: #198754;
+          font-weight: 600;
+        }
+
         footer {
-          background-color: #f8f9fa;
+          background-color: #fff;
           border-top: 1px solid #ddd;
           padding: 20px;
+          text-align: center;
+          color: #6c757d;
+        }
+
+        .btn-primary {
+          background-color: #198754;
+          border-color: #198754;
+        }
+
+        .btn-primary:hover {
+          background-color: #157347;
+          border-color: #157347;
+        }
+
+        .badge-success {
+          background-color: #198754;
         }
     </style>
 </head>
@@ -27,24 +92,28 @@
 <header>
     <h1>Area Studente</h1>
     <div>
-        <span id="nomeStudente" class="me-3"></span>
-        <button class="btn btn-light btn-sm" onclick="logout()">Logout</button>
+        <span id="nomeStudente" class="me-3 fw-semibold"></span>
+        <button class="btn btn-light btn-sm" id="logoutBtn">Logout</button>
     </div>
 </header>
 
-<div class="container mt-4">
+<div class="container mt-5">
     <div id="contenuto-dashboard">
-        <h2>Bentornato! <span id="nomeCompleto"></span></h2> <!-- Aggiungi un span per il nome e cognome -->
-        <p>Qui potrai gestire il tuo piano di studi, prenotarti agli appelli e accettare i voti.</p>
+        <h2 class="mb-3">Bentornato <span id="nomeCompleto"></span>!</h2>
+        <p class="lead">Gestisci il tuo piano di studi, prenotazioni e voti.</p>
 
-        <div id="sezione-piano-studi" class="my-4">
-            <h4>Piano di Studi</h4>
-            <ul id="lista-esami" class="list-group"></ul>
+        <div class="card my-4">
+            <div class="card-header">
+                Piano di Studi
+            </div>
+            <div class="card-body">
+                <h5 id="piano-studi" class="card-title text-success">Caricamento...</h5>
+            </div>
         </div>
 
-        <div id="sezione-appelli" class="my-4">
-            <h4>Appelli disponibili</h4>
-            <ul id="lista-appelli" class="list-group"></ul>
+        <div id="sezione-carriera" class="my-4">
+            <h4>Carriera in corso</h4>
+            <ul id="carriera" class="list-group"></ul>
         </div>
 
         <div id="sezione-voti" class="my-4">
@@ -54,136 +123,135 @@
     </div>
 </div>
 
-<footer class="text-center py-4 mt-5 border-top">
+<footer class="mt-5 border-top">
     <small>&copy; 2025 - Segreteria Universitaria. Tutti i diritti riservati.</small>
 </footer>
 
-<script src="/js/auth.js"></script>
-<script>
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error("Token non trovato");
-    }
+<script type="module">
+    import {
+        getInfoStudente,
+        getPianoDiStudi,
+        getVotiDaAccettare,
+        aggiornaStatoVoto,
+        prenotaEsame,
+        getCarriera
+    } from '/js/service/studente.js';
 
-  function getEmailFromToken(token) {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.sub || null; // prendi 'sub' se esiste, altrimenti null
-    } catch (e) {
-      console.error('Token non valido:', e);
-      return null;
-    }
-  }
+    import { logout } from '/js/service/service.js';
 
-  const email = getEmailFromToken(token);
-  console.log("Email estratta dal token:", email);
+    document.getElementById("logoutBtn").addEventListener("click", logout);
 
-  function eseguiOperazione(nomeOperazione, parametri = []) {
-    return fetch('/api/v1/operazione', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({ nomeOperazione, parametri })
-    }).then(res => {
-      if (!res.ok) throw new Error("Errore nella richiesta");
-      return res.json();
-    });
-  }
+    // Carica informazioni studente
+    getInfoStudente()
+        .then(data => {
+            document.getElementById('nomeStudente').innerText = `${data.nome} ${data.cognome}`;
+            document.getElementById('nomeCompleto').innerText = data.nome;
+        })
+        .catch(err => console.error("Errore caricamento info studente:", err));
 
-  if (email) {
-    eseguiOperazione('getInfoStudente', [email])
-      .then(data => {
-        document.getElementById('nomeStudente').innerText = data.nome + ' ' + data.cognome;
-        document.getElementById('nomeCompleto').innerText = data.nome + ' ' + data.cognome;
-      })
-      .catch(err => console.error('Errore caricamento info studente:', err));
-  } else {
-    console.error('Email non trovata nel token');
-  }
+    // Carica piano di studi
+    getPianoDiStudi()
+        .then(piano => {
+            document.getElementById('piano-studi').innerText = piano || 'Non disponibile';
+        })
+        .catch(err => console.error("Errore caricamento piano di studi:", err));
 
-    // Carica il piano di studi
-    eseguiOperazione('getPianoDiStudi', [email])
-      .then(esami => {
-        const lista = document.getElementById('lista-esami');
-        esami.forEach(e => {
-          const item = document.createElement('li');
-          item.className = 'list-group-item';
-          item.innerText = `${e.nome} - ${e.cfu} CFU`;
-          lista.appendChild(item);
-        });
-      })
-      .catch(err => console.error('Errore caricamento piano di studi:', err));
+    // Carica carriera esami
+    getCarriera()
+        .then(esami => {
+            const lista = document.getElementById('carriera');
+            lista.innerHTML = '';
 
-    // Carica gli appelli prenotabili
-    eseguiOperazione('esamiPrenotabili', [email])
-      .then(appelli => {
-        const lista = document.getElementById('lista-appelli');
-        appelli.forEach(a => {
-          const item = document.createElement('li');
-          item.className = 'list-group-item';
-          item.innerText = `${a.nomeEsame} - ${a.data}`;
+            esami.forEach(e => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center';
 
-          // Crea un pulsante per prenotare l'esame
-          const prenotaBtn = document.createElement('button');
-          prenotaBtn.className = 'btn btn-primary btn-sm ms-3';
-          prenotaBtn.innerText = 'Prenota';
-          prenotaBtn.onclick = () => prenotaEsame(a.id);
+                // Nome esame
+                const nomeSpan = document.createElement('span');
+                nomeSpan.innerText = e.nome;
+                item.appendChild(nomeSpan);
 
-          item.appendChild(prenotaBtn);
-          lista.appendChild(item);
-        });
-      })
-      .catch(err => console.error('Errore caricamento appelli:', err));
+                const right = document.createElement('div');
 
-    // Carica i voti da accettare
-    eseguiOperazione('getVotiDaAccettare', [email])
-      .then(voti => {
-        const lista = document.getElementById('lista-voti');
-        voti.forEach(v => {
-          const item = document.createElement('li');
-          item.className = 'list-group-item';
-          item.innerText = `${v.esame.nome} - Voto: ${v.valutazione}`;
+                if (e.statoEsame === 'SUPERATO') {
+                    const cfuSpan = document.createElement('span');
+                    cfuSpan.className = 'badge bg-success rounded-pill';
+                    cfuSpan.innerText = `${e.cfu} CFU`;
+                    right.appendChild(cfuSpan);
+                } else if (e.idAppello) {
+                    const prenotaBtn = document.createElement('button');
+                    prenotaBtn.className = 'btn btn-primary btn-sm';
+                    prenotaBtn.innerText = 'Prenota';
+                    prenotaBtn.onclick = () => {
+                        prenotaEsame(e.idAppello)
+                            .then(() => alert('Esame prenotato con successo'))
+                            .catch(err => alert('Errore nella prenotazione: ' + err));
+                    };
+                    right.appendChild(prenotaBtn);
+                } else {
+                    const noAppello = document.createElement('span');
+                    noAppello.className = 'text-muted fst-italic';
+                    noAppello.innerText = 'Nessun appello disponibile';
+                    right.appendChild(noAppello);
+                }
 
-          // Crea pulsanti per accettare e rifiutare il voto
-          const accettaBtn = document.createElement('button');
-          accettaBtn.className = 'btn btn-success btn-sm ms-3';
-          accettaBtn.innerText = 'Accetta';
-          accettaBtn.onclick = () => accettaVoto(v.id);
+                item.appendChild(right);
+                lista.appendChild(item);
+            });
+        })
+        .catch(err => console.error("Errore caricamento situazione esami:", err));
 
-          const rifiutaBtn = document.createElement('button');
-          rifiutaBtn.className = 'btn btn-danger btn-sm ms-2';
-          rifiutaBtn.innerText = 'Rifiuta';
-          rifiutaBtn.onclick = () => rifiutaVoto(v.id);
+    // Carica voti da accettare
+    getVotiDaAccettare()
+        .then(voti => {
+            const lista = document.getElementById('lista-voti');
+            lista.innerHTML = '';
 
-          item.appendChild(accettaBtn);
-          item.appendChild(rifiutaBtn);
-          lista.appendChild(item);
-        });
-      })
-      .catch(err => console.error('Errore caricamento voti:', err));
+            voti.forEach(v => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center flex-wrap';
 
-    // Funzione per accettare un voto
-    function accettaVoto(votoId) {
-      eseguiOperazione('aggiornaStatoVoto', [votoId, true])
-        .then(() => alert('Voto accettato'))
-        .catch(err => alert('Errore nell\'accettazione del voto: ' + err));
-    }
+                const testoVoto = document.createElement('div');
+                testoVoto.innerText = `${v.esame.nome} - Voto: ${v.valutazione}`;
+                testoVoto.className = 'me-3 fw-semibold';
 
-    // Funzione per rifiutare un voto
-    function rifiutaVoto(votoId) {
-      eseguiOperazione('aggiornaStatoVoto', [votoId, false])
-        .then(() => alert('Voto rifiutato'))
-        .catch(err => alert('Errore nel rifiuto del voto: ' + err));
-    }
+                const btnGroup = document.createElement('div');
+                btnGroup.className = 'd-flex gap-2';
 
-    // Funzione per prenotare un esame
-    function prenotaEsame(appelloId) {
-      eseguiOperazione('prenotaEsame', [appelloId, email])
-        .then(() => alert('Esame prenotato con successo'))
-        .catch(err => alert('Errore nella prenotazione dell\'esame: ' + err));
-    }
+                const accettaBtn = document.createElement('button');
+                accettaBtn.className = 'btn btn-success btn-sm';
+                accettaBtn.innerText = 'Accetta';
+                accettaBtn.onclick = () => {
+                    aggiornaStatoVoto(v.id, true)
+                        .then(() => alert('Voto accettato'))
+                        .catch(err => alert('Errore: ' + err));
+                };
+
+                const rifiutaBtn = document.createElement('button');
+                rifiutaBtn.className = 'btn btn-danger btn-sm';
+                rifiutaBtn.innerText = 'Rifiuta';
+                rifiutaBtn.onclick = () => {
+                    aggiornaStatoVoto(v.id, false)
+                        .then(() => alert('Voto rifiutato'))
+                        .catch(err => alert('Errore: ' + err));
+                };
+
+                btnGroup.appendChild(accettaBtn);
+                btnGroup.appendChild(rifiutaBtn);
+
+                item.appendChild(testoVoto);
+                item.appendChild(btnGroup);
+                lista.appendChild(item);
+            });
+
+            if (voti.length === 0) {
+                const noVoti = document.createElement('li');
+                noVoti.className = 'list-group-item text-center text-muted fst-italic';
+                noVoti.innerText = 'Nessun voto da accettare';
+                lista.appendChild(noVoti);
+            }
+        })
+        .catch(err => console.error("Errore caricamento voti:", err));
 </script>
 
 </body>

@@ -10,6 +10,7 @@ import com.universita.segreteria.model.Utente;
 import com.universita.segreteria.repository.UtenteRepository;
 import com.universita.segreteria.security.JwtUtil;
 import com.universita.segreteria.service.SegreteriaService;
+import com.universita.segreteria.service.StudenteService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.simple.SimpleLoggerContextFactory;
 import org.slf4j.Logger;
@@ -35,6 +36,8 @@ public class AuthController {
     private JwtUtil jwtUtil;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private StudenteService studenteService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
@@ -49,24 +52,9 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Ruolo non valido");
         }
 
-        nuovo.setEmail(request.email());
-        nuovo.setPassword(passwordEncoder.encode(request.password()));
-        nuovo.setRuolo(request.ruolo());
-        nuovo.setNome(request.nome());
-        nuovo.setCognome(request.cognome());
-        nuovo.setMatricola(request.matricola());
-        nuovo.setDataDiNascita(request.dataDiNascita());
-        nuovo.setResidenza(request.residenza());
-
         // Aggiungi i nuovi campi
-        if (nuovo instanceof Studente studente) {
-            studente.setDataDiNascita(request.dataDiNascita());
-            studente.setPianoDiStudi(PianoDiStudi.valueOf(request.pianoDiStudi()));  // Aggiungi la conversione
-            studente.setResidenza(request.residenza());
-
-            // Aggiungi log per verificare i valori
-            logger.info("Registrando studente con data di nascita: {}", studente.getDataDiNascita());
-            logger.info("Registrando studente con residenza: {}", studente.getResidenza());
+        if (nuovo instanceof Studente) {
+            nuovo = studenteService.initStudente(request);
         }
 
         utenteRepo.save(nuovo);

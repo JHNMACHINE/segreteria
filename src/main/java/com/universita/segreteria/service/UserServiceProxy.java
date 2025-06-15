@@ -59,16 +59,14 @@ public class UserServiceProxy implements UtenteService {
         log.info("Operazione STUDENTE richiesta: '{}', parametri: {}", operazione, Arrays.toString(parametri));
         return switch (operazione) {
             case "aggiornaStatoVoto" -> studenteService.aggiornaStatoVoto((Long) parametri[0], (boolean) parametri[1]);
-            case "consultaPianoStudi" -> studenteService.consultaPianoStudi((String) parametri[0]);
             case "prenotaEsame" -> studenteService.prenotaEsame((Long) parametri[0], (Long) parametri[1]);
             case "esamiSuperati" -> studenteService.esamiSuperati((StudenteDTO) parametri[0]);
             case "getEsamiDaSostenere" -> studenteService.getEsamiDaSostenere((StudenteDTO) parametri[0]);
+            case "getCarriera" -> studenteService.getCarriera((String) parametri[0]);
             case "esamiPrenotabili" -> studenteService.esamiPrenotabili((String) parametri[0]);
             case "getInfoStudente" -> studenteService.getInfoStudente((String) parametri[0]);
-
-            // Nuove operazioni viste nei log:
             case "getPianoDiStudi" -> studenteService.consultaPianoStudi((String) parametri[0]);
-            case "getVotiDaAccettare" -> studenteService.getVotiDaAccettare((StudenteDTO) parametri[0]);
+            case "getVotiDaAccettare" -> studenteService.getVotiDaAccettare((String) parametri[0]);
             default -> {
                 log.error("Operazione '{}' non consentita per ruolo STUDENTE", operazione);
                 throw new RuntimeException("Operazione non consentita per lo studente.");

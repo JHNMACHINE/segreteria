@@ -21,9 +21,9 @@ public class Esame {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String nome;
     private LocalDate date;
+    private int cfu;
 
     @Enumerated(EnumType.STRING)
     private StatoEsame statoEsame;

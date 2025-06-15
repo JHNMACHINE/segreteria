@@ -13,9 +13,11 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class EsameDTO {
-    private Long id;
+    private Long id;           // id esame
     private String nome;
+    private int cfu;           // aggiunto CFU per frontend
     private LocalDate date;
-    private StatoEsame statoEsame;
+    private StatoEsame statoEsame;  // stato dell'esame (SUPERATO, NON_SUPERATO, PRENOTATO ecc)
+    private Long votoId;       // id del Voto se esiste (per azioni tipo prenota o disdici)
     private Long docenteId;
 }

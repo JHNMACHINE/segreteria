@@ -3,6 +3,7 @@ package com.universita.segreteria.service;
 
 import com.universita.segreteria.controller.UtenteProxyController;
 import com.universita.segreteria.dto.EsameDTO;
+import com.universita.segreteria.dto.RegisterRequest;
 import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.dto.TassaDTO;
 import com.universita.segreteria.mapper.EsameMapper;
@@ -15,16 +16,19 @@ import jdk.jshell.spi.ExecutionControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class StudenteService {
-    private static final Logger log = LoggerFactory.getLogger(StudenteService.class);
+    private static final Logger logger = LoggerFactory.getLogger(StudenteService.class);
 
     @Autowired
     private EsameRepository esameRepo;
@@ -34,6 +38,8 @@ public class StudenteService {
     private VotoRepository votoRepo;
     @Autowired
     private PianoStudiService pianoStudiService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<EsameDTO> esamiPrenotabili(String email) {
         Studente studente = studenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Studente non trovato"));
@@ -46,10 +52,12 @@ public class StudenteService {
         List<Esame> giaPrenotati = studente.getEsami(); // quelli già prenotati
         PianoDiStudi piano = studente.getPianoDiStudi();
         LocalDate oggi = LocalDate.now();
-        List<Esame> finalList = pianoStudiService.getEsamiPerPiano(piano).stream().filter(e -> !superati.contains(e))               // non già superato
-                .filter(e -> !giaValutati.contains(e))            // non già valutato
-                .filter(e -> !giaPrenotati.contains(e))           // non già prenotato
-                .filter(e -> e.getDate().isAfter(oggi))           // data futura
+        // Esami del piano di studi non superati, non valutati, non già prenotati, con appelli futuri
+        List<Esame> finalList = pianoStudiService.getEsamiPerPiano(piano).stream()
+                .filter(e -> !superati.contains(e))           // esclude esami già superati
+                .filter(e -> !giaValutati.contains(e))        // esclude esami già valutati (es. anche rifiutati)
+                .filter(e -> !giaPrenotati.contains(e))       // esclude esami già prenotati
+                .filter(e -> e.getDate().isAfter(oggi))       // considera solo esami con data futura
                 .toList();
         return EsameMapper.convertListEsamiToDTO(finalList);
     }
@@ -120,8 +128,101 @@ public class StudenteService {
     }
 
 
-    public Object getVotiDaAccettare(StudenteDTO studenteDTO) {
-        log.error("TO BE IMPLEMENTED!");
-        return null;
+    public Object getVotiDaAccettare(String mail) {
+        Studente studente = studenteRepo.findByEmail(mail)
+                .orElseThrow(() -> new RuntimeException("Studente non trovato"));
+
+        return studente.getVoti().stream()
+                .filter(v -> v.getStato() == StatoVoto.ATTESA)
+                .map(v -> Map.of(
+                        "id", v.getId(),
+                        "voto", v.getVoto(),
+                        "esame", Map.of(
+                                "id", v.getEsame().getId(),
+                                "nome", v.getEsame().getNome()
+                        )
+                ))
+                .toList();
     }
+
+
+    public Utente initStudente(RegisterRequest request) {
+        logger.info("Inizializzazione nuovo studente con email: {}", request.email());
+
+        PianoDiStudi piano = PianoDiStudi.valueOf(request.pianoDiStudi());
+        logger.info("Piano di studi selezionato: {}", piano);
+
+        List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(piano);
+        logger.info("Numero di esami assegnati al piano: {}", esamiDelPiano.size());
+
+        Studente studente = Studente.builder()
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .ruolo(request.ruolo())
+                .nome(request.nome())
+                .cognome(request.cognome())
+                .matricola(request.matricola())
+                .dataDiNascita(request.dataDiNascita())
+                .residenza(request.residenza())
+                .pianoDiStudi(piano)
+                .esami(esamiDelPiano)
+                .build();
+
+        logger.info("Studente '{} {}' inizializzato correttamente con matricola: {}",
+                studente.getNome(), studente.getCognome(), studente.getMatricola());
+
+        return studente;
+    }
+
+
+    public List<EsameDTO> getCarriera(String email) {
+        Studente studente = studenteRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Studente non trovato"));
+
+        List<Voto> voti = votoRepo.findByStudenteId(studente.getId());
+
+        PianoDiStudi piano = studente.getPianoDiStudi();
+        LocalDate oggi = LocalDate.now();
+
+        List<Esame> esami = pianoStudiService.getEsamiPerPiano(piano);
+
+        return esami.stream().map(e -> {
+            Optional<Voto> votoEsame = voti.stream()
+                    .filter(v -> v.getEsame().equals(e))
+                    .findFirst();
+
+            String stato;
+            Long idVotoPrenotazione = null;
+
+            if (votoEsame.isPresent()) {
+                StatoVoto sv = votoEsame.get().getStato();
+                if (sv == StatoVoto.ACCETTATO) {
+                    stato = "SUPERATO";
+                } else if (sv == StatoVoto.ATTESA) {
+                    stato = "PRENOTATO";   // Esame prenotato ma non ancora valutato
+                    idVotoPrenotazione = votoEsame.get().getId();
+                } else {
+                    stato = sv.name();     // Altri stati come ASSENTE, NON_AMMESSO ecc.
+                }
+            } else {
+                // Nessun voto trovato => esame NON prenotato, prenotabile se data futura
+                if (e.getDate() != null && e.getDate().isAfter(oggi)) {
+                    stato = "NON_SUPERATO";
+                } else {
+                    stato = "NON_DISPONIBILE";
+                }
+            }
+
+            return new EsameDTO(
+                    e.getId(),               // id esame
+                    e.getNome(),             // nome esame
+                    e.getCfu(),              // CFU esame
+                    e.getDate(),             // data esame (se presente)
+                    StatoEsame.valueOf(stato), // lo stato calcolato (es. SUPERATO, NON_SUPERATO, PRENOTATO)
+                    idVotoPrenotazione,      // id del voto/prenotazione associata, o null
+                    e.getDocente() != null ? e.getDocente().getId() : null // id docente, se presente
+            );
+        }).toList();
+    }
+
 }
