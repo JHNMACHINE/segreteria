@@ -201,43 +201,50 @@
         .catch(err => console.error("Errore caricamento carriera:", err));
 
     // Appelli prenotabili
+    // Appelli prenotabili
     getEsamiPrenotabili()
-        .then(appelli => {
-            const ul = document.getElementById('lista-prenotabili');
-            ul.innerHTML = '';
-            console.log('[APPELLI]', appelli);
+    .then(appelli => {
+        const ul = document.getElementById('lista-prenotabili');
+        ul.innerHTML = '';
+        console.log('[APPELLI]', appelli);
 
-            if (appelli.length === 0) {
-                const li = document.createElement('li');
-                li.className = 'list-group-item text-center text-muted fst-italic';
-                li.innerText = 'Nessun appello disponibile';
-                ul.appendChild(li);
-                return;
-            }
+        if (appelli.length === 0) {
+            const li = document.createElement('li');
+            li.className = 'list-group-item text-center text-muted fst-italic';
+            li.innerText = 'Nessun appello disponibile';
+            ul.appendChild(li);
+            return;
+        }
 
-            appelli.forEach(a => {
-                const item = document.createElement('li');
-                item.className = 'list-group-item d-flex justify-content-between align-items-center';
+        appelli.forEach(a => {
+            const item = document.createElement('li');
+            item.className = 'list-group-item d-flex justify-content-between align-items-center';
 
-                const info = document.createElement('span');
-                info.innerText = `${a.nome} — ${a.data}`;
-                item.appendChild(info);
-
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-primary btn-sm';
-                btn.innerText = 'Prenota';
-                console.log('[APPELLO]', a); // AGGIUNGI QUESTA RIGA QUI
-                btn.onclick = () => {
-                    prenotaEsame(a.id)
-                        .then(() => alert('Prenotazione avvenuta con successo'))
-                        .catch(err => alert('Errore nella prenotazione: ' + err));
-                };
-                item.appendChild(btn);
-
-                ul.appendChild(item);
+            const dataEsame = new Date(a.date).toLocaleDateString('it-IT', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
             });
-        })
-        .catch(err => console.error("Errore caricamento appelli:", err));
+
+            const info = document.createElement('span');
+            info.innerText = `${a.nome} — ${dataEsame}`;
+            item.appendChild(info);
+
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-primary btn-sm';
+            btn.innerText = 'Prenota';
+            btn.onclick = () => {
+                prenotaEsame(a.id)
+                    .then(() => alert('Prenotazione avvenuta con successo'))
+                    .catch(err => alert('Errore nella prenotazione: ' + err));
+            };
+            item.appendChild(btn);
+
+            ul.appendChild(item);
+        });
+    })
+    .catch(err => console.error("Errore caricamento appelli:", err));
+
 
     // Voti da accettare
     getVotiDaAccettare()
