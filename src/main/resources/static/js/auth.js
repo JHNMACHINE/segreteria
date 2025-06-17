@@ -1,6 +1,8 @@
 const AUTH_BASE_URL = "/api/v1/auth";
 
-export async function login({ formId, emailId, passwordId, errorId, redirectUrl }) {
+
+
+export async function login({ formId, emailId, passwordId, errorId, redirectUrl,expectedRole}) {
   const form = document.getElementById(formId);
   const errorDiv = document.getElementById(errorId);
 
@@ -20,6 +22,23 @@ export async function login({ formId, emailId, passwordId, errorId, redirectUrl 
 
       if (response.ok) {
         const data = await response.json();
+         const token = data.token;
+
+      // decodifica token per estrarre ruolo
+        let decoded;
+      try {
+         decoded = JSON.parse(atob(token.split('.')[1]));
+
+      } catch(err) {
+        console.error("Token non valido:", err);
+        errorDiv.textContent = "Errore token.";
+        return;
+      }
+      const ruolo = decoded.ruolo;
+      if (expectedRole && ruolo !== expectedRole) {
+        errorDiv.textContent = `Accesso negato: sei ${ruolo}, non ${expectedRole.toLowerCase()}.`;
+        return;
+      }
         localStorage.setItem("token", data.token);
         window.location.href = redirectUrl;
       } else {
