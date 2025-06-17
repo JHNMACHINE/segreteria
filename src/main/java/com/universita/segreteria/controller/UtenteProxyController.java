@@ -1,11 +1,13 @@
 package com.universita.segreteria.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.universita.segreteria.dto.RichiestaOperazione;
 import com.universita.segreteria.model.TipoUtente;
 import com.universita.segreteria.service.UserServiceProxy;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -64,12 +66,30 @@ public class UtenteProxyController {
     public ResponseEntity<?> esegui(@RequestBody RichiestaOperazione richiesta) {
         TipoUtente ruolo = getRuoloDaContesto();
         utenteProxy.setRuolo(ruolo);
-        log.info("Chiamo eseguiOperazione con nomeOperazione='{}' e parametri={} per ruolo={}",
-                richiesta.getNomeOperazione(), richiesta.getParametri(), ruolo);
-        Object risultato = utenteProxy.eseguiOperazione(
-                richiesta.getNomeOperazione(),
-                richiesta.getParametri()
-        );
-        return ResponseEntity.ok(risultato);
+
+        // Log dettagliato dei parametri
+        try {
+            String parametriJson = new ObjectMapper().writeValueAsString(richiesta.getParametri());
+            log.info("Chiamo eseguiOperazione con nomeOperazione='{}', parametri={}, ruolo={}",
+                    richiesta.getNomeOperazione(), parametriJson, ruolo);
+        } catch (Exception e) {
+            log.warn("Impossibile serializzare i parametri in JSON: {}", e.getMessage());
+        }
+
+        try {
+            Object risultato = utenteProxy.eseguiOperazione(
+                    richiesta.getNomeOperazione(),
+                    richiesta.getParametri()
+            );
+
+            log.info("Operazione '{}' completata con risultato: {}", richiesta.getNomeOperazione(), risultato);
+            return ResponseEntity.ok(risultato);
+
+        } catch (Exception e) {
+            log.error("Errore durante l'esecuzione dell'operazione '{}': {}", richiesta.getNomeOperazione(), e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Errore durante l'esecuzione dell'operazione: " + e.getMessage());
+        }
     }
+
 }

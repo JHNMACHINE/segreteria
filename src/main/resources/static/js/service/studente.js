@@ -42,6 +42,11 @@ export function aggiornaStatoVoto(votoId, accettato) {
 }
 
 export function prenotaEsame(appelloId) {
+    if (!appelloId) {
+        console.error("❌ ID appello non valido:", appelloId);
+        throw new Error("ID appello non valido");
+    }
     const email = getEmailOrRedirect();
     return eseguiOperazione('prenotaEsame', [email, appelloId]);
 }
+

@@ -116,6 +116,12 @@
             <ul id="carriera" class="list-group"></ul>
         </div>
 
+        <!-- Sezione Appelli Disponibili -->
+        <div id="sezione-prenotabili" class="my-4">
+            <h4>Appelli disponibili</h4>
+            <ul id="lista-prenotabili" class="list-group"></ul>
+        </div>
+
         <div id="sezione-voti" class="my-4">
             <h4>Voti da accettare</h4>
             <ul id="lista-voti" class="list-group"></ul>
@@ -131,17 +137,17 @@
     import {
         getInfoStudente,
         getPianoDiStudi,
+        getCarriera,
+        getEsamiPrenotabili,
         getVotiDaAccettare,
-        aggiornaStatoVoto,
         prenotaEsame,
-        getCarriera
+        aggiornaStatoVoto
     } from '/js/service/studente.js';
-
     import { logout } from '/js/service/service.js';
 
     document.getElementById("logoutBtn").addEventListener("click", logout);
 
-    // Carica informazioni studente
+    // Info studente
     getInfoStudente()
         .then(data => {
             document.getElementById('nomeStudente').innerText = `${data.nome} ${data.cognome}`;
@@ -149,63 +155,104 @@
         })
         .catch(err => console.error("Errore caricamento info studente:", err));
 
-    // Carica piano di studi
+    // Piano di studi
     getPianoDiStudi()
         .then(piano => {
             document.getElementById('piano-studi').innerText = piano || 'Non disponibile';
         })
         .catch(err => console.error("Errore caricamento piano di studi:", err));
 
-    // Carica carriera esami
+    // Carriera esami
     getCarriera()
         .then(esami => {
             const lista = document.getElementById('carriera');
             lista.innerHTML = '';
+            console.log('[CARRIERA]', esami);
 
             esami.forEach(e => {
                 const item = document.createElement('li');
                 item.className = 'list-group-item d-flex justify-content-between align-items-center';
-
-                // Nome esame
                 const nomeSpan = document.createElement('span');
                 nomeSpan.innerText = e.nome;
                 item.appendChild(nomeSpan);
 
                 const right = document.createElement('div');
-
                 if (e.statoEsame === 'SUPERATO') {
-                    const cfuSpan = document.createElement('span');
-                    cfuSpan.className = 'badge bg-success rounded-pill';
-                    cfuSpan.innerText = `${e.cfu} CFU`;
-                    right.appendChild(cfuSpan);
-                } else if (e.idAppello) {
-                    const prenotaBtn = document.createElement('button');
-                    prenotaBtn.className = 'btn btn-primary btn-sm';
-                    prenotaBtn.innerText = 'Prenota';
-                    prenotaBtn.onclick = () => {
-                        prenotaEsame(e.idAppello)
-                            .then(() => alert('Esame prenotato con successo'))
-                            .catch(err => alert('Errore nella prenotazione: ' + err));
-                    };
-                    right.appendChild(prenotaBtn);
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-success rounded-pill';
+                    badge.innerText = `${e.cfu} CFU`;
+                    right.appendChild(badge);
+                } else if (e.statoEsame === 'PRENOTATO') {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-warning rounded-pill';
+                    badge.innerText = 'In attesa di valutazione';
+                    right.appendChild(badge);
                 } else {
-                    const noAppello = document.createElement('span');
-                    noAppello.className = 'text-muted fst-italic';
-                    noAppello.innerText = 'Nessun appello disponibile';
-                    right.appendChild(noAppello);
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-secondary rounded-pill';
+                    badge.innerText = e.statoEsame;
+                    right.appendChild(badge);
                 }
 
                 item.appendChild(right);
                 lista.appendChild(item);
             });
         })
-        .catch(err => console.error("Errore caricamento situazione esami:", err));
+        .catch(err => console.error("Errore caricamento carriera:", err));
 
-    // Carica voti da accettare
+    // Appelli prenotabili
+    getEsamiPrenotabili()
+        .then(appelli => {
+            const ul = document.getElementById('lista-prenotabili');
+            ul.innerHTML = '';
+            console.log('[APPELLI]', appelli);
+
+            if (appelli.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item text-center text-muted fst-italic';
+                li.innerText = 'Nessun appello disponibile';
+                ul.appendChild(li);
+                return;
+            }
+
+            appelli.forEach(a => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+                const info = document.createElement('span');
+                info.innerText = `${a.nome} — ${a.data}`;
+                item.appendChild(info);
+
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-primary btn-sm';
+                btn.innerText = 'Prenota';
+                console.log('[APPELLO]', a); // AGGIUNGI QUESTA RIGA QUI
+                btn.onclick = () => {
+                    prenotaEsame(a.id)
+                        .then(() => alert('Prenotazione avvenuta con successo'))
+                        .catch(err => alert('Errore nella prenotazione: ' + err));
+                };
+                item.appendChild(btn);
+
+                ul.appendChild(item);
+            });
+        })
+        .catch(err => console.error("Errore caricamento appelli:", err));
+
+    // Voti da accettare
     getVotiDaAccettare()
         .then(voti => {
             const lista = document.getElementById('lista-voti');
             lista.innerHTML = '';
+            console.log('[VOTI]', voti);
+
+            if (voti.length === 0) {
+                const noVoti = document.createElement('li');
+                noVoti.className = 'list-group-item text-center text-muted fst-italic';
+                noVoti.innerText = 'Nessun voto da accettare';
+                lista.appendChild(noVoti);
+                return;
+            }
 
             voti.forEach(v => {
                 const item = document.createElement('li');
@@ -236,20 +283,10 @@
                         .catch(err => alert('Errore: ' + err));
                 };
 
-                btnGroup.appendChild(accettaBtn);
-                btnGroup.appendChild(rifiutaBtn);
-
-                item.appendChild(testoVoto);
-                item.appendChild(btnGroup);
+                btnGroup.append(accettaBtn, rifiutaBtn);
+                item.append(testoVoto, btnGroup);
                 lista.appendChild(item);
             });
-
-            if (voti.length === 0) {
-                const noVoti = document.createElement('li');
-                noVoti.className = 'list-group-item text-center text-muted fst-italic';
-                noVoti.innerText = 'Nessun voto da accettare';
-                lista.appendChild(noVoti);
-            }
         })
         .catch(err => console.error("Errore caricamento voti:", err));
 </script>
