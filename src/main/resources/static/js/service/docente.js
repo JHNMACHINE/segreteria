@@ -24,10 +24,10 @@ export function getAppelli(){
 
 export function inserisciVoto(data){
     const email = getEmailOrRedirect();
-    return eseguiOperazione('getAppelli', [email, data]);
+    return eseguiOperazione('inserisciVoto', [email, data]);
 }
 
 export function creaAppello(data){
     const email = getEmailOrRedirect();
-    return eseguiOperazione('getAppelli', [email, data]);
+    return eseguiOperazione('creaAppello', [email, data]);
 }
