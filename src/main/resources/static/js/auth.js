@@ -34,7 +34,7 @@ export async function login({ formId, emailId, passwordId, errorId, redirectUrl,
       }
       const ruolo = decoded.ruolo;
       if (expectedRole && ruolo !== expectedRole) {
-        errorDiv.textContent = `Accesso negato: sei ${ruolo}, non ${expectedRole.toLowerCase()}.`;
+        errorDiv.textContent = `Accesso negato: Non sei autorizzato`;
         return;
       }
         localStorage.setItem("token", data.token);
