@@ -12,7 +12,9 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 
@@ -33,13 +35,30 @@ public class UserServiceProxy implements UtenteService {
 
     @Override
     public Object eseguiOperazione(String operazione, Object... parametri) {
-        log.info("Eseguo operazione '{}' con parametri {} per ruolo {}", operazione, parametri, ruolo);
-        return switch (ruolo) {
-            case SEGRETARIO -> operazioneSegreteria(operazione, parametri);
-            case STUDENTE -> operazioneStudente(operazione, parametri);
-            case DOCENTE -> operazioneDocente(operazione, parametri);
-        };
+        log.info("Eseguo operazione '{}' con parametri {} per ruolo {}", operazione, Arrays.toString(parametri), ruolo);
+
+        try {
+            return switch (ruolo) {
+                case SEGRETARIO -> operazioneSegreteria(operazione, parametri);
+                case STUDENTE   -> operazioneStudente(operazione, parametri);
+                case DOCENTE    -> operazioneDocente(operazione, parametri);
+            };
+        }
+        catch (ResponseStatusException ex) {
+            // se è già un 404, 403, etc, rilanciamola così com’è:
+            throw ex;
+        }
+        catch (Exception ex) {
+            // logghiamo il problema imprevisto e restituiamo un 500
+            log.error("Errore interno durante l’operazione '{}', ruolo {}: {}",
+                    operazione, ruolo, ex.getMessage(), ex);
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Errore interno durante l’operazione \"" + operazione + "\""
+            );
+        }
     }
+
 
     private Object operazioneSegreteria(String operazione, Object... parametri) {
         return switch (operazione) {
@@ -50,7 +69,11 @@ public class UserServiceProxy implements UtenteService {
             case "cercaStudente" -> segreteriaService.cercaStudente((String) parametri[0], (String) parametri[1]);
             case "cercaStudentePerMatricola" -> segreteriaService.cercaStudentePerMatricola((String) parametri[0]);
             case "cambiaPianoDiStudi" ->
-                    segreteriaService.cambiaPianoDiStudi((Long) parametri[0], (PianoDiStudi) parametri[1]);
+                    segreteriaService.cambiaPianoDiStudi((String) parametri[0], (Integer) parametri[1], (String) parametri[2]);
+            case "getAllStudenti" ->
+                    segreteriaService.getAllStudenti();
+            case "getAllDocenti" ->
+                    segreteriaService.getAllDocenti();
             default -> throw new RuntimeException("Operazione non consentita per la segreteria.");
         };
     }
@@ -59,7 +82,7 @@ public class UserServiceProxy implements UtenteService {
         log.info("Operazione STUDENTE richiesta: '{}', parametri: {}", operazione, Arrays.toString(parametri));
         return switch (operazione) {
             case "aggiornaStatoVoto" -> studenteService.aggiornaStatoVoto((Long) parametri[0], (boolean) parametri[1]);
-            case "prenotaEsame" -> studenteService.prenotaEsame((Long) parametri[0], (Long) parametri[1]);
+            case "prenotaEsame" -> studenteService.prenotaEsame((String) parametri[0], (Integer) parametri[1]);
             case "esamiSuperati" -> studenteService.esamiSuperati((StudenteDTO) parametri[0]);
             case "getEsamiDaSostenere" -> studenteService.getEsamiDaSostenere((StudenteDTO) parametri[0]);
             case "getCarriera" -> studenteService.getCarriera((String) parametri[0]);

@@ -29,26 +29,26 @@ public class PianoStudiService {
             return;
         }
         List<Esame> esami = List.of(
-                new Esame(null, "Programmazione", LocalDate.now().plusWeeks(3), 10, StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Algoritmi", LocalDate.now().plusWeeks(4),10, StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Basi di dati", LocalDate.now().plusWeeks(5),10, StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Analisi", LocalDate.now().plusWeeks(3),10, StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Algebra", LocalDate.now().plusWeeks(4), 10,StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Geometria", LocalDate.now().plusWeeks(5),10, StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Genetica", LocalDate.now().plusWeeks(3), 10,StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Biochimica", LocalDate.now().plusWeeks(4),10, StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Zoologia", LocalDate.now().plusWeeks(5),10, StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Design", LocalDate.now().plusWeeks(3), 10,StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Colori", LocalDate.now().plusWeeks(4),10, StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Tipografia", LocalDate.now().plusWeeks(5), 10,StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Fisica", LocalDate.now().plusWeeks(3),10, StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Chimica", LocalDate.now().plusWeeks(4), 10,StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Matematica I", LocalDate.now().plusWeeks(5), 10,StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Biologia", LocalDate.now().plusWeeks(3),10, StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Farmacologia", LocalDate.now().plusWeeks(4), 10,StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Diritto Privato", LocalDate.now().plusWeeks(3), 10,StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Procedura Civile", LocalDate.now().plusWeeks(4), 10,StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>()),
-                new Esame(null, "Economia Politica", LocalDate.now().plusWeeks(5),10, StatoEsame.ATTIVO, null, null, new ArrayList<>(), new ArrayList<>())
+                new Esame(null, "Programmazione", LocalDate.now().plusWeeks(3), 10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Algoritmi", LocalDate.now().plusWeeks(4),10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Basi di dati", LocalDate.now().plusWeeks(5),10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Analisi", LocalDate.now().plusWeeks(3),10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Algebra", LocalDate.now().plusWeeks(4), 10,StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Geometria", LocalDate.now().plusWeeks(5),10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Genetica", LocalDate.now().plusWeeks(3), 10,StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Biochimica", LocalDate.now().plusWeeks(4),10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Zoologia", LocalDate.now().plusWeeks(5),10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Design", LocalDate.now().plusWeeks(3), 10,StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Colori", LocalDate.now().plusWeeks(4),10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Tipografia", LocalDate.now().plusWeeks(5), 10,StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Fisica", LocalDate.now().plusWeeks(3),10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Chimica", LocalDate.now().plusWeeks(4), 10,StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Matematica I", LocalDate.now().plusWeeks(5), 10,StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Biologia", LocalDate.now().plusWeeks(3),10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Farmacologia", LocalDate.now().plusWeeks(4), 10,StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Diritto Privato", LocalDate.now().plusWeeks(3), 10,StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Procedura Civile", LocalDate.now().plusWeeks(4), 10,StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>()),
+                new Esame(null, "Economia Politica", LocalDate.now().plusWeeks(5),10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>())
         );
 
         esameRepo.saveAll(esami);

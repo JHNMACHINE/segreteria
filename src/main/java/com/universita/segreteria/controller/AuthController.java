@@ -4,10 +4,7 @@ import com.universita.segreteria.dto.AuthRequest;
 import com.universita.segreteria.dto.AuthResponse;
 import com.universita.segreteria.dto.RegisterRequest;
 import com.universita.segreteria.factory.UtenteFactory;
-import com.universita.segreteria.model.Docente;
-import com.universita.segreteria.model.PianoDiStudi;
-import com.universita.segreteria.model.Studente;
-import com.universita.segreteria.model.Utente;
+import com.universita.segreteria.model.*;
 import com.universita.segreteria.repository.UtenteRepository;
 import com.universita.segreteria.security.JwtUtil;
 import com.universita.segreteria.service.DocenteService;
@@ -41,7 +38,9 @@ public class AuthController {
     @Autowired
     private StudenteService studenteService;
     @Autowired
-    DocenteService docenteService;
+    private DocenteService docenteService;
+    @Autowired
+    private SegreteriaService segreteriaService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
@@ -60,8 +59,10 @@ public class AuthController {
         // Aggiungi i nuovi campi
         if (nuovo instanceof Studente) {
             nuovo = studenteService.initStudente(request);
-        } else if (nuovo instanceof Docente){
+        } else if (nuovo instanceof Docente) {
             nuovo = docenteService.initDocente(request);
+        } else if (nuovo instanceof Segretario) {
+            nuovo = segreteriaService.initSegretario(request);
         }
 
         utenteRepo.save(nuovo);

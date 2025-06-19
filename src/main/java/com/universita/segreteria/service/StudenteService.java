@@ -74,14 +74,40 @@ public class StudenteService {
         return EsameMapper.convertListEsamiToDTO(esami);
     }
 
-    public EsameDTO prenotaEsame(Long studenteId, Long esameId) {
-        Studente studente = studenteRepo.findById(studenteId).orElseThrow(() -> new RuntimeException("Studente non trovato"));
-        Esame esame = esameRepo.findById(esameId).orElseThrow(() -> new RuntimeException("Esame non trovato"));
+    @Transactional
+    public EsameDTO prenotaEsame(String emailUtente, Integer esameId) {
+        // Trova lo studente per email
+        Studente studente = studenteRepo
+                .findByEmail(emailUtente)
+                .orElseThrow(() -> new RuntimeException("Studente non trovato"));
+
+        // Trova l'esame per ID
+        Esame esame = esameRepo
+                .findById(esameId.longValue()) // converte l'ID in Long
+                .orElseThrow(() -> new RuntimeException("Esame non trovato"));
+
+        // Verifica se lo studente è già prenotato
+        if (esame.getStudentiPrenotati().contains(studente)) {
+            throw new RuntimeException("Lo studente è già prenotato per questo esame");
+        }
+
+        // Aggiungi lo studente alla lista degli studenti prenotati
         esame.getStudentiPrenotati().add(studente);
+        // Aggiungi l'esame alla lista degli esami dello studente
         studente.getEsami().add(esame);
+
+        // Modifica lo stato dell'esame a PRENOTATO
+        esame.setStatoEsame(StatoEsame.PRENOTATO);
+
+        // Salva le modifiche
+        esameRepo.save(esame);
         studenteRepo.save(studente);
+
+        // Restituisce l'esame aggiornato come DTO
         return EsameMapper.toDTO(esame);
     }
+
+
 
     public PianoDiStudi consultaPianoStudi(String email) {
         Studente studente = studenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Studente non trovato"));

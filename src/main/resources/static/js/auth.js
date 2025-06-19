@@ -49,9 +49,65 @@ export async function login({ formId, emailId, passwordId, errorId, redirectUrl,
   });
 }
 
-export async function registerSegretario(){
+export async function registerSegretario({
+  formId,
+  nomeId,
+  cognomeId,
+  emailId,
+  passwordId,
+  ruoloId,
+  matricolaId,
+  dataDiNascitaId,
+  residenzaId,
+  errorId,
+  successId,
+  redirectUrl
+}) {
+  const form = document.getElementById(formId);
+  const errorDiv = document.getElementById(errorId);
+  const successDiv = document.getElementById(successId);
 
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorDiv.textContent = "";
+    successDiv.textContent = "";
+
+    const nome = document.getElementById(nomeId).value.trim();
+    const cognome = document.getElementById(cognomeId).value.trim();
+    const email = document.getElementById(emailId).value.trim();
+    const password = document.getElementById(passwordId).value;
+    const ruolo = "SEGRETARIO";
+    const matricola = document.getElementById(matricolaId).value;
+    const dataDiNascita = document.getElementById(dataDiNascitaId)?.value;
+    const residenza = document.getElementById(residenzaId)?.value;
+
+    try {
+      const response = await fetch(`${AUTH_BASE_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome, cognome, email, password, ruolo,
+          matricola, dataDiNascita, residenza
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("token", data.token);
+        successDiv.textContent = "Registrazione completata!";
+        if (redirectUrl) {
+          setTimeout(() => window.location.href = redirectUrl, 1500);
+        }
+      } else {
+        const errText = await response.text();
+        errorDiv.textContent = errText || "Registrazione fallita.";
+      }
+    } catch {
+      errorDiv.textContent = "Errore di rete durante la registrazione.";
+    }
+  });
 }
+
 
 export async function registerStudent({
   formId,
@@ -97,7 +153,7 @@ export async function registerStudent({
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.token);
-        successDiv.textContent = "Registrazione completata! Sei loggato.";
+        successDiv.textContent = "Registrazione completata!";
         if (redirectUrl) {
           setTimeout(() => window.location.href = redirectUrl, 1500);
         }
@@ -153,7 +209,7 @@ export async function registerDocente({
           if (response.ok) {
             const data = await response.json();
             localStorage.setItem("token", data.token);
-            successDiv.textContent = "Registrazione completata! Sei loggato.";
+            successDiv.textContent = "Registrazione completata!";
             if (redirectUrl) {
               setTimeout(() => window.location.href = redirectUrl, 1500);
             }

@@ -19,13 +19,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +47,8 @@ public class SegreteriaService {
     private PianoStudiService pianoStudiService;
     @Autowired
     private DocenteRepository docenteRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private SegretarioRepository segretarioRepository;
@@ -93,6 +99,19 @@ public class SegreteriaService {
         return VotoMapper.convertiInDTO(voto);
     }
 
+    public List<StudenteDTO> getAllStudenti() {
+        List<Studente> studenti = studenteRepo.findAll();
+        return StudentMapper.convertListStudentiToDTO(studenti);
+    }
+
+    public List<DocenteDTO> getAllDocenti() {
+        List<Docente> docenti = docenteRepository.findAll();
+        return docenti.stream()
+                .map(DocenteMapper::toDTO)  // Usa il metodo di mapping per ogni Docente
+                .collect(Collectors.toList());  // Colleziona in una lista di DocenteDTO
+    }
+
+
 
     public List<StudenteDTO> cercaStudente(String nome, String cognome) {
         List<Studente> studenti = studenteRepo.findByNomeAndCognome(nome, cognome);
@@ -105,27 +124,53 @@ public class SegreteriaService {
         return StudentMapper.convertiStudenteInDTO(studente);
     }
 
-    public StudenteDTO cambiaPianoDiStudi(Long studenteId, PianoDiStudi nuovoPiano) {
-        Studente studente = studenteRepo.findById(studenteId).orElseThrow(() -> new RuntimeException("Studente non trovato"));
+    public StudenteDTO cambiaPianoDiStudi(String email, Integer studenteId, String pianoDiStudi) {
+        // Verifica che studenteId sia valido
+        if (studenteId == null) {
+            throw new RuntimeException("ID studente non valido");
+        }
+
+        // Converti la stringa in un enum
+        PianoDiStudi nuovoPiano = PianoDiStudi.valueOf(pianoDiStudi);
+
+        // Trova lo studente e aggiorna il piano
+        Studente studente = studenteRepo.findById(studenteId.longValue()).orElseThrow(() -> new RuntimeException("Studente non trovato"));
         studente.setPianoDiStudi(nuovoPiano);
         studenteRepo.save(studente);
+
         return StudentMapper.convertiStudenteInDTO(studente);
     }
 
+
+
+
     public SegretarioDTO getProfilo() {
-        logger.info("getProfilo");
-        String name = SecurityContextHolder.getContext().getAuthentication().getName();
-        logger.info("Email autenticata: '{}'", name);  // <-- tra apici;
-        Optional<Segretario> segreterioOptional = segretarioRepository.findByEmail(name);
-        if (segreterioOptional.isPresent()){
-            Segretario segretario = segreterioOptional.get();
-            logger.info("ID: {}", segretario.getId());
-            logger.info("Nome: {}", segretario.getNome());
-            logger.info("Cognome: {}", segretario.getCognome());
-            logger.info("Email: {}", segretario.getEmail());
-            return SegretarioDTO.builder().nome(segretario.getNome()).cognome(segretario.getCognome()).build();
-        }
-        logger.error("Segretario non trovato");
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Segretario non trovato");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        // estrai l'entità Utente come principal
+        Utente utente = (Utente) auth.getPrincipal();
+        String email = utente.getEmail();
+
+
+        return segretarioRepository.findByEmail(email)
+                .map(s -> new SegretarioDTO(s.getNome(), s.getCognome()))
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Segretario non trovato")
+                );
     }
+
+
+    public Segretario initSegretario(com.universita.segreteria.dto.RegisterRequest request) {
+        return Segretario.builder()
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .nome(request.nome())
+                .cognome(request.cognome())
+                .matricola(request.matricola())
+                .dataDiNascita(request.dataDiNascita())
+                .residenza(request.residenza())
+                .ruolo(TipoUtente.SEGRETARIO)
+                .build();
+    }
+
 }

@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class StudenteDTO {
+    private Long id;
     private String nome;
     private String cognome;
     private String matricola;
@@ -21,4 +22,7 @@ public class StudenteDTO {
     private List<TassaDTO> tassePagate;
     private String residenza;
     private LocalDate dataDiNascita;
+    private String email;
+
+
 }

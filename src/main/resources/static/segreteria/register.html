@@ -58,16 +58,22 @@
             <input type="text" id="matricola" class="form-control" />
         </div>
         <input type="hidden" id="ruolo" value="SEGRETARIO" />
-        <button type="submit" class="btn btn-success w-100">Registrati</button>
+        <!-- Bottone con bordo e colore uguali al bottone di login -->
+        <button type="submit" class="btn btn-primary w-100">Registrati</button>
     </form>
+
+    <!-- Bottone per tornare alla pagina precedente -->
+    <button type="button" class="btn btn-secondary w-100 mt-3" onclick="window.history.back();">Torna indietro</button>
+
     <p class="mt-3 text-center">
         Hai già un account? <a href="login.html">Fai il login</a>
     </p>
 </div>
 
-<script src="/js/auth.js"></script>
-<script>
-    register({
+<script type="module">
+    import { registerSegretario } from "/js/auth.js";
+
+    registerSegretario({
       formId: "registerForm",
       nomeId: "nome",
       cognomeId: "cognome",
@@ -75,6 +81,8 @@
       passwordId: "password",
       ruoloId: "ruolo",
       matricolaId: "matricola",
+      dataDiNascitaId: null,   // o "dataDiNascita" se presente nel form
+      residenzaId: null,       // o "residenza" se presente nel form
       errorId: "error",
       successId: "success",
       redirectUrl: "/segreteria/dashboard.html"

@@ -2,8 +2,10 @@ package com.universita.segreteria.mapper;
 
 import com.universita.segreteria.dto.DocenteDTO;
 import com.universita.segreteria.model.Docente;
+import org.springframework.stereotype.Component;
 
-public class DocenteMapper {
+@Component
+public final class DocenteMapper {
 
     public static DocenteDTO toDTO(Docente docente) {
         return DocenteDTO.builder()

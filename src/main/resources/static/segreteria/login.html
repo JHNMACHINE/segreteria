@@ -44,14 +44,15 @@
     </p>
 </div>
 
-<script src="/js/auth.js"></script>
-<script>
+<script type="module">
+    import { login } from "/js/auth.js";
+
     login({
       formId: "loginForm",
       emailId: "email",
       passwordId: "password",
       errorId: "error",
-      redirectUrl: "/segreteria/dashboard.html"
+      redirectUrl: "/segreteria/dashboard.html",
       expectedRole: "SEGRETARIO"
     });
 </script>

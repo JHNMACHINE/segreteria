@@ -1,5 +1,4 @@
 // service/studente.js
-
 import { eseguiOperazione, getEmailFromToken } from '/js/service/service.js';
 
 function getEmailOrRedirect() {

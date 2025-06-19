@@ -13,12 +13,14 @@ public final class StudentMapper {
 
     public static StudenteDTO convertiStudenteInDTO(Studente studente) {
         return StudenteDTO.builder()
+                .id(studente.getId())
                 .matricola(studente.getMatricola())
                 .nome(studente.getNome())
                 .cognome(studente.getCognome())
                 .pianoDiStudi(studente.getPianoDiStudi())
                 .residenza(studente.getResidenza())  // Aggiunto
                 .dataDiNascita(studente.getDataDiNascita())  // Aggiunto
+                .email(studente.getEmail())
                 .build();
     }
 

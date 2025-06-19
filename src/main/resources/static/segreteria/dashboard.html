@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Dashboard Segreteria</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
-        background-color: #f4f6f9;
+      background-color: #f4f6f9;
     }
     .section-title {
-        margin-top: 40px;
-        margin-bottom: 20px;
-        color: #333;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      color: #333;
     }
   </style>
 </head>
@@ -26,13 +23,12 @@
   <div class="container-fluid">
     <a class="navbar-brand" href="/">Segreteria Universitaria</a>
     <div class="d-flex">
-      <a class="btn btn-light" href="/">Logout</a>
+      <button class="btn btn-light" id="logoutBtn">Logout</button>
     </div>
   </div>
 </nav>
 
 <div class="container mt-5">
-
   <h1 class="text-center mb-4">Dashboard Segreteria</h1>
   <div id="welcomeMsg" class="mb-4 fw-bold"></div>
 
@@ -44,7 +40,7 @@
         <div class="card-body">
           <h5 class="card-title">Aggiungi Studente</h5>
           <p class="card-text">Registra un nuovo studente nel sistema.</p>
-          <a href="/segreteria/dashboard/crea-studente.html" class="btn btn-success">Aggiungi</a>
+          <a href="/studente/register.html" class="btn btn-success">Aggiungi</a>
         </div>
       </div>
     </div>
@@ -53,7 +49,7 @@
         <div class="card-body">
           <h5 class="card-title">Elenco Studenti</h5>
           <p class="card-text">Visualizza e gestisci tutti gli studenti registrati.</p>
-          <a href="/segreteria/dashboard/visualizza-studenti.html" class="btn btn-primary">Visualizza</a>
+          <button id="btnMostraStudenti" class="btn btn-primary">Visualizza</button>
         </div>
       </div>
     </div>
@@ -67,43 +63,16 @@
         <div class="card-body">
           <h5 class="card-title">Aggiungi Docente</h5>
           <p class="card-text">Registra un nuovo docente nel sistema.</p>
-          <a href="/segreteria/dashboard/crea-docente.html" class="btn btn-success">Aggiungi</a>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6 mb-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Elenco Docenti</h5>
-          <p class="card-text">Visualizza e gestisci tutti i docenti registrati.</p>
-          <a href="/segreteria/dashboard/visualizza-docenti.html" class="btn btn-primary">Visualizza</a>
+          <a href="/docente/register.html" class="btn btn-success">Aggiungi</a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Sezione Esami -->
-  <h4 class="section-title">Gestione Esami e Appelli</h4>
+  <!-- Sezione Appelli -->
+  <h4 class="section-title">Gestione Appelli</h4>
   <div class="row mb-5">
-    <div class="col-md-4 mb-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Crea Esame</h5>
-          <p class="card-text">Definisci un nuovo esame con nome e CFU.</p>
-          <a href="/segreteria/dashboard/crea-esame.html" class="btn btn-secondary">Crea</a>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 mb-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">Crea Appello</h5>
-          <p class="card-text">Associa un esame a un docente e imposta una data.</p>
-          <a href="/segreteria/dashboard/crea-appello.html" class="btn btn-secondary">Crea</a>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 mb-3">
+    <div class="col-md-12 mb-3">
       <div class="card h-100">
         <div class="card-body">
           <h5 class="card-title">Visualizza Appelli</h5>
@@ -113,33 +82,159 @@
       </div>
     </div>
   </div>
-
 </div>
 
+<!-- Modal Lista Studenti -->
+<div class="modal fade" id="studentiModal" tabindex="-1" aria-labelledby="studentiModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="studentiModalLabel">Lista degli Studenti</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Barra di ricerca -->
+        <div class="mb-3">
+          <input type="text" id="searchInput" class="form-control" placeholder="Cerca per nome, cognome o matricola...">
+        </div>
+
+        <table class="table table-striped" id="tabellaStudenti">
+          <thead>
+          <tr>
+            <th>Matricola</th>
+            <th>Nome</th>
+            <th>Cognome</th>
+            <th>Email</th>
+            <th>Modifica Piano</th>
+          </tr>
+          </thead>
+          <tbody>
+          <!-- Popolato dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modifica Piano di Studi (aggiunto select per piano) -->
+<div class="modal fade" id="modificaPianoModal" tabindex="-1" aria-labelledby="modificaPianoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modificaPianoModalLabel">Modifica Piano di Studi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="selectPiano">Seleziona Piano di Studi</label>
+          <select id="selectPiano" class="form-control">
+            <option value="INFORMATICA">Informatica</option>
+            <option value="MATEMATICA">Matematica</option>
+            <option value="BIOLOGIA">Biologia</option>
+            <option value="GRAFICA">Grafica</option>
+            <option value="INGEGNERIA">Ingegneria</option>
+            <option value="MEDICINA">Medicina</option>
+            <option value="GIURISPRUDENZA">Giurisprudenza</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+        <button type="button" class="btn btn-primary" id="btnSalvaModificaPiano">Salva Modifica</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
 <footer class="text-center py-4 border-top bg-white mt-5">
   <small>&copy; 2025 - Segreteria Universitaria</small>
 </footer>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/auth.js"></script>
-<script>
-   async function caricaProfilo() {
-    const response = await fetchWithAuth("/api/v1/operazione", {
-      method: "POST",
-      body: JSON.stringify({
-        nomeOperazione: "getProfilo",
-        parametri: []
-      })
-    });
 
-    console.log(response);
+<!-- Script del Segretario -->
+<script type="module">
+  import { logout } from '/js/service/service.js';
+  import { getProfilo, getAllStudenti, cambiaPianoDiStudi } from '/js/service/segretario.js';
 
-    const data = await response.json();
-    welcomeMsg.textContent = `Benvenuto, ${data.nome} ${data.cognome}`;
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+
+  // Messaggio di benvenuto
+  async function caricaProfilo() {
+    try {
+      const dto = await getProfilo();
+      document.getElementById('welcomeMsg').innerText = `Benvenuto, ${dto.nome} ${dto.cognome}!`;
+    } catch (err) {
+      console.error("Errore durante il caricamento del profilo:", err);
+    }
   }
 
   caricaProfilo();
+
+  // Modal e ricerca
+  const studentiModal = new bootstrap.Modal(document.getElementById('studentiModal'));
+  const modificaPianoModal = new bootstrap.Modal(document.getElementById('modificaPianoModal'));
+
+  document.getElementById('btnMostraStudenti').addEventListener('click', async () => {
+    try {
+      const lista = await getAllStudenti();
+      const tbody = document.querySelector("#tabellaStudenti tbody");
+      const searchInput = document.getElementById('searchInput');
+      searchInput.value = ''; // reset ricerca
+      tbody.innerHTML = "";
+
+      lista.forEach(studente => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${studente.matricola || '-'}</td>
+          <td>${studente.nome || '-'}</td>
+          <td>${studente.cognome || '-'}</td>
+          <td>${studente.email || '-'}</td>
+          <td><button class="btn btn-warning" onclick="modificaPiano(${Number(studente.id)})">Modifica Piano</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      studentiModal.show();
+    } catch (err) {
+      console.error('Errore caricamento studenti:', err);
+      alert('Impossibile caricare la lista degli studenti.');
+    }
+  });
+
+  // Funzione per modificare il piano di studi
+  window.modificaPiano = async function(studenteId) {
+    // Verifica che studenteId sia un numero valido (Long)
+    if (!studenteId || isNaN(studenteId)) {
+        alert("ID studente non valido!");
+        return;
+    }
+
+    // Mostra il modal per la modifica del piano
+    modificaPianoModal.show();
+
+    document.getElementById('btnSalvaModificaPiano').onclick = async function() {
+        const nuovoPiano = document.getElementById('selectPiano').value;
+
+        try {
+            // Invia il piano di studi e l'ID dello studente al backend
+            const response = await cambiaPianoDiStudi(studenteId, nuovoPiano);
+            alert('Piano di studi aggiornato con successo!');
+            location.reload();  // Ricarica la lista studenti per mostrare il piano aggiornato
+        } catch (err) {
+            console.error("Errore aggiornamento piano di studi:", err);
+            alert("Errore durante l'aggiornamento del piano di studi.");
+        }
+        modificaPianoModal.hide();
+    }
+}
 </script>
 </body>
 </html>
