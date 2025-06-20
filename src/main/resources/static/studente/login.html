@@ -38,42 +38,90 @@
         .form-label {
             font-weight: 500;
         }
+
+        /* Bottone Accedi evidenziato */
+        .btn-accedi {
+            background-color: #218838;
+            border: none;
+            color: white;
+            padding: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-accedi:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-accedi:hover:before {
+            left: 100%;
+        }
+
+        .btn-accedi:hover {
+            background-color: #1e7e34;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-accedi:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-control:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="login-container">
-        <h2 class="mb-4 text-center">Login Studente</h2>
-        <div id="error"></div>
-        <form id="loginForm" novalidate>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" id="email" class="form-control" required autofocus />
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" id="password" class="form-control" required />
-            </div>
-            <!-- Bottone cambiato in btn btn-success per avere lo stesso colore del bottone registrati -->
-            <button type="submit" class="btn btn-success w-100">Accedi</button>
-        </form>
-    </div>
+<div class="login-container">
+    <h2 class="mb-4 text-center">Login Studente</h2>
+    <div id="error"></div>
+    <form id="loginForm" novalidate>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-control" required autofocus />
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" class="form-control" required />
+        </div>
+        <!-- Bottone con stile personalizzato -->
+        <button type="submit" class="btn-accedi">Accedi</button>
+    </form>
+</div>
 
-    <script type="module">
-        import { login } from '/js/auth.js';
+<script type="module">
+    import { login } from '/js/auth.js';
 
-        login({
-            formId: "loginForm",
-            emailId: "email",
-            passwordId: "password",
-            errorId: "error",
-            redirectUrl: "/studente/dashboard.html",
-            expectedRole: "STUDENTE"
-        });
-    </script>
+    login({
+        formId: "loginForm",
+        emailId: "email",
+        passwordId: "password",
+        errorId: "error",
+        redirectUrl: "/studente/dashboard.html",
+        expectedRole: "STUDENTE"
+    });
+</script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
