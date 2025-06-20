@@ -124,7 +124,7 @@ public class SegreteriaService {
         return StudentMapper.convertiStudenteInDTO(studente);
     }
 
-    public StudenteDTO cambiaPianoDiStudi(String email, Integer studenteId, String pianoDiStudi) {
+    public StudenteDTO cambiaPianoDiStudi(Integer studenteId, String pianoDiStudi) {
         // Verifica che studenteId sia valido
         if (studenteId == null) {
             throw new RuntimeException("ID studente non valido");

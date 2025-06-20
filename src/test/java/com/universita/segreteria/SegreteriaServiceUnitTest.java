@@ -182,7 +182,7 @@ class SegreteriaServiceUnitTest {
 		when(studenteRepo.findById(1L)).thenReturn(Optional.of(studente));
 		when(studenteRepo.save(any())).thenReturn(studente);
 
-		StudenteDTO result = segreteriaService.cambiaPianoDiStudi(1L, PianoDiStudi.MEDICINA);
+		StudenteDTO result = segreteriaService.cambiaPianoDiStudi(1, PianoDiStudi.MEDICINA.toString());
 
 		assertEquals(PianoDiStudi.MEDICINA, result.getPianoDiStudi());
 		verify(studenteRepo).save(studente);

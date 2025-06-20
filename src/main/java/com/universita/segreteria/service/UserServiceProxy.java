@@ -63,7 +63,7 @@ public class UserServiceProxy implements UtenteService {
             case "cercaStudente" -> segreteriaService.cercaStudente((String) parametri[0], (String) parametri[1]);
             case "cercaStudentePerMatricola" -> segreteriaService.cercaStudentePerMatricola((String) parametri[0]);
             case "cambiaPianoDiStudi" ->
-                    segreteriaService.cambiaPianoDiStudi((String) parametri[0], (Integer) parametri[1], (String) parametri[2]);
+                    segreteriaService.cambiaPianoDiStudi((Integer) parametri[0], (String) parametri[1]);
             case "getAllStudenti" -> segreteriaService.getAllStudenti();
             case "getAllDocenti" -> segreteriaService.getAllDocenti();
             default -> throw new RuntimeException("Operazione non consentita per la segreteria.");
