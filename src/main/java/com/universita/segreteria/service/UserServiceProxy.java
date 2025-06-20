@@ -74,7 +74,7 @@ public class UserServiceProxy implements UtenteService {
         log.info("Operazione STUDENTE richiesta: '{}', parametri: {}", operazione, Arrays.toString(parametri));
         return switch (operazione) {
             case "aggiornaStatoVoto" -> studenteService.aggiornaStatoVoto((Long) parametri[0], (boolean) parametri[1]);
-            case "prenotaEsame" -> studenteService.prenotaEsame(subject, (Integer) parametri[1]);
+            case "prenotaEsame" -> studenteService.prenotaEsame(subject, (Integer) parametri[0]);
             case "esamiSuperati" -> studenteService.esamiSuperati((StudenteDTO) parametri[0]);
             case "getEsamiDaSostenere" -> studenteService.getEsamiDaSostenere((StudenteDTO) parametri[0]);
             case "getCarriera" -> studenteService.getCarriera(subject );
