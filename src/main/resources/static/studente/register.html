@@ -1,104 +1,118 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
   <meta charset="UTF-8" />
   <title>Registrazione Studente - Segreteria Universitaria</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
+    :root {
+      --bs-bg-opacity: 1;
+    }
+
     body {
       background-color: #f8f9fa;
       padding-top: 40px;
     }
+
     .register-container {
       max-width: 500px;
       margin: auto;
-      background: white;
+      background-color: rgba(var(--bs-success-rgb), var(--bs-bg-opacity)) !important;
       padding: 30px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
     }
+
     #error {
       color: red;
       margin-bottom: 15px;
     }
+
     #success {
       color: green;
       margin-bottom: 15px;
     }
+
+    .form-label {
+      font-weight: 500;
+    }
   </style>
 </head>
+
 <body>
 
-<div class="register-container">
-  <h2 class="mb-4 text-center">Registrazione Studente</h2>
-  <div id="error"></div>
-  <div id="success"></div>
-  <form id="registerForm" novalidate>
-    <div class="row mb-3">
-      <div class="col">
-        <label for="nome" class="form-label">Nome</label>
-        <input type="text" id="nome" class="form-control" required />
+  <div class="register-container">
+    <h2 class="mb-4 text-center">Registrazione Studente</h2>
+    <div id="error"></div>
+    <div id="success"></div>
+    <form id="registerForm" novalidate>
+      <div class="row mb-3">
+        <div class="col">
+          <label for="nome" class="form-label">Nome</label>
+          <input type="text" id="nome" class="form-control" required />
+        </div>
+        <div class="col">
+          <label for="cognome" class="form-label">Cognome</label>
+          <input type="text" id="cognome" class="form-control" required />
+        </div>
       </div>
-      <div class="col">
-        <label for="cognome" class="form-label">Cognome</label>
-        <input type="text" id="cognome" class="form-control" required />
+      <div class="mb-3">
+        <label for="dataDiNascita" class="form-label">Data di Nascita</label>
+        <input type="date" id="dataDiNascita" class="form-control" required />
       </div>
-    </div>
-    <div class="mb-3">
-      <label for="dataDiNascita" class="form-label">Data di Nascita</label>
-      <input type="date" id="dataDiNascita" class="form-control" required />
-    </div>
-    <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
-      <input type="email" id="email" class="form-control" required />
-    </div>
-    <div class="mb-3">
-      <label for="password" class="form-label">Password</label>
-      <input type="password" id="password" class="form-control" required />
-    </div>
-    <div class="mb-3">
-      <label for="matricola" class="form-label">Matricola</label>
-      <input type="text" id="matricola" class="form-control" required />
-    </div>
-    <div class="mb-3">
-      <label for="pianoDiStudi" class="form-label">Piano di Studi</label>
-      <select id="pianoDiStudi" class="form-select" required>
-        <option value="INFORMATICA">Informatica</option>
-        <option value="MATEMATICA">Matematica</option>
-        <option value="BIOLOGIA">Biologia</option>
-        <option value="GIURISPRUDENZA">Giurisprudenza</option>
-        <option value="MEDICINA">Medicina</option>
-        <option value="INGEGNERIA">Ingegneria</option>
-        <option value="GRAFICA">Grafica</option>
-      </select>
-    </div>
-    <div class="mb-3">
-      <label for="residenza" class="form-label">Residenza</label>
-      <input type="text" id="residenza" class="form-control" required />
-    </div>
-    <button type="submit" class="btn btn-success w-100">Registrati</button>
-  </form>
-</div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" id="email" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" id="password" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label for="matricola" class="form-label">Matricola</label>
+        <input type="text" id="matricola" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label for="pianoDiStudi" class="form-label">Piano di Studi</label>
+        <select id="pianoDiStudi" class="form-select" required>
+          <option value="INFORMATICA">Informatica</option>
+          <option value="MATEMATICA">Matematica</option>
+          <option value="BIOLOGIA">Biologia</option>
+          <option value="GIURISPRUDENZA">Giurisprudenza</option>
+          <option value="MEDICINA">Medicina</option>
+          <option value="INGEGNERIA">Ingegneria</option>
+          <option value="GRAFICA">Grafica</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="residenza" class="form-label">Residenza</label>
+        <input type="text" id="residenza" class="form-control" required />
+      </div>
+      <button type="submit" class="btn btn-light w-100">Registrati</button>
+    </form>
+  </div>
 
-<script type="module">
-  import { registerStudent } from '/js/auth.js';
-  registerStudent({
-    formId: "registerForm",
-    nomeId: "nome",
-    cognomeId: "cognome",
-    emailId: "email",
-    passwordId: "password",
-    matricolaId: "matricola",
-    dataDiNascitaId: "dataDiNascita",
-    pianoDiStudiId: "pianoDiStudi",
-    residenzaId: "residenza",
-    errorId: "error",
-    successId: "success",
-    redirectUrl: null
-  });
-</script>
+  <script type="module">
+    import { registerStudent } from '/js/auth.js';
+    registerStudent({
+      formId: "registerForm",
+      nomeId: "nome",
+      cognomeId: "cognome",
+      emailId: "email",
+      passwordId: "password",
+      matricolaId: "matricola",
+      dataDiNascitaId: "dataDiNascita",
+      pianoDiStudiId: "pianoDiStudi",
+      residenzaId: "residenza",
+      errorId: "error",
+      successId: "success",
+      redirectUrl: "/studente/dashboard.html"
+    });
+  </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

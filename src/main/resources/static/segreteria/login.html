@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8" />
     <title>Login Segreteria - Segreteria Universitaria</title>
@@ -9,26 +10,29 @@
         :root {
             --bs-bg-opacity: 1;
         }
+
         body {
-          background-color: #f8f9fa;
-          padding-top: 40px;
+            background-color: #f8f9fa;
+            padding-top: 40px;
         }
+
         .login-container {
-           max-width: 500px;
+            max-width: 500px;
             margin: auto;
             background-color: rgba(var(--bs-info-rgb), var(--bs-bg-opacity)) !important;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
         }
+
         #error {
-          color: red;
-          margin-bottom: 15px;
+            color: red;
+            margin-bottom: 15px;
         }
 
         #success {
-          color: green;
-          margin-bottom: 15px;
+            color: green;
+            margin-bottom: 15px;
         }
 
         .form-label {
@@ -36,41 +40,42 @@
         }
     </style>
 </head>
+
 <body>
+    <div class="login-container">
+        <h2 class="mb-4 text-center text-dark">Login Segreteria</h2>
+        <div id="error"></div>
+        <div id="success"></div>
+        <form id="loginForm" novalidate>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" required autofocus />
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Accedi</button>
+        </form>
+        <p class="mt-3 text-center">
+            Non hai un account? <a href="register.html">Registrati qui</a>
+        </p>
+    </div>
 
-<div class="login-container">
-    <h2 class="mb-4 text-center text-dark">Login Segreteria</h2>
-    <div id="error"></div>
-    <div id="success"></div>
-    <form id="loginForm" novalidate>
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" id="email" class="form-control" required autofocus />
-        </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" id="password" class="form-control" required />
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Accedi</button>
-    </form>
-    <p class="mt-3 text-center">
-        Non hai un account? <a href="register.html">Registrati qui</a>
-    </p>
-</div>
+    <script type="module">
+        import { login } from "/js/auth.js";
 
-<script type="module">
-    import { login } from "/js/auth.js";
+        login({
+            formId: "loginForm",
+            emailId: "email",
+            passwordId: "password",
+            errorId: "error",
+            redirectUrl: "/segreteria/dashboard.html",
+            expectedRole: "SEGRETARIO"
+        });
+    </script>
 
-    login({
-      formId: "loginForm",
-      emailId: "email",
-      passwordId: "password",
-      errorId: "error",
-      redirectUrl: "/segreteria/dashboard.html",
-      expectedRole: "SEGRETARIO"
-    });
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
