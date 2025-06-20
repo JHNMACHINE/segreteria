@@ -2,13 +2,7 @@ const AUTH_BASE_URL = "/api/v1/auth";
 
 export function parseJwt(token) {
   try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join(''));
-    return JSON.parse(jsonPayload);
+    return JSON.parse(atob(token.split('.')[1]));
   } catch (e) {
     return null;
   }
@@ -53,7 +47,6 @@ export async function login({ formId, emailId, passwordId, errorId, redirectUrl,
             errorDiv.textContent = "Token non valido.";
             return;
           }
-
           const ruolo = decoded.ruolo;
           if (expectedRole && ruolo !== expectedRole) {
             errorDiv.textContent = "Accesso negato: Non sei autorizzato";
