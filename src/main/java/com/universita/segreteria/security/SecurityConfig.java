@@ -30,12 +30,34 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()      // login, register ecc
-                        .requestMatchers("/segreteria/**").authenticated()  // proteggi tutto /segreteria
-                        .requestMatchers("/static/**", "/", "/index.html", "/login.html", "/register.html", "/404.html").permitAll() // risorse pubbliche
-                        .anyRequest().authenticated()  // tutto il resto richiede autenticazione
+                        // API
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/operazione").authenticated()
+
+                        // File statici pubblici
+                        .requestMatchers(
+                                "/js/**",
+                                "/css/**",
+                                "/images/**",
+                                "/static/**",
+                                "/", "/index.html", "/404.html",
+                                "/segreteria/login.html", "/segreteria/register.html",
+                                "/docente/login.html", "/docente/register.html",
+                                "/studente/login.html", "/studente/register.html"
+                        ).permitAll()
+
+                        // Dashboard protette
+                        .requestMatchers("/segreteria/**").authenticated()
+                        .requestMatchers("/docente/**").authenticated()
+                        .requestMatchers("/studente/**").authenticated()
+
+                        .anyRequest().authenticated()
                 )
-                .formLogin(form -> form.loginPage("/index.html").permitAll())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendRedirect("/index.html")  // oppure un'altra pagina pubblica
+                        )
+                )
                 .addFilterBefore(JwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> cors.configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))  // Aggiungi CORS
                 .build();
