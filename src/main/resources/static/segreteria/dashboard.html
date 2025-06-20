@@ -6,241 +6,567 @@
   <title>Dashboard Segreteria</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <style>
+    :root {
+      --primary-color: #0d6efd;
+      --secondary-color: #198754;
+      --light-bg: #f4f6f9;
+      --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
     body {
-      background-color: #f4f6f9;
+      background-color: var(--light-bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+      flex: 1;
+      padding-bottom: 40px;
     }
 
     .section-title {
       margin-top: 40px;
       margin-bottom: 20px;
       color: #333;
+      font-weight: 600;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 8px;
+      position: relative;
+    }
+
+    .section-title:after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 60px;
+      height: 2px;
+      background-color: var(--primary-color);
+    }
+
+    .notifications-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: var(--card-shadow);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #e9ecef;
+    }
+
+    .notification-card {
+      transition: all 0.3s ease;
+      border-left: 3px solid var(--primary-color);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .notification-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    .notification-header {
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notification-time {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+
+    .notification-content {
+      margin-top: 8px;
+      color: #495057;
+      font-size: 0.95rem;
+    }
+
+    .notification-course {
+      font-weight: 500;
+      color: var(--primary-color);
+    }
+
+    .notification-icon {
+      background-color: #e7f1ff;
+      color: var(--primary-color);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .notifications-list {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 15px;
+    }
+
+    .unread {
+      background-color: #f8f9fa;
+      border-left: 3px solid var(--secondary-color);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+
+    .empty-state i {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      color: #ced4da;
+    }
+
+    .footer {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 15px 0;
+      margin-top: auto;
+    }
+
+    .card {
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: none;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+    }
+
+    .card-title {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      font-weight: 500;
+    }
+
+    .btn-primary:hover {
+      background-color: #0b5ed7;
+      border-color: #0a58ca;
+    }
+
+    .modal-header {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .navbar-brand {
+      font-weight: 600;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-brand i {
+      margin-right: 10px;
+    }
+
+    .modal-title {
+      font-weight: 600;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 30px;
+    }
+
+    .footer small {
+      font-size: 0.9rem;
+    }
+
+    .welcome-container {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 30px;
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .dashboard-header {
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .dashboard-header h1 {
+      font-weight: 700;
+      color: #2c3e50;
+      position: relative;
+      display: inline-block;
+      padding-bottom: 15px;
+    }
+
+    .dashboard-header h1:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: var(--primary-color);
+      border-radius: 3px;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/">Segreteria Universitaria</a>
-      <div class="d-flex">
-        <button class="btn btn-light" id="logoutBtn">Logout</button>
-      </div>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <i class="bi bi-building"></i>
+      Segreteria Universitaria
+    </a>
+    <div class="d-flex">
+      <button class="btn btn-light" id="logoutBtn">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </button>
     </div>
-  </nav>
+  </div>
+</nav>
 
-  <div class="container mt-5">
-    <h1 class="text-center mb-4">Dashboard Segreteria</h1>
-    <div id="welcomeMsg" class="mb-4 fw-bold"></div>
+<div class="container mt-4">
+  <div class="dashboard-header">
+    <h1>Dashboard Segreteria</h1>
+  </div>
 
-    <!-- Sezione Studenti -->
-    <h4 class="section-title">Gestione Studenti</h4>
-    <div class="row mb-4">
-      <div class="col-md-6 mb-3">
-        <div class="card h-100">
-          <div class="card-body">
-            <h5 class="card-title">Aggiungi Studente</h5>
-            <p class="card-text">Registra un nuovo studente nel sistema.</p>
-            <a href="/studente/register.html" class="btn btn-success">Aggiungi</a>
+  <div class="welcome-container">
+    <div id="welcomeMsg" class="mb-4 fw-bold fs-5"></div>
+  </div>
+
+  <!-- Layout a due colonne -->
+  <div class="row">
+    <!-- Colonna sinistra -->
+    <div class="col-md-8">
+      <!-- Sezione Studenti -->
+      <h4 class="section-title">Gestione Studenti</h4>
+      <div class="row mb-4">
+        <div class="col-md-12 mb-4">
+          <div class="card h-100">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-person-plus fs-3 text-primary me-3"></i>
+                <h5 class="card-title mb-0">Aggiungi Studente</h5>
+              </div>
+              <p class="card-text">Registra un nuovo studente nel sistema universitario.</p>
+              <div class="mt-auto">
+                <a href="/studente/register.html" class="btn btn-primary w-100">
+                  <i class="bi bi-plus-circle me-2"></i> Aggiungi Studente
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-12 mb-4">
+          <div class="card h-100">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-people fs-3 text-primary me-3"></i>
+                <h5 class="card-title mb-0">Elenco Studenti</h5>
+              </div>
+              <p class="card-text">Visualizza e gestisci tutti gli studenti registrati nel sistema.</p>
+              <div class="mt-auto">
+                <button id="btnMostraStudenti" class="btn btn-primary w-100">
+                  <i class="bi bi-list me-2"></i> Visualizza Elenco
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="col-md-6 mb-3">
-        <div class="card h-100">
-          <div class="card-body">
-            <h5 class="card-title">Elenco Studenti</h5>
-            <p class="card-text">Visualizza e gestisci tutti gli studenti registrati.</p>
-            <button id="btnMostraStudenti" class="btn btn-primary">Visualizza</button>
+
+      <!-- Sezione Docenti -->
+      <h4 class="section-title">Gestione Docenti</h4>
+      <div class="row">
+        <div class="col-md-12 mb-4">
+          <div class="card h-100">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-person-plus fs-3 text-primary me-3"></i>
+                <h5 class="card-title mb-0">Aggiungi Docente</h5>
+              </div>
+              <p class="card-text">Registra un nuovo docente nel sistema universitario.</p>
+              <div class="mt-auto">
+                <a href="/docente/register.html" class="btn btn-primary w-100">
+                  <i class="bi bi-plus-circle me-2"></i> Aggiungi Docente
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Sezione Docenti -->
-    <h4 class="section-title">Gestione Docenti</h4>
-    <div class="row mb-4">
-      <div class="col-md-6 mb-3">
-        <div class="card h-100">
-          <div class="card-body">
-            <h5 class="card-title">Aggiungi Docente</h5>
-            <p class="card-text">Registra un nuovo docente nel sistema.</p>
-            <a href="/docente/register.html" class="btn btn-success">Aggiungi</a>
+    <!-- Colonna destra - Notifiche -->
+    <div class="col-md-4">
+      <h4 class="section-title">Notifiche Accettazione Voti</h4>
+      <div class="notifications-container">
+        <div class="card-header bg-white border-bottom">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Ultime notifiche</h5>
+            <span id="notificationBadge" class="badge bg-primary d-none">0 nuove</span>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Sezione Appelli -->
-    <h4 class="section-title">Gestione Appelli</h4>
-    <div class="row mb-5">
-      <div class="col-md-12 mb-3">
-        <div class="card h-100">
-          <div class="card-body">
-            <h5 class="card-title">Visualizza Appelli</h5>
-            <p class="card-text">Gestisci gli appelli creati e le prenotazioni.</p>
-            <a href="/segreteria/dashboard/visualizza-appelli.html" class="btn btn-primary">Visualizza</a>
+        <div id="notificationsList" class="notifications-list">
+          <div class="empty-state">
+            <i class="bi bi-bell"></i>
+            <h5>Nessuna notifica</h5>
+            <p>Le notifiche di accettazione voti appariranno qui</p>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Modal Lista Studenti -->
-  <div class="modal fade" id="studentiModal" tabindex="-1" aria-labelledby="studentiModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="studentiModalLabel">Lista degli Studenti</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-        </div>
-        <div class="modal-body">
+<!-- Modal Lista Studenti -->
+<div class="modal fade" id="studentiModal" tabindex="-1" aria-labelledby="studentiModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="studentiModalLabel">
+          <i class="bi bi-people me-2"></i>Lista degli Studenti
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body">
 
-          <!-- Barra di ricerca -->
-          <div class="mb-3">
+        <!-- Barra di ricerca -->
+        <div class="mb-4">
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
             <input type="text" id="searchInput" class="form-control"
-              placeholder="Cerca per nome, cognome o matricola...">
+                   placeholder="Cerca per nome, cognome o matricola...">
           </div>
+        </div>
 
-          <table class="table table-striped" id="tabellaStudenti">
-            <thead>
-              <tr>
-                <th>Matricola</th>
-                <th>Nome</th>
-                <th>Cognome</th>
-                <th>Email</th>
-                <th>Modifica Piano</th>
-              </tr>
+        <div class="table-responsive">
+          <table class="table table-hover" id="tabellaStudenti">
+            <thead class="table-light">
+            <tr>
+              <th>Matricola</th>
+              <th>Nome</th>
+              <th>Cognome</th>
+              <th>Email</th>
+              <th>Modifica Piano</th>
+            </tr>
             </thead>
             <tbody>
-              <!-- Popolato dinamicamente -->
+            <!-- Popolato dinamicamente -->
             </tbody>
           </table>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i> Chiudi
+        </button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Modifica Piano di Studi (aggiunto select per piano) -->
-  <div class="modal fade" id="modificaPianoModal" tabindex="-1" aria-labelledby="modificaPianoModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modificaPianoModalLabel">Modifica Piano di Studi</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+<!-- Modifica Piano di Studi -->
+<div class="modal fade" id="modificaPianoModal" tabindex="-1" aria-labelledby="modificaPianoModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modificaPianoModalLabel">
+          <i class="bi bi-journal-bookmark me-2"></i>Modifica Piano di Studi
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="selectPiano" class="form-label">Seleziona Piano di Studi</label>
+          <select id="selectPiano" class="form-select">
+            <option value="INFORMATICA">Informatica</option>
+            <option value="MATEMATICA">Matematica</option>
+            <option value="BIOLOGIA">Biologia</option>
+            <option value="GRAFICA">Grafica</option>
+            <option value="INGEGNERIA">Ingegneria</option>
+            <option value="MEDICINA">Medicina</option>
+            <option value="GIURISPRUDENZA">Giurisprudenza</option>
+          </select>
         </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="selectPiano">Seleziona Piano di Studi</label>
-            <select id="selectPiano" class="form-control">
-              <option value="INFORMATICA">Informatica</option>
-              <option value="MATEMATICA">Matematica</option>
-              <option value="BIOLOGIA">Biologia</option>
-              <option value="GRAFICA">Grafica</option>
-              <option value="INGEGNERIA">Ingegneria</option>
-              <option value="MEDICINA">Medicina</option>
-              <option value="GIURISPRUDENZA">Giurisprudenza</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
-          <button type="button" class="btn btn-primary" id="btnSalvaModificaPiano">Salva Modifica</button>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i> Chiudi
+        </button>
+        <button type="button" class="btn btn-primary" id="btnSalvaModificaPiano">
+          <i class="bi bi-save me-1"></i> Salva Modifica
+        </button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Footer -->
-  <footer class="text-center py-4 border-top bg-white mt-5">
-    <small>&copy; 2025 - Segreteria Universitaria</small>
-  </footer>
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <small>&copy; 2025 - Segreteria Universitaria</small>
+    </div>
+  </div>
+</footer>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Script del Segretario -->
-  <script type="module">
-    import { logout } from '/js/service/service.js';
-    import { getProfilo, getAllStudenti, cambiaPianoDiStudi } from '/js/service/segretario.js';
+<!-- Script del Segretario -->
+<script type="module">
+  import { logout } from '/js/service/service.js';
+  import { getProfilo, getAllStudenti, cambiaPianoDiStudi } from '/js/service/segretario.js';
 
-    document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('logoutBtn').addEventListener('click', logout);
 
-    // Messaggio di benvenuto
-    async function caricaProfilo() {
-      try {
-        const dto = await getProfilo();
-        document.getElementById('welcomeMsg').innerText = `Benvenuto, ${dto.nome} ${dto.cognome}!`;
-      } catch (err) {
-        console.error("Errore durante il caricamento del profilo:", err);
-      }
+  // Messaggio di benvenuto
+  async function caricaProfilo() {
+    try {
+      const dto = await getProfilo();
+      document.getElementById('welcomeMsg').innerText = `Benvenuto, ${dto.nome} ${dto.cognome}!`;
+    } catch (err) {
+      console.error("Errore durante il caricamento del profilo:", err);
+      document.getElementById('welcomeMsg').innerText = "Benvenuto!";
     }
+  }
 
-    caricaProfilo();
+  caricaProfilo();
 
-    // Modal e ricerca
-    const studentiModal = new bootstrap.Modal(document.getElementById('studentiModal'));
-    const modificaPianoModal = new bootstrap.Modal(document.getElementById('modificaPianoModal'));
+  // Modal e ricerca
+  const studentiModal = new bootstrap.Modal(document.getElementById('studentiModal'));
+  const modificaPianoModal = new bootstrap.Modal(document.getElementById('modificaPianoModal'));
 
-    document.getElementById('btnMostraStudenti').addEventListener('click', async () => {
-      try {
-        const lista = await getAllStudenti();
-        const tbody = document.querySelector("#tabellaStudenti tbody");
-        const searchInput = document.getElementById('searchInput');
-        searchInput.value = ''; // reset ricerca
-        tbody.innerHTML = "";
+  document.getElementById('btnMostraStudenti').addEventListener('click', async () => {
+    try {
+      const lista = await getAllStudenti();
+      const tbody = document.querySelector("#tabellaStudenti tbody");
+      const searchInput = document.getElementById('searchInput');
+      searchInput.value = '';
+      tbody.innerHTML = "";
 
-        lista.forEach(studente => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
+      lista.forEach(studente => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
           <td>${studente.matricola || '-'}</td>
           <td>${studente.nome || '-'}</td>
           <td>${studente.cognome || '-'}</td>
           <td>${studente.email || '-'}</td>
-          <td><button class="btn btn-warning" onclick="modificaPiano(${Number(studente.id)})">Modifica Piano</button></td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="modificaPiano(${Number(studente.id)})">
+              <i class="bi bi-pencil"></i> Modifica Piano
+            </button>
+          </td>
         `;
-          tbody.appendChild(row);
-        });
+        tbody.appendChild(row);
+      });
 
-        studentiModal.show();
-      } catch (err) {
-        console.error('Errore caricamento studenti:', err);
-        alert('Impossibile caricare la lista degli studenti.');
-      }
-    });
+      studentiModal.show();
+    } catch (err) {
+      console.error('Errore caricamento studenti:', err);
+      alert('Impossibile caricare la lista degli studenti.');
+    }
+  });
 
-    // Funzione per modificare il piano di studi
-    window.modificaPiano = async function (studenteId) {
-      // Verifica che studenteId sia un numero valido (Long)
-      if (!studenteId || isNaN(studenteId)) {
-        alert("ID studente non valido!");
-        return;
-      }
+  // Funzione per modificare il piano di studi
+  window.modificaPiano = async function (studenteId) {
+    if (!studenteId || isNaN(studenteId)) {
+      alert("ID studente non valido!");
+      return;
+    }
 
-      // Mostra il modal per la modifica del piano
-      modificaPianoModal.show();
+    modificaPianoModal.show();
 
-      document.getElementById('btnSalvaModificaPiano').onclick = async function () {
-        const nuovoPiano = document.getElementById('selectPiano').value;
+    document.getElementById('btnSalvaModificaPiano').onclick = async function () {
+      const nuovoPiano = document.getElementById('selectPiano').value;
 
-        try {
-          // Invia il piano di studi e l'ID dello studente al backend
-          const response = await cambiaPianoDiStudi(studenteId, nuovoPiano);
-          alert('Piano di studi aggiornato con successo!');
-          location.reload();  // Ricarica la lista studenti per mostrare il piano aggiornato
-        } catch (err) {
-          console.error("Errore aggiornamento piano di studi:", err);
-          alert("Errore durante l'aggiornamento del piano di studi.");
-        }
+      try {
+        await cambiaPianoDiStudi(studenteId, nuovoPiano);
+        alert('Piano di studi aggiornato con successo!');
         modificaPianoModal.hide();
+
+        // Ricarica la lista studenti
+        const event = new Event('click');
+        document.getElementById('btnMostraStudenti').dispatchEvent(event);
+      } catch (err) {
+        console.error("Errore aggiornamento piano di studi:", err);
+        alert("Errore durante l'aggiornamento del piano di studi.");
       }
     }
-  </script>
-</body>
+  }
 
+  // Funzione per aggiungere notifiche (vuota, pronta per l'integrazione)
+  window.aggiungiNotifica = function (studente, corso, voto, cfu) {
+    const notificationsList = document.getElementById('notificationsList');
+    const badge = document.getElementById('notificationBadge');
+
+    if (notificationsList.querySelector('.empty-state')) {
+      notificationsList.innerHTML = '';
+    }
+
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
+
+    const notification = document.createElement('div');
+    notification.className = 'card notification-card unread mb-3';
+    notification.innerHTML = `
+      <div class="card-body">
+        <div class="d-flex">
+          <div class="notification-icon me-3">
+            <i class="bi bi-check-circle"></i>
+          </div>
+          <div>
+            <div class="notification-header">
+              <span>${studente}</span>
+              <span class="notification-time">${timeString}</span>
+            </div>
+            <div class="notification-content">
+              Ha accettato il voto di <span class="notification-course">${corso}</span>
+            </div>
+            <div class="mt-2">
+              <span class="badge bg-success">${voto}</span>
+              <span class="badge bg-info">CFU: ${cfu}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    notificationsList.insertBefore(notification, notificationsList.firstChild);
+
+    // Aggiorna il badge
+    const currentCount = parseInt(badge.textContent) || 0;
+    badge.textContent = currentCount + 1 + ' nuove';
+    badge.classList.remove('d-none');
+  }
+</script>
+</body>
 </html>
