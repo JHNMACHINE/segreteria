@@ -1,51 +1,42 @@
 // service/studente.js
-import { eseguiOperazione, getEmailFromToken } from '/js/service/service.js';
+import { eseguiOperazione } from '/js/service/service.js';
 
-function getEmailOrRedirect() {
-    const email = getEmailFromToken(); // Nessun argomento necessario
-    if (!email) {
-        alert("Sessione scaduta. Effettua di nuovo il login.");
-        window.location.href = "/";
-    }
-    return email;
-}
+// Non serve più getEmailOrRedirect o getEmailFromToken.
+// Se il token è mancante/fuori validità, eseguiOperazione fallirà o il backend restituirà 401/errore e potrai fare logout nel catch.
 
 export function getInfoStudente() {
-    const email = getEmailOrRedirect();
-    return eseguiOperazione('getInfoStudente', [email]);
+    // Backend estrae lo studente dal SecurityContext
+    return eseguiOperazione('getInfoStudente',[]);
 }
 
 export function getPianoDiStudi() {
-    const email = getEmailOrRedirect();
-    return eseguiOperazione('getPianoDiStudi', [email]);
+    return eseguiOperazione('getPianoDiStudi',[]);
 }
 
-export function getCarriera(){
-    const email = getEmailOrRedirect();
-    return eseguiOperazione('getCarriera', [email]);
+export function getCarriera() {
+
+    return eseguiOperazione('getCarriera', []);
+
 }
 
 export function getEsamiPrenotabili() {
-    const email = getEmailOrRedirect();
-    return eseguiOperazione('esamiPrenotabili', [email]);
+    return eseguiOperazione('esamiPrenotabili', []);
 }
 
 export function getVotiDaAccettare() {
-    const email = getEmailOrRedirect();
-    return eseguiOperazione('getVotiDaAccettare', [email]);
+    return eseguiOperazione('getVotiDaAccettare', []);
 }
 
 export function aggiornaStatoVoto(votoId, accettato) {
-    const email = getEmailOrRedirect();
-    return eseguiOperazione('aggiornaStatoVoto', [email, votoId, accettato]);
+    if (!votoId) {
+        return Promise.reject(new Error("ID voto non valido"));
+    }
+    return eseguiOperazione('aggiornaStatoVoto', [votoId, accettato]);
 }
 
 export function prenotaEsame(appelloId) {
     if (!appelloId) {
-        console.error("❌ ID appello non valido:", appelloId);
-        throw new Error("ID appello non valido");
+        return Promise.reject(new Error("ID appello non valido"));
     }
-    const email = getEmailOrRedirect();
-    return eseguiOperazione('prenotaEsame', [email, appelloId]);
+    return eseguiOperazione('prenotaEsame', [appelloId]);
 }
-
