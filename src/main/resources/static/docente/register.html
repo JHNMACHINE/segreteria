@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8" />
     <title>Registrazione Docente - Segreteria Universitaria</title>
@@ -39,78 +40,80 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="register-container">
-    <h2 class="mb-4 text-center text-dark">Registrazione Docente</h2>
-    <div id="error"></div>
-    <div id="success"></div>
-    <form id="registerForm" novalidate>
-        <div class="row mb-3">
-            <div class="col">
-                <label for="nome" class="form-label">Nome</label>
-                <input type="text" id="nome" class="form-control" required />
+    <div class="register-container">
+        <h2 class="mb-4 text-center text-dark">Registrazione Docente</h2>
+        <div id="error"></div>
+        <div id="success"></div>
+        <form id="registerForm" novalidate>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="nome" class="form-label">Nome</label>
+                    <input type="text" id="nome" class="form-control" required />
+                </div>
+                <div class="col">
+                    <label for="cognome" class="form-label">Cognome</label>
+                    <input type="text" id="cognome" class="form-control" required />
+                </div>
             </div>
-            <div class="col">
-                <label for="cognome" class="form-label">Cognome</label>
-                <input type="text" id="cognome" class="form-control" required />
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" required />
             </div>
-        </div>
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" id="email" class="form-control" required />
-        </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" id="password" class="form-control" required />
-        </div>
-        <div class="mb-3">
-            <label for="dataDiNascita" class="form-label">Data di Nascita</label>
-            <input type="date" id="dataDiNascita" class="form-control" required />
-        </div>
-        <div class="mb-3">
-            <label for="residenza" class="form-label">Residenza</label>
-            <input type="text" id="residenza" class="form-control" required />
-        </div>
-        <div class="mb-3">
-            <label for="pianoDiStudi" class="form-label">Piano di Studi</label>
-            <select id="pianoDiStudi" class="form-select" required>
-                <option value="INFORMATICA">Informatica</option>
-                <option value="MATEMATICA">Matematica</option>
-                <option value="BIOLOGIA">Biologia</option>
-                <option value="GIURISPRUDENZA">Giurisprudenza</option>
-                <option value="MEDICINA">Medicina</option>
-                <option value="INGEGNERIA">Ingegneria</option>
-                <option value="GRAFICA">Grafica</option>
-            </select>
-        </div>
-        <button type="submit" class="btn btn-dark w-100">Registrati</button>
-    </form>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label for="dataDiNascita" class="form-label">Data di Nascita</label>
+                <input type="date" id="dataDiNascita" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label for="residenza" class="form-label">Residenza</label>
+                <input type="text" id="residenza" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label for="pianoDiStudi" class="form-label">Piano di Studi</label>
+                <select id="pianoDiStudi" class="form-select" required>
+                    <option value="INFORMATICA">Informatica</option>
+                    <option value="MATEMATICA">Matematica</option>
+                    <option value="BIOLOGIA">Biologia</option>
+                    <option value="GIURISPRUDENZA">Giurisprudenza</option>
+                    <option value="MEDICINA">Medicina</option>
+                    <option value="INGEGNERIA">Ingegneria</option>
+                    <option value="GRAFICA">Grafica</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-dark w-100">Registrati</button>
+        </form>
 
-    <p class="mt-3 text-center">
-        Hai già un account? <a href="login.html">Fai il login</a>
-    </p>
-</div>
+        <p class="mt-3 text-center">
+            Hai già un account? <a href="login.html">Fai il login</a>
+        </p>
+    </div>
 
-<script type="module">
-    import { registerDocente } from '/js/auth.js';
+    <script type="module">
+        import { registerDocente } from '/js/auth.js';
 
-    registerDocente({
-        formId: "registerForm",
-        nomeId: "nome",
-        cognomeId: "cognome",
-        emailId: "email",
-        passwordId: "password",
-        dataDiNascitaId: "dataDiNascita",
-        residenzaId: "residenza",
-        pianoDiStudiId: "pianoDiStudi",
-        errorId: "error",
-        successId: "success",
-        redirectUrl: "/docente/dashboard.html"
-    });
-</script>
+        registerDocente({
+            formId: "registerForm",
+            nomeId: "nome",
+            cognomeId: "cognome",
+            emailId: "email",
+            passwordId: "password",
+            dataDiNascitaId: "dataDiNascita",
+            residenzaId: "residenza",
+            pianoDiStudiId: "pianoDiStudi",
+            errorId: "error",
+            successId: "success",
+            redirectUrl: "/docente/dashboard.html"
+        });
+    </script>
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
