@@ -1,33 +1,21 @@
 // service/studente.js
 
-import { eseguiOperazione, getEmailFromToken } from '/js/service/service.js';
-
-function getEmailOrRedirect() {
-    const email = getEmailFromToken(); // Nessun argomento necessario
-    if (!email) {
-        alert("Sessione scaduta. Effettua di nuovo il login.");
-        window.location.href = "/";
-    }
-    return email;
-}
+import { eseguiOperazione } from '/js/service/service.js';
 
 export function getInfoDocente() {
-    const email = getEmailOrRedirect();
-    return eseguiOperazione('getInfoDocente', [email]);
+
+    return eseguiOperazione('getInfoDocente', []);
 }
 
 export function getAppelli(){
-    const email = getEmailOrRedirect();
-    return eseguiOperazione('getAppelli', [email]);
+    return eseguiOperazione('getAppelli', []);
 }
 
 
 export function inserisciVoto(data){
-    const email = getEmailOrRedirect();
-    return eseguiOperazione('inserisciVoto', [email, data]);
+    return eseguiOperazione('inserisciVoto', [data]);
 }
 
 export function creaAppello(data){
-    const email = getEmailOrRedirect();
-    return eseguiOperazione('creaAppello', [email, data]);
+    return eseguiOperazione('creaAppello',  [data]);
 }
