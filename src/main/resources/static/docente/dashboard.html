@@ -7,205 +7,221 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
+        :root {
+            --main-bg: #f5eed8;    /* Giallo più scuro di poco */
+            --header-bg: #ffd54f;
+            --accent-bg: #ffe082;
+            --accent-dark: #ffb300;
+            --text-dark: #5d4037;
+        }
         body {
-            background-color: #fff3cd;
-            padding-top: 40px;
+            background-color: var(--main-bg);
+            padding-top: 70px;
+            color: var(--text-dark);
+            font-family: 'Segoe UI', sans-serif;
         }
-
-        .dashboard-container {
-            max-width: 1100px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-        }
-
-        .section-title {
-            margin-top: 20px;
-            border-bottom: 2px solid #ffc107;
-            padding-bottom: 10px;
-        }
-
-        h2,
-        h4 {
-            color: #198754;
-            font-weight: 600;
-        }
-
         header {
-            background-color: #198754;
-            color: white;
-            padding: 20px 40px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--header-bg);
+            color: var(--text-dark);
+            padding: 12px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
         }
-
         header h1 {
             margin: 0;
-            font-size: 1.75rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #000;
         }
-
+        #logoutBtn {
+            /* Usa lo stile di btn-warning */
+        }
+        .dashboard-container {
+            max-width: 1100px;
+            margin: auto;
+            background-color: white;
+            padding: 35px;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        }
+        .section-title {
+            margin-top: 30px;
+            border-bottom: 3px solid var(--accent-dark);
+            padding-bottom: 8px;
+            font-size: 1.2rem;
+            color: #000;
+        }
+        h2 {
+            color: #000;
+        }
+        h4 {
+            color: #000;
+        }
+        .lead {
+            color: var(--text-dark);
+        }
+        .btn-warning {
+            background-color: var(--accent-bg) !important;
+            border-color: var(--accent-dark) !important;
+            color: var(--text-dark) !important;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .btn-warning:hover {
+            background-color: var(--accent-dark) !important;
+            color: white !important;
+        }
+        .btn-success {
+            background-color: var(--accent-bg) !important;
+            border-color: var(--accent-dark) !important;
+            color: var(--text-dark) !important;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .btn-success:hover {
+            background-color: var(--accent-dark) !important;
+            color: white !important;
+        }
+        .table thead {
+            background-color: var(--accent-bg);
+        }
+        .table th {
+            color: var(--text-dark);
+        }
         footer {
-            background-color: #fff;
+            background-color: white;
             border-top: 1px solid #ddd;
             padding: 20px;
             text-align: center;
-            color: #6c757d;
+            color: #757575;
+            margin-top: 40px;
         }
     </style>
 </head>
 
 <body>
 
-    <header>
-        <h1>Area Docente</h1>
-        <div>
-            <span id="nomeDocente" class="me-3 fw-semibold"></span>
-            <button class="btn btn-light btn-sm" id="logoutBtn">Logout</button>
-        </div>
-    </header>
+<header>
+    <h1>Area Docente</h1>
+    <div>
+        <span id="nomeDocente" class="me-4 fw-semibold"></span>
+        <button class="btn btn-sm btn-warning" id="logoutBtn">Logout</button>
+    </div>
+</header>
 
-    <div class="dashboard-container">
-        <h2 class="mb-3">Bentornato <span id="nomeCompleto"></span>!</h2>
-        <p class="lead">Visualizzare gli appelli, inserisci i voti e gestisci gli esami.</p>
+<div class="dashboard-container">
+    <h2 class="mb-2">Bentornato <span id="nomeCompleto"></span>!</h2>
+    <p class="lead mb-4">Gestisci con semplicità appelli, voti ed esami.</p>
 
-        <!-- Sezione: Appelli -->
-        <h4 class="section-title">I tuoi appelli</h4>
-        <div id="appelliList" class="table-responsive">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Corso</th>
-                        <th>Data</th>
-                        <th>Azioni</th>
-                    </tr>
-                </thead>
-                <tbody id="appelliTableBody">
-                    <!-- Appelli popolati via JS -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Sezione: Inserimento voti -->
-        <h4 class="section-title">Inserisci voti</h4>
-        <form id="votiForm" class="row g-3">
-            <div class="col-md-4">
-                <label for="esameId" class="form-label">ID Appello</label>
-                <input type="number" class="form-control" id="esameId" required />
-            </div>
-            <div class="col-md-4">
-                <label for="studenteMatricola" class="form-label">Matricola Studente</label>
-                <input type="text" class="form-control" id="studenteMatricola" required />
-            </div>
-            <div class="col-md-4">
-                <label for="voto" class="form-label">Voto</label>
-                <input type="number" min="18" max="30" class="form-control" id="voto" required />
-            </div>
-            <div class="col-12 text-end">
-                <button type="submit" class="btn btn-warning">Inserisci Voto</button>
-            </div>
-        </form>
-
-        <!-- Sezione: Gestione Appelli -->
-        <h4 class="section-title">Gestisci appelli</h4>
-        <form id="creaAppelloForm" class="row g-3">
-            <div class="col-md-4">
-                <label for="corso" class="form-label">Nome Corso</label>
-                <input type="text" class="form-control" id="corso" required />
-            </div>
-            <div class="col-md-4">
-                <label for="dataEsame" class="form-label">Data</label>
-                <input type="date" class="form-control" id="dataEsame" required />
-            </div>
-            <div class="col-md-4">
-                <label for="aula" class="form-label">Aula</label>
-                <input type="text" class="form-control" id="aula" required />
-            </div>
-            <div class="col-12 text-end">
-                <button type="submit" class="btn btn-success">Crea Appello</button>
-            </div>
-        </form>
+    <h4 class="section-title">I tuoi appelli</h4>
+    <div id="appelliList" class="table-responsive">
+        <table class="table table-bordered mt-3">
+            <thead>
+            <tr>
+                <th>Corso</th>
+                <th>Data</th>
+                <th>Azioni</th>
+            </tr>
+            </thead>
+            <tbody id="appelliTableBody"></tbody>
+        </table>
     </div>
 
-    <footer class="mt-5 border-top">
-        <small>&copy; 2025 - Segreteria Universitaria. Tutti i diritti riservati.</small>
-    </footer>
+    <h4 class="section-title">Inserisci voti</h4>
+    <form id="votiForm" class="row g-3 mt-2">
+        <div class="col-md-4">
+            <label for="esameId" class="form-label">ID Appello</label>
+            <input type="number" class="form-control" id="esameId" required />
+        </div>
+        <div class="col-md-4">
+            <label for="studenteMatricola" class="form-label">Matricola</label>
+            <input type="text" class="form-control" id="studenteMatricola" required />
+        </div>
+        <div class="col-md-4">
+            <label for="voto" class="form-label">Voto</label>
+            <input type="number" min="18" max="30" class="form-control" id="voto" required />
+        </div>
+        <div class="col-12 text-end mt-2">
+            <button type="submit" class="btn btn-warning">Aggiungi voto</button>
+        </div>
+    </form>
 
-    <!-- JS -->
-    <script type="module">
-        import { logout } from '/js/auth.js';
+    <h4 class="section-title">Crea nuovo appello</h4>
+    <form id="creaAppelloForm" class="row g-3 mt-2">
+        <div class="col-md-4">
+            <label for="corso" class="form-label">Corso</label>
+            <input type="text" class="form-control" id="corso" required />
+        </div>
+        <div class="col-md-4">
+            <label for="dataEsame" class="form-label">Data</label>
+            <input type="date" class="form-control" id="dataEsame" required />
+        </div>
+        <div class="col-md-4">
+            <label for="aula" class="form-label">Aula</label>
+            <input type="text" class="form-control" id="aula" required />
+        </div>
+        <div class="col-12 text-end mt-2">
+            <button type="submit" class="btn btn-warning">Crea appello</button>
+        </div>
+    </form>
+</div>
 
-        document.getElementById("logoutBtn").addEventListener("click", logout);
+<footer>
+    <small>&copy; 2025 - Segreteria Universitaria</small>
+</footer>
 
-        import { getInfoDocente, getAppelli, inserisciVoto, creaAppello } from '/js/service/docente.js';
+<script type="module">
+    import { logout } from '/js/auth.js';
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+    import { getInfoDocente, getAppelli, inserisciVoto, creaAppello } from '/js/service/docente.js';
 
-        getInfoDocente()
-            .then(data => {
-                document.getElementById('nomeDocente').innerText = `${data.nome} ${data.cognome}`;
-                document.getElementById('nomeCompleto').innerText = data.nome;
-            })
-            .catch(err => console.error("Errore caricamento info studente:", err));
+    getInfoDocente()
+        .then(data => {
+            document.getElementById('nomeDocente').innerText = `${data.nome} ${data.cognome}`;
+            document.getElementById('nomeCompleto').innerText = data.nome;
+        })
+        .catch(console.error);
 
-        // Carica appelli all'avvio
-        getAppelli()
-            .then(appelli => {
-                const tbody = document.getElementById('appelliTableBody');
-                tbody.innerHTML = '';
-                appelli.forEach(appello => {
-                    const dataFormattata = new Date(appello.data).toLocaleDateString('it-IT');
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                  <td>${appello.nome}</td>
-                  <td>${dataFormattata}</td>
-                  <td><button class="btn btn-sm btn-outline-danger">Rimuovi</button></td>
-              `;
-                    tbody.appendChild(tr);
-                });
-            })
-            .catch(err => console.error('Errore caricamento appelli:', err));
+    getAppelli()
+        .then(appelli => {
+            const tbody = document.getElementById('appelliTableBody');
+            tbody.innerHTML = '';
+            appelli.forEach(a => {
+                const tr = document.createElement('tr');
+                const dataF = new Date(a.data).toLocaleDateString('it-IT');
+                tr.innerHTML = `
+                    <td>${a.nome}</td>
+                    <td>${dataF}</td>
+                    <td><button class="btn btn-sm btn-outline-danger">Rimuovi</button></td>`;
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(console.error);
 
+    document.getElementById('votiForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        try {
+            await inserisciVoto({ appelloId: esameId.value, matricolaStudente: studenteMatricola.value, voto: voto.value });
+            alert('Voto inserito'); e.target.reset();
+        } catch { alert('Errore'); }
+    });
 
-        // Form inserimento voto
-        document.getElementById('votiForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = {
-                appelloId: document.getElementById('esameId').value,
-                matricolaStudente: document.getElementById('studenteMatricola').value,
-                voto: document.getElementById('voto').value
-            };
-            try {
-                await inserisciVoto(data);
-                alert('Voto inserito!');
-                e.target.reset();
-            } catch (err) {
-                alert('Errore inserimento voto');
-                console.error(err);
-            }
-        });
-
-        // Form creazione appello
-        document.getElementById('creaAppelloForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = {
-                nomeCorso: document.getElementById('corso').value,
-                data: document.getElementById('dataEsame').value,
-                aula: document.getElementById('aula').value
-            };
-            try {
-                await creaAppello(data);
-                alert('Appello creato!');
-                e.target.reset();
-                location.reload();
-            } catch (err) {
-                alert('Errore creazione appello');
-                console.error(err);
-            }
-        });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    document.getElementById('creaAppelloForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        try {
+            await creaAppello({ nomeCorso: corso.value, data: dataEsame.value, aula: aula.value });
+            alert('Creato'); e.target.reset(); location.reload();
+        } catch { alert('Errore'); }
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 
