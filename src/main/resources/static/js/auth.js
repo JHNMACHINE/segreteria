@@ -1,13 +1,5 @@
 const AUTH_BASE_URL = "/api/v1/auth";
 
-export function parseJwt(token) {
-  try {
-    return JSON.parse(atob(token.split('.')[1]));
-  } catch (e) {
-    return null;
-  }
-}
-
 const getValue = (id) => document.getElementById(id)?.value?.trim();
 
 
@@ -43,17 +35,7 @@ export async function login({ formId, emailId, passwordId, errorId, redirectUrl,
 
 
         if (response.ok) {
-          const data = await response.json();
-          const decoded = parseJwt(data.token);
-          if (!decoded) {
-            errorDiv.textContent = "Token non valido.";
-            return;
-          }
-          const ruolo = decoded.ruolo;
-          if (expectedRole && ruolo !== expectedRole) {
-            errorDiv.textContent = "Accesso negato: Non sei autorizzato";
-            return;
-          }
+          // Login ok, reindirizza
           window.location.href = redirectUrl;
         } else {
           const errText = await response.text();
