@@ -70,6 +70,14 @@
                 <label for="matricola" class="form-label">Matricola</label>
                 <input type="text" id="matricola" class="form-control" />
             </div>
+            <div class="mb-3">
+                <label for="dataDiNascita" class="form-label">Data di nascita</label>
+                <input type="date" id="dataDiNascita" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label for="residenza" class="form-label">Residenza</label>
+                <input type="text" id="residenza" class="form-control" />
+            </div>
             <input type="hidden" id="ruolo" value="SEGRETARIO" />
             <!-- Bottone con bordo e colore uguali al bottone di login -->
             <button type="submit" class="btn btn-primary w-100">Registrati</button>
@@ -91,8 +99,8 @@
             passwordId: "password",
             ruoloId: "ruolo",
             matricolaId: "matricola",
-            dataDiNascitaId: null,   // o "dataDiNascita" se presente nel form
-            residenzaId: null,       // o "residenza" se presente nel form
+            dataDiNascitaId: "dataDiNascita",   // o "dataDiNascita" se presente nel form
+            residenzaId: "residenza",       // o "residenza" se presente nel form
             errorId: "error",
             successId: "success",
             redirectUrl: "/segreteria/dashboard.html"

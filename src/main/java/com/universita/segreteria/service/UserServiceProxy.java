@@ -34,35 +34,29 @@ public class UserServiceProxy implements UtenteService {
     private TipoUtente ruolo;
 
     @Override
-    public Object eseguiOperazione(String operazione, Object... parametri) {
+    public Object eseguiOperazione(String operazione, String subject, Object... parametri) {
         log.info("Eseguo operazione '{}' con parametri {} per ruolo {}", operazione, Arrays.toString(parametri), ruolo);
-
+        log.info("Subject: {}", subject);
         try {
             return switch (ruolo) {
-                case SEGRETARIO -> operazioneSegreteria(operazione, parametri);
-                case STUDENTE   -> operazioneStudente(operazione, parametri);
-                case DOCENTE    -> operazioneDocente(operazione, parametri);
+                case SEGRETARIO -> operazioneSegreteria(operazione, subject, parametri);
+                case STUDENTE -> operazioneStudente(operazione, subject, parametri);
+                case DOCENTE -> operazioneDocente(operazione, subject, parametri);
             };
-        }
-        catch (ResponseStatusException ex) {
+        } catch (ResponseStatusException ex) {
             // se è già un 404, 403, etc, rilanciamola così com’è:
             throw ex;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             // logghiamo il problema imprevisto e restituiamo un 500
-            log.error("Errore interno durante l’operazione '{}', ruolo {}: {}",
-                    operazione, ruolo, ex.getMessage(), ex);
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Errore interno durante l’operazione \"" + operazione + "\""
-            );
+            log.error("Errore interno durante l’operazione '{}', ruolo {}: {}", operazione, ruolo, ex.getMessage(), ex);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Errore interno durante l’operazione \"" + operazione + "\"");
         }
     }
 
 
-    private Object operazioneSegreteria(String operazione, Object... parametri) {
+    private Object operazioneSegreteria(String operazione, String subject, Object... parametri) {
         return switch (operazione) {
-            case "getProfilo" -> segreteriaService.getProfilo();
+            case "getProfilo" -> segreteriaService.getProfilo(subject);
             case "inserisciStudente" -> segreteriaService.inserisciStudente((StudenteDTO) parametri[0]);
             case "inserisciDocente" -> segreteriaService.inserisciDocente((DocenteDTO) parametri[0]);
             case "confermaVoto" -> segreteriaService.confermaVoto((StudenteDTO) parametri[0], (Long) parametri[1]);
@@ -70,15 +64,13 @@ public class UserServiceProxy implements UtenteService {
             case "cercaStudentePerMatricola" -> segreteriaService.cercaStudentePerMatricola((String) parametri[0]);
             case "cambiaPianoDiStudi" ->
                     segreteriaService.cambiaPianoDiStudi((String) parametri[0], (Integer) parametri[1], (String) parametri[2]);
-            case "getAllStudenti" ->
-                    segreteriaService.getAllStudenti();
-            case "getAllDocenti" ->
-                    segreteriaService.getAllDocenti();
+            case "getAllStudenti" -> segreteriaService.getAllStudenti();
+            case "getAllDocenti" -> segreteriaService.getAllDocenti();
             default -> throw new RuntimeException("Operazione non consentita per la segreteria.");
         };
     }
 
-    private Object operazioneStudente(String operazione, Object... parametri) {
+    private Object operazioneStudente(String operazione, String subject, Object... parametri) {
         log.info("Operazione STUDENTE richiesta: '{}', parametri: {}", operazione, Arrays.toString(parametri));
         return switch (operazione) {
             case "aggiornaStatoVoto" -> studenteService.aggiornaStatoVoto((Long) parametri[0], (boolean) parametri[1]);
@@ -97,7 +89,7 @@ public class UserServiceProxy implements UtenteService {
         };
     }
 
-    private Object operazioneDocente(String operazione, Object... parametri) {
+    private Object operazioneDocente(String operazione, String subject, Object... parametri) {
         return switch (operazione) {
             case "getAppelli" -> docenteService.getAppelli((String) parametri[0]);
             case "getInfoDocente" -> docenteService.getInfoDocente((String) parametri[0]);

@@ -144,14 +144,8 @@ public class SegreteriaService {
 
 
 
-    public SegretarioDTO getProfilo() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        // estrai l'entità Utente come principal
-        Utente utente = (Utente) auth.getPrincipal();
-        String email = utente.getEmail();
-
-
+    public SegretarioDTO getProfilo(String email) {
+        logger.info("getProfile({})", email);
         return segretarioRepository.findByEmail(email)
                 .map(s -> new SegretarioDTO(s.getNome(), s.getCognome()))
                 .orElseThrow(() ->

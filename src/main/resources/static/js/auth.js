@@ -38,7 +38,9 @@ export async function login({ formId, emailId, passwordId, errorId, redirectUrl,
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
+          credentials: "include"   // <-- importante!
         });
+
 
         if (response.ok) {
           const data = await response.json();
@@ -52,8 +54,6 @@ export async function login({ formId, emailId, passwordId, errorId, redirectUrl,
             errorDiv.textContent = "Accesso negato: Non sei autorizzato";
             return;
           }
-
-          localStorage.setItem("token", data.token);
           window.location.href = redirectUrl;
         } else {
           const errText = await response.text();
@@ -119,24 +119,37 @@ async function submitRegistration(formId, fields, ruolo, errorId, successId, red
 
       const formData = {};
       for (const field of fields) {
-        formData[field] = getValue(field);
+        const value = getValue(field);
+        if (!value) {
+          errorDiv.textContent = "Compila tutti i campi.";
+          return;
+        }
+        formData[field] = value;
       }
+
 
       if (!formData.email || !formData.password) {
         errorDiv.textContent = "Compila tutti i campi.";
         return;
       }
 
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        errorDiv.textContent = "Inserisci un'email valida.";
+        return;
+      }
+
+
       try {
         const response = await fetch(`${AUTH_BASE_URL}/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...formData, ruolo }),
+          credentials: "include"
         });
 
         if (response.ok) {
           const data = await response.json();
-          localStorage.setItem("token", data.token);
           successDiv.textContent = "Registrazione completata!";
           if (redirectUrl) {
             setTimeout(() => window.location.href = redirectUrl, 1500);
@@ -156,24 +169,34 @@ async function submitRegistration(formId, fields, ruolo, errorId, successId, red
 
 
 export async function refreshToken() {
-  const oldToken = localStorage.getItem("token");
-  if (!oldToken) return null;
-
   try {
     const response = await fetch(`${AUTH_BASE_URL}/refresh`, {
       method: "POST",
-      headers: { Authorization: "Bearer " + oldToken },
+      credentials: "include"  // manda i cookie con la richiesta
     });
     if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
-      return data.token;
+      // la risposta non contiene più il token in body
+      // puoi decidere se leggere un messaggio o niente
+      return true;
     } else {
       console.error("Refresh token fallito");
-      return null;
+      return false;
     }
   } catch (err) {
     console.error("Errore nel refresh token", err);
-    return null;
+    return false;
+  }
+}
+
+export async function logout() {
+  try {
+    await fetch(`${AUTH_BASE_URL}/logout`, { // TODO logout nel backend
+      method: 'POST',
+      credentials: 'include'  // <-- fondamentale per cancellare il cookie
+    });
+  } catch (err) {
+    console.error("Errore nel logout:", err);
+  } finally {
+    window.location.href = "/";
   }
 }

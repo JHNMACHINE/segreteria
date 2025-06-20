@@ -15,11 +15,14 @@ import org.apache.logging.log4j.simple.SimpleLoggerContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -71,9 +74,21 @@ public class AuthController {
 
         String token = jwtUtil.generateToken(nuovo);
 
+        ResponseCookie cookie = ResponseCookie.from("token", token)
+                .httpOnly(true)
+                .secure(false)         // NO HTTPS -> non abbiamo il cert
+                .path("/")
+                .maxAge(3600)         // 1 ora
+                .sameSite("Strict")
+                .build();
+
         logger.debug("Auth Token: {}", token);
-        return ResponseEntity.ok(new AuthResponse(token));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of("message", "Registrazione effettuata con successo"));
     }
+
 
 
 
@@ -86,17 +101,62 @@ public class AuthController {
         }
 
         String token = jwtUtil.generateToken(utenteOpt.get());
-        return ResponseEntity.ok(new AuthResponse(token));
+
+        ResponseCookie cookie = ResponseCookie.from("token", token)
+                .httpOnly(true)
+                .secure(false)        // NO HTTPS -> non abbiamo il cert
+                .path("/")
+                .maxAge(3600)       // durata 1 ora
+                .sameSite("Strict")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of("message", "Login effettuato con successo"));
     }
+
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestHeader("Authorization") String bearerToken) {
-        if (!bearerToken.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().body("Token non valido");
+    public ResponseEntity<?> refresh(@CookieValue(name = "token", required = false) String oldToken) {
+        if (oldToken == null || oldToken.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token non presente");
         }
 
-        String oldToken = bearerToken.substring(7);
-        String newToken = jwtUtil.refreshToken(oldToken);
-        return ResponseEntity.ok(new AuthResponse(newToken));
+        String newToken;
+        try {
+            newToken = jwtUtil.refreshToken(oldToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token non valido o scaduto");
+        }
+
+        ResponseCookie cookie = ResponseCookie.from("token", newToken)
+                .httpOnly(true)
+                .secure(false)      // NO HTTPS -> non abbiamo il cert
+                .path("/")
+                .maxAge(3600)      // 1 ora
+                .sameSite("Strict")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of("message", "Token aggiornato con successo"));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        // Crea un cookie "token" vuoto con maxAge=0 per cancellarlo dal browser
+        ResponseCookie cookie = ResponseCookie.from("token", "")
+                .httpOnly(true)
+                .secure(false)      // NO HTTPS -> non abbiamo il cert
+                .path("/")
+                .maxAge(0)         // cancella il cookie
+                .sameSite("Strict")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of("message", "Logout effettuato con successo"));
+    }
+
+
 }
