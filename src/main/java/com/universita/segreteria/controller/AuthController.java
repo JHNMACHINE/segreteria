@@ -57,12 +57,13 @@ public class AuthController {
         }
 
         // Aggiungi i nuovi campi
-        if (nuovo instanceof Studente) {
-            nuovo = studenteService.initStudente(request);
-        } else if (nuovo instanceof Docente) {
-            nuovo = docenteService.initDocente(request);
-        } else if (nuovo instanceof Segretario) {
-            nuovo = segreteriaService.initSegretario(request);
+        switch (nuovo) {
+            case Studente studente -> nuovo = studenteService.initStudente(request);
+            case Docente docente -> nuovo = docenteService.initDocente(request);
+            case Segretario segretario -> nuovo = segreteriaService.initSegretario(request);
+            default -> {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid role");
+            }
         }
 
         utenteRepo.save(nuovo);
