@@ -1,8 +1,10 @@
 package com.universita.segreteria.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.universita.segreteria.controller.UtenteProxyController;
 import com.universita.segreteria.dto.DocenteDTO;
 import com.universita.segreteria.dto.EsameDTO;
+import com.universita.segreteria.dto.InserimentoVotoDTO;
 import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.model.PianoDiStudi;
 import com.universita.segreteria.model.TipoUtente;
@@ -73,7 +75,10 @@ public class UserServiceProxy implements UtenteService {
     private Object operazioneStudente(String operazione, String subject, Object... parametri) {
         log.info("Operazione STUDENTE richiesta: '{}', parametri: {}", operazione, Arrays.toString(parametri));
         return switch (operazione) {
-            case "aggiornaStatoVoto" -> studenteService.aggiornaStatoVoto((Long) parametri[0], (boolean) parametri[1]);
+            case "aggiornaStatoVoto" -> {
+                Number numero = (Number) parametri[0];
+                yield studenteService.aggiornaStatoVoto(numero.longValue(), (boolean) parametri[1]);
+            }
             case "prenotaEsame" -> studenteService.prenotaEsame(subject, (Integer) parametri[0]);
             case "esamiSuperati" -> studenteService.esamiSuperati((StudenteDTO) parametri[0]);
             case "getEsamiDaSostenere" -> studenteService.getEsamiDaSostenere((StudenteDTO) parametri[0]);
@@ -90,11 +95,15 @@ public class UserServiceProxy implements UtenteService {
     }
 
     private Object operazioneDocente(String operazione, String subject, Object... parametri) {
+        ObjectMapper mapper = new ObjectMapper();
         return switch (operazione) {
+            case "trovaStudentiPerEsame" -> docenteService.trovaStudentiPerEsame((String) parametri[0]);
             case "getAppelli" -> docenteService.getAppelli(subject);
             case "getInfoDocente" -> docenteService.getInfoDocente(subject);
-            case "inserisciVoto" ->
-                    docenteService.inserisciVoto((StudenteDTO) parametri[0], (EsameDTO) parametri[1], (int) parametri[2]);
+            case "inserisciVoto" -> {
+                InserimentoVotoDTO dto = mapper.convertValue(parametri[0], InserimentoVotoDTO.class);
+                yield docenteService.inserisciVoto(dto.getAppelloId(), dto.getMatricolaStudente(), dto.getVoto());
+            }
             case "creaEsame" -> docenteService.creaEsame((Long) parametri[0], (EsameDTO) parametri[1]);
             case "visualizzaPrenotazioniEsame" -> docenteService.visualizzaPrenotazioniEsame((Long) parametri[0]);
             case "eliminaEsame" -> docenteService.eliminaEsame((Long) parametri[0]);

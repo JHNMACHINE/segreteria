@@ -1,5 +1,6 @@
 package com.universita.segreteria.repository;
 
+import com.universita.segreteria.model.PianoDiStudi;
 import com.universita.segreteria.model.Studente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,4 +14,6 @@ public interface StudenteRepository extends JpaRepository<Studente, Long> {
     List<Studente> findByNomeAndCognome(String nome, String cognome);
 
     Optional<Studente> findByEmail(String email);
+    List<Studente> findByEsamiNome(String nomeEsame);
+
 }

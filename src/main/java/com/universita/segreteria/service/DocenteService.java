@@ -31,7 +31,6 @@ public class DocenteService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private EsameRepository esameRepo;
     @Autowired
@@ -44,6 +43,8 @@ public class DocenteService {
     private VotoNotifier votoNotifier;
     @Autowired
     private PianoStudiService pianoStudiService;
+    @Autowired
+    private StudenteRepository studenteRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(DocenteService.class);
 
@@ -71,14 +72,14 @@ public class DocenteService {
     }
 
     @Transactional
-    public VotoDTO inserisciVoto(StudenteDTO studenteDTO, EsameDTO esameDTO, Integer voto) {
+    public VotoDTO inserisciVoto(Integer appelloId, String matricola, Integer voto) {
         // check sul voto negativo
         if (voto < 0) throw new RuntimeException("Il voto non può essere negativo");
 
         // Recupero entità dal database usando gli ID dai DTO
-        Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Studente non trovato"));
+        Studente studente = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Studente non trovato"));
 
-        Esame esame = esameRepo.findByNome(esameDTO.getNome()).orElseThrow(() -> new RuntimeException("Esame non trovato"));
+        Esame esame = esameRepo.findById(Long.valueOf(appelloId)).orElseThrow(() -> new RuntimeException("Esame non trovato"));
 
         // Controllo esistenza voto duplicato
         if (votoRepo.existsByStudenteAndEsame(studente, esame)) {
@@ -241,5 +242,16 @@ public class DocenteService {
                 ).collect(Collectors.toList());
     }
 
+    @Transactional
+    public List<StudenteDTO> trovaStudentiPerEsame(String nomeEsame) {
+        List<Studente> studenti = studenteRepository.findByEsamiNome(nomeEsame);
+        return studenti.stream()
+                .map(s -> StudenteDTO.builder()
+                        .matricola(s.getMatricola())
+                        .nome(s.getNome())
+                        .cognome(s.getCognome())
+                        .build())
+                .toList();
+    }
 
 }

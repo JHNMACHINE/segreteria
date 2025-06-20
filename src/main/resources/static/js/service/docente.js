@@ -3,7 +3,6 @@
 import { eseguiOperazione } from '/js/service/service.js';
 
 export function getInfoDocente() {
-
     return eseguiOperazione('getInfoDocente', []);
 }
 
@@ -18,4 +17,8 @@ export function inserisciVoto(data){
 
 export function creaAppello(data){
     return eseguiOperazione('creaAppello',  [data]);
+}
+
+export function trovaStudentiPerEsame(corso){
+    return eseguiOperazione('trovaStudentiPerEsame', [corso]);
 }

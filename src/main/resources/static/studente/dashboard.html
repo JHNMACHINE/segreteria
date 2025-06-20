@@ -291,7 +291,7 @@
                     item.className = 'list-group-item d-flex justify-content-between align-items-center flex-wrap';
 
                     const testoVoto = document.createElement('div');
-                    testoVoto.innerText = `${v.esame.nome} - Voto: ${v.valutazione}`;
+                    testoVoto.innerText = `${v.esame.nome} - Voto: ${v.voto}`;
                     testoVoto.className = 'me-3 fw-semibold';
 
                     const btnGroup = document.createElement('div');
@@ -302,9 +302,23 @@
                     accettaBtn.innerText = 'Accetta';
                     accettaBtn.onclick = () => {
                         aggiornaStatoVoto(v.id, true)
-                            .then(() => alert('Voto accettato'))
+                            .then(() => {
+                                lista.removeChild(item);
+                                // Mostrare messaggio di conferma in pagina senza alert (opzionale)
+                                console.log('Voto accettato');
+                            })
                             .catch(err => alert('Errore: ' + err));
                     };
+
+                    rifiutaBtn.onclick = () => {
+                        aggiornaStatoVoto(v.id, false)
+                            .then(() => {
+                                lista.removeChild(item);
+                                console.log('Voto rifiutato');
+                            })
+                            .catch(err => alert('Errore: ' + err));
+                    };
+
 
                     const rifiutaBtn = document.createElement('button');
                     rifiutaBtn.className = 'btn btn-danger btn-sm';
