@@ -230,6 +230,17 @@
       background: var(--primary-color);
       border-radius: 3px;
     }
+
+    /* Stile per bottone Visualizza Studente */
+    .btn-view {
+      background-color: #0dcaf0;
+      border-color: #0dcaf0;
+    }
+
+    .btn-view:hover {
+      background-color: #31d2f2;
+      border-color: #25cff2;
+    }
   </style>
 </head>
 
@@ -239,7 +250,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">
-      Segreteria Universitaria
+      <i class="bi bi-building"></i> Segreteria Universitaria
     </a>
     <div class="d-flex">
       <button class="btn btn-light" id="logoutBtn">
@@ -373,7 +384,7 @@
               <th>Nome</th>
               <th>Cognome</th>
               <th>Email</th>
-              <th>Modifica Piano</th>
+              <th>Azioni</th>
             </tr>
             </thead>
             <tbody>
@@ -385,43 +396,6 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i> Chiudi
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modifica Piano di Studi -->
-<div class="modal fade" id="modificaPianoModal" tabindex="-1" aria-labelledby="modificaPianoModalLabel"
-     aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modificaPianoModalLabel">
-          <i class="bi bi-journal-bookmark me-2"></i>Modifica Piano di Studi
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label for="selectPiano" class="form-label">Seleziona Piano di Studi</label>
-          <select id="selectPiano" class="form-select">
-            <option value="INFORMATICA">Informatica</option>
-            <option value="MATEMATICA">Matematica</option>
-            <option value="BIOLOGIA">Biologia</option>
-            <option value="GRAFICA">Grafica</option>
-            <option value="INGEGNERIA">Ingegneria</option>
-            <option value="MEDICINA">Medicina</option>
-            <option value="GIURISPRUDENZA">Giurisprudenza</option>
-          </select>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i> Chiudi
-        </button>
-        <button type="button" class="btn btn-primary" id="btnSalvaModificaPiano">
-          <i class="bi bi-save me-1"></i> Salva Modifica
         </button>
       </div>
     </div>
@@ -440,10 +414,10 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Script del Segretario -->
-  <script type="module">
-    import { logout } from '/js/auth.js';
-    import { getProfilo, getAllStudenti, cambiaPianoDiStudi } from '/js/service/segretario.js';
+<!-- Script del Segretario -->
+<script type="module">
+  import { logout } from '/js/auth.js';
+  import { getProfilo, getAllStudenti } from '/js/service/segretario.js';
 
   document.getElementById('logoutBtn').addEventListener('click', logout);
 
@@ -462,7 +436,6 @@
 
   // Modal e ricerca
   const studentiModal = new bootstrap.Modal(document.getElementById('studentiModal'));
-  const modificaPianoModal = new bootstrap.Modal(document.getElementById('modificaPianoModal'));
 
   document.getElementById('btnMostraStudenti').addEventListener('click', async () => {
     try {
@@ -472,6 +445,18 @@
       searchInput.value = '';
       tbody.innerHTML = "";
 
+      // Filtro di ricerca
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = tbody.querySelectorAll('tr');
+
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+      });
+
+      // Popola la tabella con i dati reali
       lista.forEach(studente => {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -480,9 +465,9 @@
           <td>${studente.cognome || '-'}</td>
           <td>${studente.email || '-'}</td>
           <td>
-            <button class="btn btn-primary btn-sm" onclick="modificaPiano(${Number(studente.id)})">
-              <i class="bi bi-pencil"></i> Modifica Piano
-            </button>
+            <a href="/segreteria/studente/visualizza-studente.html?id=${studente.id}" class="btn btn-view btn-sm">
+              <i class="bi bi-eye"></i> Visualizza Studente
+            </a>
           </td>
         `;
         tbody.appendChild(row);
@@ -494,33 +479,6 @@
       alert('Impossibile caricare la lista degli studenti.');
     }
   });
-
-  // Funzione per modificare il piano di studi
-  window.modificaPiano = async function (studenteId) {
-    if (!studenteId || isNaN(studenteId)) {
-      alert("ID studente non valido!");
-      return;
-    }
-
-    modificaPianoModal.show();
-
-    document.getElementById('btnSalvaModificaPiano').onclick = async function () {
-      const nuovoPiano = document.getElementById('selectPiano').value;
-
-      try {
-        await cambiaPianoDiStudi(studenteId, nuovoPiano);
-        alert('Piano di studi aggiornato con successo!');
-        modificaPianoModal.hide();
-
-        // Ricarica la lista studenti
-        const event = new Event('click');
-        document.getElementById('btnMostraStudenti').dispatchEvent(event);
-      } catch (err) {
-        console.error("Errore aggiornamento piano di studi:", err);
-        alert("Errore durante l'aggiornamento del piano di studi.");
-      }
-    }
-  }
 
   // Funzione per aggiungere notifiche (vuota, pronta per l'integrazione)
   window.aggiungiNotifica = function (studente, corso, voto, cfu) {
@@ -568,5 +526,4 @@
   }
 </script>
 </body>
-
 </html>

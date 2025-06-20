@@ -42,23 +42,30 @@ public class StudenteService {
     private PasswordEncoder passwordEncoder;
 
     public List<EsameDTO> esamiPrenotabili(String email) {
-        Studente studente = studenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Studente non trovato"));
+        Studente studente = studenteRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Studente non trovato"));
 
         List<Voto> voti = studente.getVoti();
-        List<Esame> superati = voti.stream().filter(v -> v.getStato() == StatoVoto.ACCETTATO).map(Voto::getEsame).toList();
+        List<Esame> superati = voti.stream()
+                .filter(v -> v.getStato() == StatoVoto.ACCETTATO)
+                .map(Voto::getEsame)
+                .toList();
 
-        List<Esame> giaValutati = voti.stream().map(Voto::getEsame).toList();
+        List<Esame> giaValutati = voti.stream()
+                .map(Voto::getEsame)
+                .toList();
 
-        List<Esame> giaPrenotati = studente.getEsami(); // quelli già prenotati
+        List<Esame> giaPrenotati = studente.getEsami();
         PianoDiStudi piano = studente.getPianoDiStudi();
         LocalDate oggi = LocalDate.now();
-        // Esami del piano di studi non superati, non valutati, non già prenotati, con appelli futuri
+
         List<Esame> finalList = pianoStudiService.getEsamiPerPiano(piano).stream()
-                .filter(e -> !superati.contains(e))           // esclude esami già superati
-                .filter(e -> !giaValutati.contains(e))        // esclude esami già valutati (es. anche rifiutati)
-                .filter(e -> !giaPrenotati.contains(e))       // esclude esami già prenotati
-                .filter(e -> e.getData().isAfter(oggi))       // considera solo esami con data futura
+                .filter(e -> !superati.contains(e))
+                .filter(e -> !giaValutati.contains(e))
+                .filter(e -> !giaPrenotati.contains(e))
+                .filter(e -> e.getData().isAfter(oggi))
                 .toList();
+
         return EsameMapper.convertListEsamiToDTO(finalList);
     }
 
@@ -172,15 +179,14 @@ public class StudenteService {
     }
 
 
+    @Transactional
     public Utente initStudente(RegisterRequest request) {
         logger.info("Inizializzazione nuovo studente con email: {}", request.email());
 
         PianoDiStudi piano = PianoDiStudi.valueOf(request.pianoDiStudi());
         logger.info("Piano di studi selezionato: {}", piano);
 
-        List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(piano);
-        logger.info("Numero di esami assegnati al piano: {}", esamiDelPiano.size());
-
+        // NON POPOLARE la lista esami: verrà usata solo per le prenotazioni
         Studente studente = Studente.builder()
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
@@ -191,9 +197,10 @@ public class StudenteService {
                 .dataDiNascita(request.dataDiNascita())
                 .residenza(request.residenza())
                 .pianoDiStudi(piano)
-                .esami(esamiDelPiano)
+                // .esami NON valorizzata all'inizio
                 .build();
 
+        studenteRepo.save(studente);
         logger.info("Studente '{} {}' inizializzato correttamente con matricola: {}",
                 studente.getNome(), studente.getCognome(), studente.getMatricola());
 
