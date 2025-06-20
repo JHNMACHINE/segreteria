@@ -100,20 +100,28 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credentials not valid");
         }
 
-        String token = jwtUtil.generateToken(utenteOpt.get());
+        Utente utente = utenteOpt.get();
+        String token = jwtUtil.generateToken(utente);
 
         ResponseCookie cookie = ResponseCookie.from("token", token)
                 .httpOnly(true)
-                .secure(false)        // NO HTTPS -> non abbiamo il cert
+                .secure(false)        // Metti true se hai HTTPS
                 .path("/")
-                .maxAge(3600)       // durata 1 ora
+                .maxAge(3600)
                 .sameSite("Strict")
                 .build();
 
+        Map<String, Object> responseBody = Map.of(
+                "message", "Login effettuato con successo",
+                "email", utente.getEmail(),
+                "role", utente.getRuolo().name() // o getRuolo().toString()
+        );
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of("message", "Login effettuato con successo"));
+                .body(responseBody);
     }
+
 
 
     @PostMapping("/refresh")

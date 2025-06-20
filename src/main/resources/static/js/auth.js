@@ -35,7 +35,11 @@ export async function login({ formId, emailId, passwordId, errorId, redirectUrl,
 
 
         if (response.ok) {
-          // Login ok, reindirizza
+          const user = await response.json();
+          if (user.role !== expectedRole) {
+            errorDiv.textContent = "Ruolo non autorizzato.";
+            return;
+          }
           window.location.href = redirectUrl;
         } else {
           const errText = await response.text();
