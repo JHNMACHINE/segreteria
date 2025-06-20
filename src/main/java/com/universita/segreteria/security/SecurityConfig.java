@@ -30,10 +30,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/operazione").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()      // login, register ecc
+                        .requestMatchers("/segreteria/**").authenticated()  // proteggi tutto /segreteria
+                        .requestMatchers("/static/**", "/", "/index.html", "/login.html", "/register.html", "/404.html").permitAll() // risorse pubbliche
+                        .anyRequest().authenticated()  // tutto il resto richiede autenticazione
                 )
+                .formLogin(form -> form.loginPage("/index.html").permitAll())
                 .addFilterBefore(JwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> cors.configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))  // Aggiungi CORS
                 .build();
