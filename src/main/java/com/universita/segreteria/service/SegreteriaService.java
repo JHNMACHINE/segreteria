@@ -1,9 +1,6 @@
 package com.universita.segreteria.service;
 
-import com.universita.segreteria.dto.DocenteDTO;
-import com.universita.segreteria.dto.SegretarioDTO;
-import com.universita.segreteria.dto.StudenteDTO;
-import com.universita.segreteria.dto.VotoDTO;
+import com.universita.segreteria.dto.*;
 import com.universita.segreteria.mapper.DocenteMapper;
 import com.universita.segreteria.mapper.StudentMapper;
 import com.universita.segreteria.mapper.VotoMapper;
@@ -14,6 +11,7 @@ import com.universita.segreteria.repository.DocenteRepository;
 import com.universita.segreteria.repository.SegretarioRepository;
 import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.VotoRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.security.SecureRandom;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -112,7 +108,6 @@ public class SegreteriaService {
     }
 
 
-
     public List<StudenteDTO> cercaStudente(String nome, String cognome) {
         List<Studente> studenti = studenteRepo.findByNomeAndCognome(nome, cognome);
         return StudentMapper.convertListStudentiToDTO(studenti);
@@ -142,8 +137,6 @@ public class SegreteriaService {
     }
 
 
-
-
     public SegretarioDTO getProfilo(String email) {
         logger.info("getProfile({})", email);
         return segretarioRepository.findByEmail(email)
@@ -154,7 +147,7 @@ public class SegreteriaService {
     }
 
 
-    public Segretario initSegretario(com.universita.segreteria.dto.RegisterRequest request) {
+    public Segretario initSegretario(RegisterRequest request) {
         return Segretario.builder()
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
@@ -165,6 +158,88 @@ public class SegreteriaService {
                 .residenza(request.residenza())
                 .ruolo(TipoUtente.SEGRETARIO)
                 .build();
+    }
+
+
+    @Transactional
+    public Map<String, Object> creaDocente(CreaDocenteDTO creaDocenteDTO) {
+        // Controllo esistenza email
+        if (docenteRepository.existsByEmail(creaDocenteDTO.getEmail())) {
+            throw new IllegalArgumentException("Un docente con questa email esiste già.");
+        }
+
+        // Genera password
+        String passwordChiara = generaPassword();
+
+        // Crea e salva il docente **prima**, senza esami
+        Docente docente = Docente.builder()
+                .nome(creaDocenteDTO.getNome())
+                .cognome(creaDocenteDTO.getCognome())
+                .email(creaDocenteDTO.getEmail())
+                .password(passwordEncoder.encode(passwordChiara))
+                .ruolo(TipoUtente.DOCENTE)
+                .build();
+
+        docente = docenteRepository.save(docente);  // Ora docente ha un ID valido
+
+        // Prendi gli esami del piano
+        List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(creaDocenteDTO.getPianoDiStudi());
+        logger.info("Numero di esami assegnati al piano: {}", esamiDelPiano.size());
+
+        // Imposta il docente salvato sugli esami (relazione bidirezionale)
+        for (Esame esame : esamiDelPiano) {
+            esame.setDocente(docente);
+        }
+
+        // Salva gli esami aggiornati
+        pianoStudiService.save(esamiDelPiano);
+
+        // Imposta gli esami nel docente (opzionale, se necessario per coerenza)
+        docente.setAppelli(esamiDelPiano);
+
+        // Non serve risalvare il docente se la relazione è owner sugli esami
+
+        // Risposta
+        return Map.of(
+                "messaggio", "Docente creato con successo",
+                "email", docente.getEmail(),
+                "passwordProvvisoria", passwordChiara
+        );
+    }
+
+
+    private String generaPassword() {
+        int lunghezza = 12;
+        String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lower = "abcdefghijklmnopqrstuvwxyz";
+        String digits = "0123456789";
+        String special = "!@#$%&*()_+-=[]|,./?><";
+        String all = upper + lower + digits + special;
+
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+
+        // Garantiamo almeno un carattere di ciascun tipo
+        password.append(upper.charAt(random.nextInt(upper.length())));
+        password.append(lower.charAt(random.nextInt(lower.length())));
+        password.append(digits.charAt(random.nextInt(digits.length())));
+        password.append(special.charAt(random.nextInt(special.length())));
+
+        // Completiamo con caratteri casuali
+        for (int i = 4; i < lunghezza; i++) {
+            password.append(all.charAt(random.nextInt(all.length())));
+        }
+
+        // Mischiamo i caratteri
+        List<Character> chars = password.chars()
+                .mapToObj(c -> (char) c)
+                .collect(Collectors.toList());
+        Collections.shuffle(chars, random);
+
+        StringBuilder shuffledPassword = new StringBuilder();
+        chars.forEach(shuffledPassword::append);
+
+        return shuffledPassword.toString();
     }
 
 }

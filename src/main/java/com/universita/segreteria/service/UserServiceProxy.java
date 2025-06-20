@@ -2,10 +2,7 @@ package com.universita.segreteria.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.universita.segreteria.controller.UtenteProxyController;
-import com.universita.segreteria.dto.DocenteDTO;
-import com.universita.segreteria.dto.EsameDTO;
-import com.universita.segreteria.dto.InserimentoVotoDTO;
-import com.universita.segreteria.dto.StudenteDTO;
+import com.universita.segreteria.dto.*;
 import com.universita.segreteria.model.PianoDiStudi;
 import com.universita.segreteria.model.TipoUtente;
 import com.universita.segreteria.proxy.UtenteService;
@@ -57,10 +54,14 @@ public class UserServiceProxy implements UtenteService {
 
 
     private Object operazioneSegreteria(String operazione, String subject, Object... parametri) {
+        ObjectMapper mapper = new ObjectMapper();
         return switch (operazione) {
+            case "creaDocente" -> {
+                CreaDocenteDTO dto = mapper.convertValue(parametri[0], CreaDocenteDTO.class);
+                yield  segreteriaService.creaDocente(dto);
+            }
             case "getProfilo" -> segreteriaService.getProfilo(subject);
             case "inserisciStudente" -> segreteriaService.inserisciStudente((StudenteDTO) parametri[0]);
-            case "inserisciDocente" -> segreteriaService.inserisciDocente((DocenteDTO) parametri[0]);
             case "confermaVoto" -> segreteriaService.confermaVoto((StudenteDTO) parametri[0], (Long) parametri[1]);
             case "cercaStudente" -> segreteriaService.cercaStudente((String) parametri[0], (String) parametri[1]);
             case "cercaStudentePerMatricola" -> segreteriaService.cercaStudentePerMatricola((String) parametri[0]);

@@ -176,7 +176,7 @@ export async function refreshToken() {
 
 export async function logout() {
   try {
-    await fetch(`${AUTH_BASE_URL}/logout`, { // TODO logout nel backend
+    await fetch(`${AUTH_BASE_URL}/logout`, {
       method: 'POST',
       credentials: 'include'  // <-- fondamentale per cancellare il cookie
     });

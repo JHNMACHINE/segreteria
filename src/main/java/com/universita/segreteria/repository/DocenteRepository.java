@@ -12,4 +12,6 @@ public interface DocenteRepository extends JpaRepository<Docente, Long> {
     List<Docente> findByNomeAndCognome(String nome, String cognome);
 
     Optional<Docente> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }

@@ -41,3 +41,14 @@ export function getAllStudenti() {
 export function getAllDocenti() {
   return eseguiOperazione("getAllDocenti");
 }
+
+export async function creaDocente({ nome, cognome, email, pianoDiStudi }) {
+    const dto = {
+        nome,
+        cognome,
+        email,
+        pianoDiStudi
+    };
+
+    return await eseguiOperazione('creaDocente', [dto]);
+}

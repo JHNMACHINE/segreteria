@@ -68,4 +68,8 @@ public class PianoStudiService {
             case GIURISPRUDENZA -> esameRepo.findByNomeIn(List.of("Diritto Privato", "Procedura Civile", "Economia Politica"));
         };
     }
+
+    public void save(List<Esame> esamiDelPiano) {
+        esameRepo.saveAll(esamiDelPiano);
+    }
 }
