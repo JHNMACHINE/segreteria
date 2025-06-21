@@ -135,7 +135,6 @@ async function submitRegistration(formId, fields, ruolo, errorId, successId, red
         });
 
         if (response.ok) {
-          const data = await response.json();
           successDiv.textContent = "Registrazione completata!";
           if (redirectUrl) {
             setTimeout(() => window.location.href = redirectUrl, 1500);

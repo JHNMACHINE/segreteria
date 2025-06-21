@@ -465,7 +465,7 @@
           <td>${studente.cognome || '-'}</td>
           <td>${studente.email || '-'}</td>
           <td>
-            <a href="/segreteria/studente/visualizza-studente.html?id=${studente.id}" class="btn btn-view btn-sm">
+            <a href="/segreteria/studente/visualizza-studente.html?matricola=${encodeURIComponent(studente.matricola)}" class="btn btn-view btn-sm">
               <i class="bi bi-eye"></i> Visualizza Studente
             </a>
           </td>

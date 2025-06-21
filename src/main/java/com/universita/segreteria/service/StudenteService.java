@@ -200,6 +200,7 @@ public class StudenteService {
                 // .esami NON valorizzata all'inizio
                 .build();
 
+
         studenteRepo.save(studente);
         logger.info("Studente '{} {}' inizializzato correttamente con matricola: {}",
                 studente.getNome(), studente.getCognome(), studente.getMatricola());

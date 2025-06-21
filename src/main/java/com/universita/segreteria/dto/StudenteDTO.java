@@ -23,6 +23,4 @@ public class StudenteDTO {
     private String residenza;
     private LocalDate dataDiNascita;
     private String email;
-
-
 }
