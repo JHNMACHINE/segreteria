@@ -40,3 +40,14 @@ export function prenotaEsame(appelloId) {
     }
     return eseguiOperazione('prenotaEsame', [appelloId]);
 }
+
+export function pagaTassa(nomeTassa) {
+    return eseguiOperazione('pagaTassa', [nomeTassa])
+        .catch(err => {
+            if (err instanceof SyntaxError) {
+                console.warn("");
+                return;
+            }
+            throw err;
+        });
+}

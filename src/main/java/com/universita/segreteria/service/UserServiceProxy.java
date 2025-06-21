@@ -88,6 +88,11 @@ public class UserServiceProxy implements UtenteService {
             case "getInfoStudente" -> studenteService.getInfoStudente(subject);
             case "getPianoDiStudi" -> studenteService.consultaPianoStudi(subject);
             case "getVotiDaAccettare" -> studenteService.getVotiDaAccettare(subject);
+            case "pagaTassa" -> {
+                String nomeTassa = (String) parametri[0];
+                studenteService.pagaTassa(subject, nomeTassa);
+                yield null;
+            }
             default -> {
                 log.error("Operazione '{}' non consentita per ruolo STUDENTE", operazione);
                 throw new RuntimeException("Operazione non consentita per lo studente.");

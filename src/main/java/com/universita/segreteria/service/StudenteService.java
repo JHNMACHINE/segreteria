@@ -259,4 +259,18 @@ public class StudenteService {
         }).toList();
     }
 
+    @Transactional
+    public void pagaTassa(String email, String nomeTassa) {
+        Studente studente = studenteRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Studente non trovato"));
+
+        studente.getTassePagate().stream()
+                .filter(t -> t.getNome().equalsIgnoreCase(nomeTassa))
+                .findFirst()
+                .ifPresentOrElse(t -> t.setPagata(true),
+                        () -> { throw new RuntimeException("Tassa non trovata"); });
+
+        studenteRepo.save(studente);
+    }
+
 }

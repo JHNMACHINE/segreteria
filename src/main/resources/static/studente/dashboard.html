@@ -84,8 +84,22 @@
             border-color: #157347;
         }
 
+        .btn-success {
+            background-color: #198754;
+            border-color: #198754;
+        }
+
+        .btn-success:hover {
+            background-color: #157347;
+            border-color: #157347;
+        }
+
         .badge-success {
             background-color: #198754;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
         }
 
         .alert {
@@ -97,246 +111,401 @@
             color: #721c24;
             border-color: #f5c6cb;
         }
+
+        /* Stili aggiunti per la sezione tasse */
+        .tax-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .tax-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tax-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .paid-status {
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .pay-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            vertical-align: text-bottom;
+            border: 0.15em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+
+        @keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
+
+        .tax-paid-confirm {
+            color: #198754;
+            font-weight: bold;
+        }
     </style>
 </head>
 
 <body>
 
-    <header>
-        <h1>Area Studente</h1>
-        <div>
-            <span id="nomeStudente" class="me-3 fw-semibold"></span>
-            <button class="btn btn-light btn-sm" id="logoutBtn">Logout</button>
+<header>
+    <h1>Area Studente</h1>
+    <div>
+        <span id="nomeStudente" class="me-3 fw-semibold"></span>
+        <button class="btn btn-light btn-sm" id="logoutBtn">Logout</button>
+    </div>
+</header>
+
+<div class="container mt-5">
+    <div id="contenuto-dashboard">
+        <h2 class="mb-3">Bentornato <span id="nomeCompleto"></span>!</h2>
+        <p class="lead">Gestisci il tuo piano di studi, prenotazioni e voti.</p>
+
+        <!-- Area per messaggi di errore -->
+        <div id="error-message" class="alert alert-error" style="display: none;"></div>
+
+        <div class="card my-4">
+            <div class="card-header">
+                Piano di Studi
+            </div>
+            <div class="card-body">
+                <h5 id="piano-studi" class="card-title text-success">Caricamento...</h5>
+            </div>
         </div>
-    </header>
 
-    <div class="container mt-5">
-        <div id="contenuto-dashboard">
-            <h2 class="mb-3">Bentornato <span id="nomeCompleto"></span>!</h2>
-            <p class="lead">Gestisci il tuo piano di studi, prenotazioni e voti.</p>
+        <div id="sezione-carriera" class="my-4">
+            <h4>Carriera in corso</h4>
+            <ul id="carriera" class="list-group"></ul>
+        </div>
 
-            <!-- Area per messaggi di errore -->
-            <div id="error-message" class="alert alert-error" style="display: none;"></div>
+        <!-- Sezione Appelli Disponibili -->
+        <div id="sezione-prenotabili" class="my-4">
+            <h4>Appelli disponibili</h4>
+            <ul id="lista-prenotabili" class="list-group"></ul>
+        </div>
 
-            <div class="card my-4">
-                <div class="card-header">
-                    Piano di Studi
-                </div>
-                <div class="card-body">
-                    <h5 id="piano-studi" class="card-title text-success">Caricamento...</h5>
-                </div>
-            </div>
+        <div id="sezione-voti" class="my-4">
+            <h4>Voti da accettare</h4>
+            <ul id="lista-voti" class="list-group"></ul>
+        </div>
 
-            <div id="sezione-carriera" class="my-4">
-                <h4>Carriera in corso</h4>
-                <ul id="carriera" class="list-group"></ul>
-            </div>
-
-            <!-- Sezione Appelli Disponibili -->
-            <div id="sezione-prenotabili" class="my-4">
-                <h4>Appelli disponibili</h4>
-                <ul id="lista-prenotabili" class="list-group"></ul>
-            </div>
-
-            <div id="sezione-voti" class="my-4">
-                <h4>Voti da accettare</h4>
-                <ul id="lista-voti" class="list-group"></ul>
-            </div>
+        <!-- Sezione Tasse Aggiunta -->
+        <div id="sezione-tasse" class="my-4">
+            <h4>Tasse universitarie</h4>
+            <ul id="lista-tasse" class="list-group"></ul>
         </div>
     </div>
+</div>
 
-    <footer class="mt-5 border-top">
-        <small>&copy; 2025 - Segreteria Universitaria. Tutti i diritti riservati.</small>
-    </footer>
+<footer class="mt-5 border-top">
+    <small>&copy; 2025 - Segreteria Universitaria. Tutti i diritti riservati.</small>
+</footer>
 
-    <script type="module">
-        import {
-            getInfoStudente,
-            getPianoDiStudi,
-            getCarriera,
-            getEsamiPrenotabili,
-            getVotiDaAccettare,
-            prenotaEsame,
-            aggiornaStatoVoto
-        } from '/js/service/studente.js';
-        import { logout } from '/js/auth.js';
+<script type="module">
+    import {
+        getInfoStudente,
+        getPianoDiStudi,
+        getCarriera,
+        getEsamiPrenotabili,
+        getVotiDaAccettare,
+        prenotaEsame,
+        aggiornaStatoVoto,
+        pagaTassa  // Importa la nuova funzione di pagamento tasse
+    } from '/js/service/studente.js';
+    import { logout } from '/js/auth.js';
 
-        document.getElementById("logoutBtn").addEventListener("click", logout);
+    document.getElementById("logoutBtn").addEventListener("click", logout);
 
-        // Info studente
-        getInfoStudente()
-            .then(data => {
-                document.getElementById('nomeStudente').innerText = `${data.nome} ${data.cognome}`;
-                document.getElementById('nomeCompleto').innerText = data.nome;
-            })
-            .catch(err => console.error("Errore caricamento info studente:", err));
+    // Funzione per aggiornare la UI dopo il pagamento di una tassa
+    const aggiornaUIAfterPagamento = (nomeTassa) => {
+        const taxItems = document.querySelectorAll('.tax-item');
+        taxItems.forEach(item => {
+            const taxNameElement = item.querySelector('.tax-name');
+            if (taxNameElement && taxNameElement.textContent.includes(nomeTassa)) {
+                // Aggiorna il badge
+                const badge = item.querySelector('.tax-badge');
+                if (badge) {
+                    badge.className = 'badge rounded-pill bg-success paid-status tax-badge';
+                    badge.textContent = 'Pagata';
+                }
 
-        // Piano di studi
-        getPianoDiStudi()
-            .then(piano => {
-                document.getElementById('piano-studi').innerText = piano || 'Non disponibile';
-            })
-            .catch(err => console.error("Errore caricamento piano di studi:", err));
+                // Rimuove il bottone di pagamento
+                const payButton = item.querySelector('.pay-button');
+                if (payButton) payButton.remove();
 
-        // Carriera esami
-        getCarriera()
-            .then(esami => {
-                const lista = document.getElementById('carriera');
-                lista.innerHTML = '';
-                console.log('[CARRIERA]', esami);
+                // Mostra conferma
+                const confirmation = document.createElement('span');
+                confirmation.className = 'tax-paid-confirm';
+                confirmation.textContent = 'Pagato ✓';
+                item.querySelector('.tax-actions').appendChild(confirmation);
+            }
+        });
+    };
 
-                esami.forEach(e => {
-                    const item = document.createElement('li');
-                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    const nomeSpan = document.createElement('span');
-                    nomeSpan.innerText = e.nome;
-                    item.appendChild(nomeSpan);
+    // Info studente
+    getInfoStudente()
+        .then(data => {
+            document.getElementById('nomeStudente').innerText = `${data.nome} ${data.cognome}`;
+            document.getElementById('nomeCompleto').innerText = data.nome;
 
-                    const right = document.createElement('div');
-                    if (e.statoEsame === 'SUPERATO') {
-                        const badge = document.createElement('span');
-                        badge.className = 'badge bg-success rounded-pill';
-                        badge.innerText = `${e.cfu} CFU`;
-                        right.appendChild(badge);
-                    } else if (e.statoEsame === 'PRENOTATO') {
-                        const badge = document.createElement('span');
-                        badge.className = 'badge bg-warning rounded-pill';
-                        badge.innerText = 'In attesa di valutazione';
-                        right.appendChild(badge);
+            // Popola le tasse
+            const listaTasse = document.getElementById('lista-tasse');
+            listaTasse.innerHTML = ''; // reset
+
+            if (!data.tassePagate || data.tassePagate.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item text-center text-muted fst-italic';
+                li.innerText = 'Nessuna tassa registrata.';
+                listaTasse.appendChild(li);
+            } else {
+                data.tassePagate.forEach(t => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item';
+
+                    const taxContainer = document.createElement('div');
+                    taxContainer.className = 'tax-item';
+
+                    // Informazioni tassa
+                    const taxInfo = document.createElement('div');
+                    taxInfo.className = 'tax-info';
+
+                    const taxName = document.createElement('span');
+                    taxName.className = 'fw-bold tax-name';
+                    taxName.textContent = t.nome;
+
+                    const taxPrice = document.createElement('span');
+                    taxPrice.className = 'text-muted';
+                    taxPrice.textContent = `€${t.prezzo.toFixed(2)}`;
+
+                    taxInfo.appendChild(taxName);
+                    taxInfo.appendChild(taxPrice);
+
+                    // Azioni tassa
+                    const taxActions = document.createElement('div');
+                    taxActions.className = 'tax-actions';
+
+                    const badge = document.createElement('span');
+                    badge.className = `badge rounded-pill ${t.pagata ? 'bg-success' : 'bg-danger'} paid-status tax-badge`;
+                    badge.innerText = t.pagata ? 'Pagata' : 'Non pagata';
+
+                    taxActions.appendChild(badge);
+
+                    if (!t.pagata) {
+                        const payButton = document.createElement('button');
+                        payButton.className = 'btn btn-success btn-sm pay-button';
+                        payButton.innerText = 'Paga ora';
+                        payButton.onclick = () => {
+                            // Disabilita il bottone durante l'elaborazione
+                            payButton.disabled = true;
+                            payButton.innerHTML = '<span class="pay-spinner"></span> Pagamento...';
+
+                            pagaTassa(t.nome)
+                                .then(() => {
+                                    aggiornaUIAfterPagamento(t.nome);
+                                })
+                                .catch(err => {
+                                    console.error('Errore nel pagamento:', err);
+                                    payButton.disabled = false;
+                                    payButton.innerHTML = 'Paga ora';
+
+                                    // Mostra messaggio di errore
+                                    const errorMessage = document.getElementById('error-message');
+                                    errorMessage.style.display = 'block';
+                                    errorMessage.innerText = 'Si è verificato un errore durante il pagamento. Riprova più tardi.';
+                                    setTimeout(() => errorMessage.style.display = 'none', 5000);
+                                });
+                        };
+                        taxActions.appendChild(payButton);
                     } else {
-                        const badge = document.createElement('span');
-                        badge.className = 'badge bg-secondary rounded-pill';
-                        badge.innerText = e.statoEsame;
-                        right.appendChild(badge);
+                        const confirmation = document.createElement('span');
+                        confirmation.className = 'tax-paid-confirm';
+                        confirmation.textContent = 'Pagato ✓';
+                        taxActions.appendChild(confirmation);
                     }
 
-                    item.appendChild(right);
-                    lista.appendChild(item);
+                    taxContainer.appendChild(taxInfo);
+                    taxContainer.appendChild(taxActions);
+                    li.appendChild(taxContainer);
+                    listaTasse.appendChild(li);
                 });
-            })
-            .catch(err => console.error("Errore caricamento carriera:", err));
+            }
+        })
+        .catch(err => {
+            console.error("Errore caricamento info studente:", err);
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.style.display = 'block';
+            errorMessage.innerText = 'Errore nel caricamento delle informazioni dello studente.';
+        });
 
-        // Appelli prenotabili
-        getEsamiPrenotabili()
-            .then(appelli => {
-                const ul = document.getElementById('lista-prenotabili');
-                ul.innerHTML = '';
-                console.log('[APPELLI]', appelli);
+    // Piano di studi
+    getPianoDiStudi()
+        .then(piano => {
+            document.getElementById('piano-studi').innerText = piano || 'Non disponibile';
+        })
+        .catch(err => console.error("Errore caricamento piano di studi:", err));
 
-                if (appelli.length === 0) {
-                    const li = document.createElement('li');
-                    li.className = 'list-group-item text-center text-muted fst-italic';
-                    li.innerText = 'Nessun appello disponibile';
-                    ul.appendChild(li);
-                    return;
+    // Carriera esami
+    getCarriera()
+        .then(esami => {
+            const lista = document.getElementById('carriera');
+            lista.innerHTML = '';
+            console.log('[CARRIERA]', esami);
+
+            esami.forEach(e => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                const nomeSpan = document.createElement('span');
+                nomeSpan.innerText = e.nome;
+                item.appendChild(nomeSpan);
+
+                const right = document.createElement('div');
+                if (e.statoEsame === 'SUPERATO') {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-success rounded-pill';
+                    badge.innerText = `${e.cfu} CFU`;
+                    right.appendChild(badge);
+                } else if (e.statoEsame === 'PRENOTATO') {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-warning rounded-pill';
+                    badge.innerText = 'In attesa di valutazione';
+                    right.appendChild(badge);
+                } else {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-secondary rounded-pill';
+                    badge.innerText = e.statoEsame;
+                    right.appendChild(badge);
                 }
 
-                appelli.forEach(a => {
-                    const item = document.createElement('li');
-                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                item.appendChild(right);
+                lista.appendChild(item);
+            });
+        })
+        .catch(err => console.error("Errore caricamento carriera:", err));
 
-                    const dataEsame = new Date(a.date).toLocaleDateString('it-IT', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    });
+    // Appelli prenotabili
+    getEsamiPrenotabili()
+        .then(appelli => {
+            const ul = document.getElementById('lista-prenotabili');
+            ul.innerHTML = '';
+            console.log('[APPELLI]', appelli);
 
-                    const info = document.createElement('span');
-                    info.innerText = `${a.nome} — ${dataEsame}`;
-                    item.appendChild(info);
+            if (appelli.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item text-center text-muted fst-italic';
+                li.innerText = 'Nessun appello disponibile';
+                ul.appendChild(li);
+                return;
+            }
 
-                    const btn = document.createElement('button');
-                    btn.className = 'btn btn-primary btn-sm';
-                    btn.innerText = 'Prenota';
-                    btn.onclick = () => {
-                        prenotaEsame(a.id)
-                            .then(() => {
-                                alert('Prenotazione avvenuta con successo');
-                                // Rimuovi l'appello prenotato dalla lista
-                                ul.removeChild(item);
-                            })
-                            .catch(err => {
-                                // Mostra messaggio di errore in pagina
-                                const errorMessage = document.getElementById('error-message');
-                                errorMessage.style.display = 'block';
-                                errorMessage.innerText = 'Non puoi prenotarti a questo appello, sei già prenotato.';
-                                // Dopo 5 secondi nascondi il messaggio di errore
-                                setTimeout(() => errorMessage.style.display = 'none', 5000);
-                            });
-                    };
-                    item.appendChild(btn);
+            appelli.forEach(a => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center';
 
-                    ul.appendChild(item);
+                const dataEsame = new Date(a.date).toLocaleDateString('it-IT', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
                 });
-            })
-            .catch(err => console.error("Errore caricamento appelli:", err));
 
-        // Voti da accettare
-        getVotiDaAccettare()
-            .then(voti => {
-                const lista = document.getElementById('lista-voti');
-                lista.innerHTML = '';
-                console.log('[VOTI]', voti);
+                const info = document.createElement('span');
+                info.innerText = `${a.nome} — ${dataEsame}`;
+                item.appendChild(info);
 
-                if (voti.length === 0) {
-                    const noVoti = document.createElement('li');
-                    noVoti.className = 'list-group-item text-center text-muted fst-italic';
-                    noVoti.innerText = 'Nessun voto da accettare';
-                    lista.appendChild(noVoti);
-                    return;
-                }
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-primary btn-sm';
+                btn.innerText = 'Prenota';
+                btn.onclick = () => {
+                    prenotaEsame(a.id)
+                        .then(() => {
+                            alert('Prenotazione avvenuta con successo');
+                            // Rimuovi l'appello prenotato dalla lista
+                            ul.removeChild(item);
+                        })
+                        .catch(err => {
+                            // Mostra messaggio di errore in pagina
+                            const errorMessage = document.getElementById('error-message');
+                            errorMessage.style.display = 'block';
+                            errorMessage.innerText = 'Non puoi prenotarti a questo appello, sei già prenotato.';
+                            // Dopo 5 secondi nascondi il messaggio di errore
+                            setTimeout(() => errorMessage.style.display = 'none', 5000);
+                        });
+                };
+                item.appendChild(btn);
 
-                voti.forEach(v => {
-                    const item = document.createElement('li');
-                    item.className = 'list-group-item d-flex justify-content-between align-items-center flex-wrap';
+                ul.appendChild(item);
+            });
+        })
+        .catch(err => console.error("Errore caricamento appelli:", err));
 
-                    const testoVoto = document.createElement('div');
-                    testoVoto.innerText = `${v.esame.nome} - Voto: ${v.voto}`;
-                    testoVoto.className = 'me-3 fw-semibold';
+    // Voti da accettare
+    getVotiDaAccettare()
+        .then(voti => {
+            const lista = document.getElementById('lista-voti');
+            lista.innerHTML = '';
+            console.log('[VOTI]', voti);
 
-                    const btnGroup = document.createElement('div');
-                    btnGroup.className = 'd-flex gap-2';
+            if (voti.length === 0) {
+                const noVoti = document.createElement('li');
+                noVoti.className = 'list-group-item text-center text-muted fst-italic';
+                noVoti.innerText = 'Nessun voto da accettare';
+                lista.appendChild(noVoti);
+                return;
+            }
 
-                    const accettaBtn = document.createElement('button');
-                    accettaBtn.className = 'btn btn-success btn-sm';
-                    accettaBtn.innerText = 'Accetta';
-                    accettaBtn.onclick = () => {
-                        aggiornaStatoVoto(v.id, true)
-                            .then(() => {
-                                lista.removeChild(item);
-                                // Mostrare messaggio di conferma in pagina senza alert (opzionale)
-                                console.log('Voto accettato');
-                            })
-                            .catch(err => alert('Errore: ' + err));
-                    };
+            voti.forEach(v => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center flex-wrap';
 
-                    rifiutaBtn.onclick = () => {
-                        aggiornaStatoVoto(v.id, false)
-                            .then(() => {
-                                lista.removeChild(item);
-                                console.log('Voto rifiutato');
-                            })
-                            .catch(err => alert('Errore: ' + err));
-                    };
+                const testoVoto = document.createElement('div');
+                testoVoto.innerText = `${v.esame.nome} - Voto: ${v.voto}`;
+                testoVoto.className = 'me-3 fw-semibold';
 
+                const btnGroup = document.createElement('div');
+                btnGroup.className = 'd-flex gap-2';
 
-                    const rifiutaBtn = document.createElement('button');
-                    rifiutaBtn.className = 'btn btn-danger btn-sm';
-                    rifiutaBtn.innerText = 'Rifiuta';
-                    rifiutaBtn.onclick = () => {
-                        aggiornaStatoVoto(v.id, false)
-                            .then(() => alert('Voto rifiutato'))
-                            .catch(err => alert('Errore: ' + err));
-                    };
+                const accettaBtn = document.createElement('button');
+                accettaBtn.className = 'btn btn-success btn-sm';
+                accettaBtn.innerText = 'Accetta';
+                accettaBtn.onclick = () => {
+                    aggiornaStatoVoto(v.id, true)
+                        .then(() => {
+                            lista.removeChild(item);
+                            // Mostrare messaggio di conferma in pagina senza alert (opzionale)
+                            console.log('Voto accettato');
+                        })
+                        .catch(err => alert('Errore: ' + err));
+                };
 
-                    btnGroup.append(accettaBtn, rifiutaBtn);
-                    item.append(testoVoto, btnGroup);
-                    lista.appendChild(item);
-                });
-            })
-            .catch(err => console.error("Errore caricamento voti:", err));
-    </script>
+                const rifiutaBtn = document.createElement('button');
+                rifiutaBtn.className = 'btn btn-danger btn-sm';
+                rifiutaBtn.innerText = 'Rifiuta';
+                rifiutaBtn.onclick = () => {
+                    aggiornaStatoVoto(v.id, false)
+                        .then(() => {
+                            lista.removeChild(item);
+                            console.log('Voto rifiutato');
+                        })
+                        .catch(err => alert('Errore: ' + err));
+                };
 
+                btnGroup.append(accettaBtn, rifiutaBtn);
+                item.append(testoVoto, btnGroup);
+                lista.appendChild(item);
+            });
+        })
+        .catch(err => console.error("Errore caricamento voti:", err));
+</script>
 </body>
-
 </html>
