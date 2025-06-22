@@ -10,6 +10,7 @@ import com.universita.segreteria.mapper.EsameMapper;
 import com.universita.segreteria.model.*;
 import com.universita.segreteria.repository.EsameRepository;
 import com.universita.segreteria.repository.StudenteRepository;
+import com.universita.segreteria.repository.TassaRepository;
 import com.universita.segreteria.repository.VotoRepository;
 import jakarta.transaction.Transactional;
 import jdk.jshell.spi.ExecutionControl;
@@ -38,6 +39,8 @@ public class StudenteService {
     private VotoRepository votoRepo;
     @Autowired
     private PianoStudiService pianoStudiService;
+    @Autowired
+    private TassaRepository tassaRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -202,6 +205,18 @@ public class StudenteService {
 
 
         studenteRepo.save(studente);
+
+        List<Tassa> tassePredefinite = List.of(
+                Tassa.builder().nome("Tassa di iscrizione").prezzo(100).pagata(false).studente(studente).build(),
+                Tassa.builder().nome("Tassa di esame").prezzo(50).pagata(false).studente(studente).build(),
+                Tassa.builder().nome("Tassa di laboratorio").prezzo(30).pagata(false).studente(studente).build()
+        );
+
+        // Associa le tasse allo studente
+        studente.setTassePagate(tassePredefinite);
+
+        // Salva le tasse nel database
+        tassaRepository.saveAll(tassePredefinite);
         logger.info("Studente '{} {}' inizializzato correttamente con matricola: {}",
                 studente.getNome(), studente.getCognome(), studente.getMatricola());
 
@@ -272,5 +287,7 @@ public class StudenteService {
 
         studenteRepo.save(studente);
     }
+
+
 
 }
