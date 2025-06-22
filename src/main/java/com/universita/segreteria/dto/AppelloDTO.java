@@ -16,5 +16,4 @@ public class AppelloDTO {
     private String nome;       // nome corso o esame
     private int cfu;
     private LocalDate data;    // data dell’appello
-    private String aula;
-}
+ }

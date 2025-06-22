@@ -11,12 +11,12 @@ export function getAppelli(){
 }
 
 
-export function inserisciVoto(data){
-    return eseguiOperazione('inserisciVoto', [data]);
+export function inserisciVoto(id,data){
+    return eseguiOperazione('inserisciVoto', [id,data]);
 }
 
-export function creaAppello(data){
-    return eseguiOperazione('creaAppello',  [data]);
+export function creaAppello(nome,data){
+    return eseguiOperazione('creaEsame',[nome,data]);
 }
 
 export function trovaStudentiPerEsame(corso){

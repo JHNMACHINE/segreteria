@@ -55,7 +55,7 @@ class DocenteServiceUnitTest {
         esame.setNome("Matematica");
 
         when(studenteRepo.findByMatricola("123")).thenReturn(Optional.of(studente));
-        when(esameRepo.findByNome("Matematica")).thenReturn(Optional.of(esame));
+        when(esameRepo.findFirstByNome("Matematica")).thenReturn(Optional.of(esame));
         when(votoRepo.save(any(Voto.class))).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
@@ -103,7 +103,7 @@ class DocenteServiceUnitTest {
     @Test
     void testInserisciVoto_esameNonTrovato() {
         // Arrange
-        when(esameRepo.findByNome("Matematica")).thenReturn(Optional.empty());
+        when(esameRepo.findFirstByNome("Matematica")).thenReturn(Optional.empty());
 
         // Act + Assert
         assertThrows(RuntimeException.class, () ->
@@ -115,7 +115,7 @@ class DocenteServiceUnitTest {
     void testInserisciVoto_votoEsistente() {
         // Arrange
         when(studenteRepo.findByMatricola("123")).thenReturn(Optional.of(studente));
-        when(esameRepo.findByNome("Matematica")).thenReturn(Optional.of(esame));
+        when(esameRepo.findFirstByNome("Matematica")).thenReturn(Optional.of(esame));
         when(votoRepo.existsByStudenteAndEsame(studente, esame)).thenReturn(true);
 
         // Act + Assert

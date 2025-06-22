@@ -20,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,23 +49,29 @@ public class DocenteService {
 
 
     @Transactional
-    public EsameDTO creaEsame(Long docenteId, EsameDTO esameDTO) {
-        Docente docente = docenteRepo.findById(docenteId).orElseThrow(() -> new RuntimeException("Docente non trovato"));
+    public EsameDTO creaEsame(String email, String nome,LocalDate data1) {
+        Docente docente = docenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Docente non trovato"));
 
         // Controllo sulla data
-        if (esameDTO.getDate() == null || !esameDTO.getDate().isAfter(LocalDate.now())) {
+        if (data1 == null || !data1.isAfter(LocalDate.now())) {
             throw new RuntimeException("La data dell'esame deve essere futura");
         }
 
         // il docente ha già un esame nello stesso giorno?
-        boolean esisteGiaEsame = esameRepo.findByDocente(docente).stream().anyMatch(e -> e.getData().equals(esameDTO.getDate()));
+        boolean esisteGiaEsame = esameRepo.findByDocente(docente).stream().anyMatch(e -> e.getData().equals(data1));
 
         if (esisteGiaEsame) {
             throw new RuntimeException("Il docente ha già un esame previsto in questa data");
         }
-
-        Esame esame = EsameMapper.fromDTO(esameDTO, docente);
-        esame.setDocente(docente);
+        Esame es=esameRepo.findFirstByNome(nome).orElseThrow(()->new RuntimeException("Esame non trovato"));
+        Esame esame=es.toBuilder()
+                .id(null)
+                .docente(docente)
+                .data(data1)
+                .voti(List.of())
+                .studentiPrenotati(List.of())
+                .statoEsame(StatoEsame.ATTIVO)
+                .build();
         esameRepo.save(esame);
         return EsameMapper.toDTO(esame);
     }
@@ -105,7 +110,7 @@ public class DocenteService {
 
     public VotoDTO studenteAssente(StudenteDTO studenteDTO, EsameDTO esameDTO, Integer voto) {
         Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Studente non trovato"));
-        Esame esame = esameRepo.findByNome(esameDTO.getNome()).orElseThrow(() -> new RuntimeException("Esame non trovato"));
+        Esame esame = esameRepo.findFirstByNome(esameDTO.getNome()).orElseThrow(() -> new RuntimeException("Esame non trovato"));
 
         esame.setStatoEsame(StatoEsame.ASSENTE);
 

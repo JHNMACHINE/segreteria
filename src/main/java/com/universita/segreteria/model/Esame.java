@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @ToString(onlyExplicitlyIncluded = true)
 public class Esame {
 
@@ -33,6 +33,7 @@ public class Esame {
 
     @ToString.Include
     private int cfu;
+
 
     @Enumerated(EnumType.STRING)
     @ToString.Include

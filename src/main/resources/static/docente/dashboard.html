@@ -121,206 +121,270 @@
 
 <body>
 
-    <header>
-        <h1>Area Docente</h1>
-        <div>
-            <span id="nomeDocente" class="me-4 fw-semibold"></span>
-            <button class="btn btn-sm btn-warning" id="logoutBtn">Logout</button>
-        </div>
-    </header>
+<header>
+    <h1>Area Docente</h1>
+    <div>
+        <span id="nomeDocente" class="me-4 fw-semibold"></span>
+        <button class="btn btn-sm btn-warning" id="logoutBtn">Logout</button>
+    </div>
+</header>
 
-    <div class="dashboard-container">
-        <h2 class="mb-2">Bentornato <span id="nomeCompleto"></span>!</h2>
-        <p class="lead mb-4">Gestisci con semplicità appelli, voti ed esami.</p>
+<div class="dashboard-container">
+    <h2 class="mb-2">Bentornato <span id="nomeCompleto"></span>!</h2>
+    <p class="lead mb-4">Gestisci con semplicità appelli, voti ed esami.</p>
 
-        <h4 class="section-title">I tuoi appelli</h4>
-        <div id="appelliList" class="table-responsive">
-            <table class="table table-bordered mt-3">
-                <thead>
-                    <tr>
-                        <th>Corso</th>
-                        <th>Data</th>
-                        <th>Azioni</th>
-                    </tr>
-                </thead>
-                <tbody id="appelliTableBody"></tbody>
-            </table>
-        </div>
-
-        <h4 class="section-title mt-5">Studenti iscritti al corso</h4>
-        <form class="row g-3 mb-3">
-            <div class="col-md-6">
-                <label for="corsoSelect" class="form-label">Seleziona corso</label>
-                <select class="form-select" id="corsoSelect">
-                    <option value="">-- Seleziona un corso --</option>
-                </select>
-            </div>
-        </form>
-
-        <div id="studentiList" class="table-responsive d-none">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Matricola</th>
-                        <th>Nome</th>
-                        <th>Cognome</th>
-                    </tr>
-                </thead>
-                <tbody id="studentiTableBody"></tbody>
-            </table>
-        </div>
-
-
-        <h4 class="section-title">Inserisci voti</h4>
-        <form id="votiForm" class="row g-3 mt-2">
-            <div class="col-md-4">
-                <label for="appelloSelect" class="form-label">Appello</label>
-                <select class="form-select" id="appelloSelect" required></select>
-            </div>
-            <div class="col-md-4">
-                <label for="studenteMatricola" class="form-label">Matricola</label>
-                <input type="text" class="form-control" id="studenteMatricola" required />
-            </div>
-            <div class="col-md-4">
-                <label for="voto" class="form-label">Voto</label>
-                <input type="number" min="18" max="30" class="form-control" id="voto" required />
-            </div>
-            <div class="col-12 text-end mt-2">
-                <button type="submit" class="btn btn-warning">Aggiungi voto</button>
-            </div>
-        </form>
-
-        <h4 class="section-title">Crea nuovo appello</h4>
-        <form id="creaAppelloForm" class="row g-3 mt-2">
-            <div class="col-md-6">
-                <label for="corso" class="form-label">Corso</label>
-                <input type="text" class="form-control" id="corso" required />
-            </div>
-            <div class="col-md-6">
-                <label for="dataEsame" class="form-label">Data</label>
-                <input type="date" class="form-control" id="dataEsame" required />
-            </div>
-            <div class="col-12 text-end mt-2">
-                <button type="submit" class="btn btn-warning">Crea appello</button>
-            </div>
-        </form>
+    <h4 class="section-title">I tuoi appelli</h4>
+    <div id="appelliList" class="table-responsive">
+        <table class="table table-bordered mt-3">
+            <thead>
+            <tr>
+                <th>Corso</th>
+                <th>Data</th>
+                <th>Azioni</th>
+            </tr>
+            </thead>
+            <tbody id="appelliTableBody"></tbody>
+        </table>
     </div>
 
-    <footer>
-        <small>&copy; 2025 - Segreteria Universitaria</small>
-    </footer>
+    <h4 class="section-title mt-5">Studenti iscritti al corso</h4>
+    <form class="row g-3 mb-3">
+        <div class="col-md-6">
+            <label for="corsoSelect" class="form-label">Seleziona corso</label>
+            <select class="form-select" id="corsoSelect">
+                <option value="">-- Seleziona un corso --</option>
+            </select>
+        </div>
+    </form>
 
-    <script type="module">
-        import { logout } from '/js/auth.js';
-        import {
-            getInfoDocente,
-            getAppelli,
-            inserisciVoto,
-            creaAppello,
-            trovaStudentiPerEsame
-        } from '/js/service/docente.js';
+    <div id="studentiList" class="table-responsive d-none">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Matricola</th>
+                <th>Nome</th>
+                <th>Cognome</th>
+            </tr>
+            </thead>
+            <tbody id="studentiTableBody"></tbody>
+        </table>
+    </div>
 
-        // Logout
-        document.getElementById("logoutBtn").addEventListener("click", logout);
 
-        // Mostra nome docente
-        getInfoDocente()
-            .then(data => {
-                document.getElementById('nomeDocente').innerText = `${data.nome} ${data.cognome}`;
-                document.getElementById('nomeCompleto').innerText = data.nome;
-            })
-            .catch(console.error);
+    <h4 class="section-title">Inserisci voti</h4>
+    <form id="votiForm" class="row g-3 mt-2">
+        <div class="col-md-4">
+            <label for="appelloSelect" class="form-label">Appello</label>
+            <select class="form-select" id="appelloSelect" required></select>
+        </div>
+        <div class="col-md-4">
+            <label for="studenteMatricola" class="form-label">Matricola</label>
+            <input type="text" class="form-control" id="studenteMatricola" required />
+        </div>
+        <div class="col-md-4">
+            <label for="voto" class="form-label">Voto</label>
+            <input type="number" min="18" max="30" class="form-control" id="voto" required />
+        </div>
+        <div class="col-12 text-end mt-2">
+            <button type="submit" class="btn btn-warning">Aggiungi voto</button>
+        </div>
+    </form>
 
-        // Elementi HTML
-        const appelloSelect = document.getElementById('appelloSelect');
-        const corsoSelect = document.getElementById('corsoSelect');
-        const studentiTable = document.getElementById('studentiList');
-        const studentiBody = document.getElementById('studentiTableBody');
-        const tbody = document.getElementById('appelliTableBody');
+    <h4 class="section-title">Crea nuovo appello</h4>
+    <form id="creaAppelloForm" class="row g-3 mt-2">
+        <div class="col-md-6">
+            <label for="corso" class="form-label">Corso</label>
+            <input type="text" class="form-control" id="corso" required />
+        </div>
+        <div class="col-md-6">
+            <label for="dataEsame" class="form-label">Data</label>
+            <input type="date" class="form-control" id="dataEsame" required />
+        </div>
+        <div class="col-12 text-end mt-2">
+            <button type="submit" class="btn btn-warning">Crea appello</button>
+        </div>
+    </form>
+</div>
 
-        // Carica appelli e popola select + tabella
-        getAppelli()
-            .then(appelli => {
-                tbody.innerHTML = '';
-                appelloSelect.innerHTML = '<option value="">Seleziona</option>';
-                corsoSelect.innerHTML = '<option value="">-- Seleziona un corso --</option>';
+<footer>
+    <small>&copy; 2025 - Segreteria Universitaria</small>
+</footer>
 
-                appelli.forEach(a => {
-                    const dataF = new Date(a.data).toLocaleDateString('it-IT');
+<script type="module">
+    import { logout } from '/js/auth.js';
+    import {
+        getInfoDocente,
+        getAppelli,
+        inserisciVoto,
+        creaAppello,
+        trovaStudentiPerEsame
+    } from '/js/service/docente.js';
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+
+    // Mostra nome docente
+    getInfoDocente()
+        .then(data => {
+            document.getElementById('nomeDocente').innerText = `${data.nome} ${data.cognome}`;
+            document.getElementById('nomeCompleto').innerText = data.nome;
+        })
+        .catch(console.error);
+
+    // Elementi HTML
+    const appelloSelect = document.getElementById('appelloSelect');
+    const corsoSelect = document.getElementById('corsoSelect');
+    const studentiTable = document.getElementById('studentiList');
+    const studentiBody = document.getElementById('studentiTableBody');
+    const tbody = document.getElementById('appelliTableBody');
+
+    // Funzione per caricare e popolare appelli, select e tabella
+    async function caricaAppelli() {
+        try {
+            const appelli = await getAppelli();
+            tbody.innerHTML = '';
+            appelloSelect.innerHTML = '<option value="">Seleziona</option>';
+            corsoSelect.innerHTML = '<option value="">-- Seleziona un corso --</option>';
+
+            // Popola tabella e select
+            appelli.forEach(a => {
+                const dataF = new Date(a.data).toLocaleDateString('it-IT');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
                     <td>${a.nome}</td>
                     <td>${dataF}</td>
-                    <td><button class="btn btn-sm btn-outline-danger" data-id="${a.id}">Rimuovi</button></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger btn-rimuovi-appello" data-id="${a.id}">
+                            Rimuovi
+                        </button>
+                    </td>
                 `;
-                    tbody.appendChild(tr);
+                tbody.appendChild(tr);
 
-                    const optAppello = document.createElement('option');
-                    optAppello.value = a.id;
-                    optAppello.textContent = `${a.nome} (${dataF})`;
-                    appelloSelect.appendChild(optAppello);
+                const optAppello = document.createElement('option');
+                optAppello.value = a.id;
+                optAppello.textContent = `${a.nome} (${dataF})`;
+                appelloSelect.appendChild(optAppello);
+            });
+
+            // Popola i corsi unici per selezione studenti
+            const corsiUnici = [...new Set(appelli.map(a => a.nome))];
+            corsiUnici.forEach(corso => {
+                const opt = document.createElement('option');
+                opt.value = corso;
+                opt.textContent = corso;
+                corsoSelect.appendChild(opt);
+            });
+
+            // Associa listener ai bottoni “Rimuovi”
+            document.querySelectorAll('.btn-rimuovi-appello').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    try {
+                        // Chiami la funzione di servizio per eliminare appello
+                        await eliminaAppello(id);
+                        alert('Appello rimosso');
+                        caricaAppelli(); // ricarica la lista
+                    } catch (err) {
+                        console.error('Errore rimozione appello:', err);
+                        alert('Errore durante la rimozione');
+                    }
                 });
+            });
 
-                const corsiUnici = [...new Set(appelli.map(a => a.nome))];
-                corsiUnici.forEach(corso => {
-                    const opt = document.createElement('option');
-                    opt.value = corso;
-                    opt.textContent = corso;
-                    corsoSelect.appendChild(opt);
+        } catch (err) {
+            console.error('Errore caricamento appelli:', err);
+            tbody.innerHTML = '<tr><td colspan="3">Errore nel caricamento degli appelli</td></tr>';
+        }
+    }
+
+    // All’avvio, carica appelli
+    caricaAppelli();
+
+    // Form inserimento voto
+    document.getElementById('votiForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        try {
+            const appelloId = appelloSelect.value;
+            const matricola = document.getElementById('studenteMatricola').value.trim();
+            const voto = parseInt(document.getElementById('voto').value, 10);
+
+            await inserisciVoto({ appelloId, matricolaStudente: matricola, voto });
+            alert('Voto inserito');
+            e.target.reset();
+        } catch (error) {
+            console.error(error);
+            alert('Errore nell\'inserimento del voto');
+        }
+    });
+
+    // Caricamento studenti per corso selezionato
+    corsoSelect.addEventListener('change', async () => {
+        const corso = corsoSelect.value;
+        studentiBody.innerHTML = '';
+
+        if (!corso) {
+            studentiTable.classList.add('d-none');
+            return;
+        }
+
+        try {
+            const studenti = await trovaStudentiPerEsame(corso);
+            if (studenti.length === 0) {
+                studentiBody.innerHTML = '<tr><td colspan="3">Nessuno studente trovato</td></tr>';
+            } else {
+                studenti.forEach(s => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${s.matricola}</td><td>${s.nome}</td><td>${s.cognome}</td>`;
+                    studentiBody.appendChild(tr);
                 });
-            })
-            .catch(console.error);
-
-        document.getElementById('votiForm').addEventListener('submit', async e => {
-            e.preventDefault();
-            try {
-                const appelloId = appelloSelect.value;
-                const matricola = document.getElementById('studenteMatricola').value.trim();
-                const voto = parseInt(document.getElementById('voto').value, 10);
-
-                await inserisciVoto({ appelloId, matricolaStudente: matricola, voto });
-                alert('Voto inserito');
-                e.target.reset();
-            } catch (error) {
-                console.error(error);
-                alert('Errore nell\'inserimento del voto');
             }
-        });
+            studentiTable.classList.remove('d-none');
+        } catch (e) {
+            console.error(e);
+            alert('Errore nel caricamento degli studenti');
+            studentiTable.classList.add('d-none');
+        }
+    });
 
-
-        // Caricamento studenti per corso selezionato
-        corsoSelect.addEventListener('change', async () => {
-            const corso = corsoSelect.value;
-            studentiBody.innerHTML = '';
-
-            if (!corso) {
-                studentiTable.classList.add('d-none');
-                return;
-            }
-
-            try {
-                const studenti = await trovaStudentiPerEsame(corso);
-                if (studenti.length === 0) {
-                    studentiBody.innerHTML = '<tr><td colspan="3">Nessuno studente trovato</td></tr>';
-                } else {
-                    studenti.forEach(s => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `<td>${s.matricola}</td><td>${s.nome}</td><td>${s.cognome}</td>`;
-                        studentiBody.appendChild(tr);
-                    });
+    // Form creazione appello: qui si integra creaAppello(nome, data)
+    document.getElementById('creaAppelloForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const nomeCorso = document.getElementById('corso').value.trim();
+        const dataEsame = document.getElementById('dataEsame').value;
+        if (!nomeCorso || !dataEsame) {
+            alert('Inserisci corso e data validi');
+            return;
+        }
+        try {
+            // Chiama la funzione export function creaAppello(nome, data)
+            await creaAppello(nomeCorso, dataEsame);
+            alert('Appello creato con successo');
+            // Pulisci form
+            e.target.reset();
+            // Ricarica lista appelli e select
+            caricaAppelli();
+        } catch (err) {
+            console.error('Errore creazione appello:', err);
+            // Se backend risponde con JSON e contiene message, mostrala:
+            if (err instanceof Response) {
+                try {
+                    const body = await err.json();
+                    alert('Errore: ' + (body.message || JSON.stringify(body)));
+                } catch {
+                    alert('Errore creazione appello');
                 }
-
-                studentiTable.classList.remove('d-none');
-            } catch (e) {
-                console.error(e);
-                alert('Errore nel caricamento degli studenti');
-                studentiTable.classList.add('d-none');
+            } else {
+                alert('Errore creazione appello');
             }
-        });
-    </script>
+        }
+    });
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    // Nota: eliminaAppello deve essere importato in docente.js come:
+    // export function eliminaAppello(id) { return eseguiOperazione("eliminaEsame", [id]); }
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

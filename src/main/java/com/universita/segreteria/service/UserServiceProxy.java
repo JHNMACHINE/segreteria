@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 
 @Service
@@ -110,7 +112,19 @@ public class UserServiceProxy implements UtenteService {
                 InserimentoVotoDTO dto = mapper.convertValue(parametri[0], InserimentoVotoDTO.class);
                 yield docenteService.inserisciVoto(dto.getAppelloId(), dto.getMatricolaStudente(), dto.getVoto());
             }
-            case "creaEsame" -> docenteService.creaEsame((Long) parametri[0], (EsameDTO) parametri[1]);
+            case "creaEsame" -> {
+
+                String nomeCorso = (String) parametri[0];
+                String dataStr = (String) parametri[1];
+                LocalDate data;
+                try {
+                    data = LocalDate.parse(dataStr);
+                } catch (DateTimeParseException ex) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Formato data non valido");
+                }
+                yield docenteService.creaEsame(subject, nomeCorso, data);
+            }
+
             case "visualizzaPrenotazioniEsame" -> docenteService.visualizzaPrenotazioniEsame((Long) parametri[0]);
             case "eliminaEsame" -> docenteService.eliminaEsame((Long) parametri[0]);
             case "aggiornaEsame" -> docenteService.aggiornaEsame((Long) parametri[0], (EsameDTO) parametri[1]);
