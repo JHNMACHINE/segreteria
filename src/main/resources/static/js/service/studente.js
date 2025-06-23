@@ -28,10 +28,30 @@ export function getVotiDaAccettare() {
 }
 
 export function aggiornaStatoVoto(votoId, accettato) {
-    if (!votoId) {
-        return Promise.reject(new Error("ID voto non valido"));
+    if (typeof votoId !== 'number') {
+        return Promise.reject("ID voto deve essere un numero");
     }
-    return eseguiOperazione('aggiornaStatoVoto', [votoId, accettato]);
+
+    return eseguiOperazione('aggiornaStatoVoto', [votoId, accettato])
+        .then((result) => {
+            // Gestisce sia risposte JSON che vuote
+            if (accettato) {
+                alert("Richiesta inviata alla segreteria. Attendi conferma definitiva.");
+            }
+            return true;
+        })
+        .catch(err => {
+            console.error("Errore aggiornamento stato voto:", err);
+            throw err;
+        });
+}
+
+export function confermaVoto(votoId) {
+    return eseguiOperazione('confermaVoto', [votoId]);
+}
+
+export function getVotiInAttesa() {
+    return eseguiOperazione('getVotiInAttesa', []);
 }
 
 export function prenotaEsame(appelloId) {

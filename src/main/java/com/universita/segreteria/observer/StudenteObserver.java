@@ -1,11 +1,11 @@
 package com.universita.segreteria.observer;
 
 import com.universita.segreteria.model.StatoEsame;
+import com.universita.segreteria.model.StatoVoto;
 import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.Voto;
 
 public class StudenteObserver implements Observer {
-
     private final Studente studente;
 
     public StudenteObserver(Studente studente) {
@@ -14,12 +14,14 @@ public class StudenteObserver implements Observer {
 
     @Override
     public void update(Voto voto) {
-        if (voto.getStudente().getId().equals(studente.getId()) && voto.getEsame().getStatoEsame() != StatoEsame.ASSENTE) {
+        // Notifica solo se il voto è per questo studente e stato ACCETTATO
+        if (voto.getStudente().getId().equals(studente.getId()) &&
+                voto.getStato() == StatoVoto.ACCETTATO) {
+
             System.out.println("🔔 Notifica per " + studente.getNome() +
-                    ": è stato inserito il voto " + voto.getVoto() +
-                    " per l’esame " + voto.getEsame().getNome());
+                    ": il voto " + voto.getVoto() +
+                    " per l’esame " + voto.getEsame().getNome() +
+                    " è stato confermato dalla segreteria");
         }
-        else
-            System.out.print("Lo studente risulta assente, nella data di esame per cui si è prenotato");
     }
 }

@@ -8,6 +8,7 @@ import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.dto.TassaDTO;
 import com.universita.segreteria.mapper.EsameMapper;
 import com.universita.segreteria.model.*;
+import com.universita.segreteria.notifier.AcceptationNotifier;
 import com.universita.segreteria.repository.EsameRepository;
 import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.TassaRepository;
@@ -43,6 +44,8 @@ public class StudenteService {
     private TassaRepository tassaRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AcceptationNotifier acceptationNotifier; // Aggiungi questa dipendenza
 
     public List<EsameDTO> esamiPrenotabili(String email) {
         Studente studente = studenteRepo.findByEmail(email)
@@ -124,13 +127,21 @@ public class StudenteService {
         return studente.getPianoDiStudi();
     }
 
-    public Voto aggiornaStatoVoto(Long votoId, boolean accetta) {
+    public void aggiornaStatoVoto(Long votoId, boolean accetta) {
         Voto voto = votoRepo.findById(votoId).orElseThrow(() -> new RuntimeException("Voto non assegnato"));
         if (voto.getStato() != StatoVoto.ATTESA) {
             throw new RuntimeException("Il voto è già stato accettato o rifiutato");
         }
-        voto.setStato(accetta ? StatoVoto.ACCETTATO : StatoVoto.RIFIUTATO);
-        return votoRepo.save(voto);
+
+        if (accetta) {
+            // Notifica la segreteria senza cambiare stato
+            acceptationNotifier.notifyObservers(voto);
+        } else {
+            voto.setStato(StatoVoto.RIFIUTATO);
+            votoRepo.save(voto);
+            // Notifica la segreteria del rifiuto
+            acceptationNotifier.notifyObservers(voto);
+        }
     }
 
     public List<Esame> getEsamiDaSostenere(StudenteDTO studenteDTO) {

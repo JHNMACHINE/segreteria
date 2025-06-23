@@ -1,4 +1,4 @@
-// service/studente.js
+// service/docente.js
 
 import { eseguiOperazione } from '/js/service/service.js';
 

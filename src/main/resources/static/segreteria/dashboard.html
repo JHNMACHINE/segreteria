@@ -417,11 +417,11 @@
 <!-- Script del Segretario -->
 <script type="module">
   import { logout } from '/js/auth.js';
-  import { getProfilo, getAllStudenti } from '/js/service/segretario.js';
+  import { getProfilo, getAllStudenti, getVotiInAttesa, confermaVoto } from '/js/service/segretario.js';
 
   document.getElementById('logoutBtn').addEventListener('click', logout);
 
-  // Messaggio di benvenuto
+  // Caricamento profilo segretario
   async function caricaProfilo() {
     try {
       const dto = await getProfilo();
@@ -432,98 +432,185 @@
     }
   }
 
-  caricaProfilo();
-
-  // Modal e ricerca
-  const studentiModal = new bootstrap.Modal(document.getElementById('studentiModal'));
-
-  document.getElementById('btnMostraStudenti').addEventListener('click', async () => {
+  // Caricamento notifiche voti in attesa
+  async function caricaNotifiche() {
     try {
-      const lista = await getAllStudenti();
-      const tbody = document.querySelector("#tabellaStudenti tbody");
-      const searchInput = document.getElementById('searchInput');
-      searchInput.value = '';
-      tbody.innerHTML = "";
+      const votiDTO = await getVotiInAttesa();
+      const notificationsList = document.getElementById('notificationsList');
+      const badge = document.getElementById('notificationBadge');
 
-      // Filtro di ricerca
-      searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const rows = tbody.querySelectorAll('tr');
+      // Reset contenuto
+      notificationsList.innerHTML = '';
 
-        rows.forEach(row => {
-          const text = row.textContent.toLowerCase();
-          row.style.display = text.includes(searchTerm) ? '' : 'none';
-        });
+      // Gestione lista vuota
+      if (!votiDTO || votiDTO.length === 0) {
+        notificationsList.innerHTML = `
+          <div class="empty-state">
+            <i class="bi bi-bell"></i>
+            <h5>Nessuna notifica</h5>
+            <p>Le notifiche di accettazione voti appariranno qui</p>
+          </div>
+        `;
+        badge.classList.add('d-none');
+        return;
+      }
+
+      // Aggiorna badge
+      badge.textContent = votiDTO.length + ' nuove';
+      badge.classList.remove('d-none');
+
+      // Popola notifiche
+      votiDTO.forEach(voto => {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
+
+        const notification = document.createElement('div');
+        notification.className = 'card notification-card unread mb-3';
+        notification.innerHTML = `
+          <div class="card-body">
+            <div class="d-flex">
+              <div class="notification-icon me-3">
+                <i class="bi bi-exclamation-circle"></i>
+              </div>
+              <div>
+                <div class="notification-header">
+                  <span>${voto.studenteNome || 'N/D'} ${voto.studenteCognome || ''}</span>
+                  <span class="notification-time">${timeString}</span>
+                </div>
+                <div class="notification-content">
+                  Voto da confermare per:
+                  <span class="notification-course">${voto.esameNome || 'Esame sconosciuto'}</span>
+                </div>
+                <div class="mt-2">
+                  <span class="badge bg-primary">Voto: ${voto.voto || 'N/D'}</span>
+                  <span class="badge bg-info">Stato: ${voto.stato || 'N/D'}</span>
+                </div>
+                <div class="mt-2">
+                  <button class="btn btn-success btn-sm conferma-btn" data-voto-id="${voto.id}">
+                    Conferma Voto
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        notificationsList.appendChild(notification);
       });
 
-      // Popola la tabella con i dati reali
-      lista.forEach(studente => {
+      // Gestione conferma voti
+      notificationsList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('conferma-btn')) {
+          const votoId = e.target.getAttribute('data-voto-id');
+          const button = e.target;
+          const originalText = button.innerHTML;
+
+          button.disabled = true;
+          button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Conferma...';
+
+          confermaVoto(votoId)
+            .then(() => {
+              // Rimuovi la notifica confermata
+              const card = button.closest('.notification-card');
+              if (card) card.remove();
+
+              // Aggiorna UI se non ci sono più notifiche
+              const remaining = notificationsList.querySelectorAll('.notification-card').length;
+              if (remaining === 0) {
+                notificationsList.innerHTML = `
+                  <div class="empty-state">
+                    <i class="bi bi-bell"></i>
+                    <h5>Nessuna notifica</h5>
+                    <p>Le notifiche di accettazione voti appariranno qui</p>
+                  </div>
+                `;
+                badge.classList.add('d-none');
+              } else {
+                badge.textContent = remaining + ' nuove';
+              }
+            })
+            .catch(err => {
+              console.error('Errore conferma voto:', err);
+              button.disabled = false;
+              button.innerHTML = originalText;
+
+              // Mostra errore temporaneo
+              const errorDiv = document.createElement('div');
+              errorDiv.className = 'alert alert-danger mt-2 mb-0';
+              errorDiv.textContent = 'Errore: ' + (err.message || 'Riprova più tardi');
+              button.parentNode.appendChild(errorDiv);
+
+              setTimeout(() => errorDiv.remove(), 5000);
+            });
+        }
+      });
+
+    } catch (err) {
+      console.error('Errore caricamento notifiche:', err);
+      notificationsList.innerHTML = `
+        <div class="alert alert-danger">
+          Errore nel caricamento: ${err.message || 'Dettagli non disponibili'}
+        </div>
+      `;
+      badge.classList.add('d-none');
+    }
+  }
+
+  // Caricamento lista studenti
+  async function caricaStudentiModal() {
+    try {
+      const studenti = await getAllStudenti();
+      const tbody = document.querySelector("#tabellaStudenti tbody");
+      tbody.innerHTML = "";
+
+      // Popola tabella
+      studenti.forEach(s => {
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td>${studente.matricola || '-'}</td>
-          <td>${studente.nome || '-'}</td>
-          <td>${studente.cognome || '-'}</td>
-          <td>${studente.email || '-'}</td>
+          <td>${s.matricola || '-'}</td>
+          <td>${s.nome || '-'}</td>
+          <td>${s.cognome || '-'}</td>
+          <td>${s.email || '-'}</td>
           <td>
-            <a href="/segreteria/studente/visualizza-studente.html?matricola=${encodeURIComponent(studente.matricola)}" class="btn btn-view btn-sm">
-              <i class="bi bi-eye"></i> Visualizza Studente
+            <a href="/segreteria/studente/visualizza-studente.html?matricola=${encodeURIComponent(s.matricola)}"
+               class="btn btn-view btn-sm">
+              <i class="bi bi-eye"></i> Dettagli
             </a>
           </td>
         `;
         tbody.appendChild(row);
       });
 
-      studentiModal.show();
+      // Attiva ricerca
+      document.getElementById('searchInput').addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        const rows = tbody.querySelectorAll('tr');
+
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(term) ? '' : 'none';
+        });
+      });
+
+      // Mostra modal
+      new bootstrap.Modal(document.getElementById('studentiModal')).show();
+
     } catch (err) {
       console.error('Errore caricamento studenti:', err);
-      alert('Impossibile caricare la lista degli studenti.');
+      alert('Impossibile caricare la lista studenti');
     }
-  });
-
-  // Funzione per aggiungere notifiche (vuota, pronta per l'integrazione)
-  window.aggiungiNotifica = function (studente, corso, voto, cfu) {
-    const notificationsList = document.getElementById('notificationsList');
-    const badge = document.getElementById('notificationBadge');
-
-    if (notificationsList.querySelector('.empty-state')) {
-      notificationsList.innerHTML = '';
-    }
-
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
-
-    const notification = document.createElement('div');
-    notification.className = 'card notification-card unread mb-3';
-    notification.innerHTML = `
-      <div class="card-body">
-        <div class="d-flex">
-          <div class="notification-icon me-3">
-            <i class="bi bi-check-circle"></i>
-          </div>
-          <div>
-            <div class="notification-header">
-              <span>${studente}</span>
-              <span class="notification-time">${timeString}</span>
-            </div>
-            <div class="notification-content">
-              Ha accettato il voto di <span class="notification-course">${corso}</span>
-            </div>
-            <div class="mt-2">
-              <span class="badge bg-success">${voto}</span>
-              <span class="badge bg-info">CFU: ${cfu}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    notificationsList.insertBefore(notification, notificationsList.firstChild);
-
-    // Aggiorna il badge
-    const currentCount = parseInt(badge.textContent) || 0;
-    badge.textContent = currentCount + 1 + ' nuove';
-    badge.classList.remove('d-none');
   }
+
+  // Inizializzazione
+  document.addEventListener('DOMContentLoaded', () => {
+    caricaProfilo();
+    caricaNotifiche();
+
+    // Aggiorna notifiche periodicamente
+    setInterval(caricaNotifiche, 30000);
+
+    // Gestione pulsante studenti
+    document.getElementById('btnMostraStudenti').addEventListener('click', caricaStudentiModal);
+  });
 </script>
 </body>
 </html>

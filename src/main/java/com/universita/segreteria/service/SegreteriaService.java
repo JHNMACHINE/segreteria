@@ -6,6 +6,7 @@ import com.universita.segreteria.mapper.StudentMapper;
 import com.universita.segreteria.mapper.VotoMapper;
 import com.universita.segreteria.model.*;
 import com.universita.segreteria.notifier.AcceptationNotifier;
+import com.universita.segreteria.notifier.VotoNotifier;
 import com.universita.segreteria.observer.SegreteriaObserver;
 import com.universita.segreteria.repository.DocenteRepository;
 import com.universita.segreteria.repository.SegretarioRepository;
@@ -45,6 +46,8 @@ public class SegreteriaService {
     private DocenteRepository docenteRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private VotoNotifier votoNotifier;
 
     @Autowired
     private SegretarioRepository segretarioRepository;
@@ -64,35 +67,39 @@ public class SegreteriaService {
         return DocenteMapper.toDTO(saved);
     }
 
+    @Transactional
+    public void confermaVoto(Long votoId) {
+        Voto voto = votoRepo.findById(votoId)
+                .orElseThrow(() -> new RuntimeException("Voto non trovato"));
 
-    public VotoDTO confermaVoto(StudenteDTO studenteDTO, Long votoId) {
-        Voto voto = votoRepo.findById(votoId).orElseThrow(() -> new RuntimeException("Voto non trovato"));
-
-        if (Objects.isNull(studenteDTO.getMatricola()))
-            throw new RuntimeException("Matricola mancate, inserire matricola");
-
-        String matricola = studenteDTO.getMatricola();
-
-        Studente studente = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
-
-        // Verifica che il voto appartenga allo studente
-        if (!voto.getStudente().getId().equals(studente.getId())) {
-            throw new RuntimeException("Questo voto non appartiene allo studente");
-        }
-
-        // Cambia lo stato se necessario
         if (voto.getStato() == StatoVoto.ATTESA) {
             voto.setStato(StatoVoto.ACCETTATO);
-            voto = votoRepo.save(voto);
+            votoRepo.save(voto);
+
+            try {
+                votoNotifier.notifyObservers(voto);
+            } catch (Exception e) {
+                logger.error("Errore nella notifica allo studente", e);
+            }
         }
+    }
 
-        // Notifica la segreteria
-        SegreteriaObserver segreteria = new SegreteriaObserver();
-        acceptationNotifier.attach(segreteria);
-        acceptationNotifier.notifyObservers(voto);
-        acceptationNotifier.detach(segreteria);
+    @Transactional
+    public List<VotoDTO> getVotiInAttesa() {
+        List<Voto> voti = votoRepo.findByStato(StatoVoto.ATTESA);
 
-        return VotoMapper.convertiInDTO(voto);
+        // Forza il caricamento delle relazioni
+        voti.forEach(voto -> {
+            if (voto.getStudente() != null) {
+                // Accedi a un campo per forzare il caricamento
+                voto.getStudente().getNome();
+            }
+            if (voto.getEsame() != null) {
+                voto.getEsame().getNome();
+            }
+        });
+
+        return VotoMapper.convertListToDTO(voti);
     }
 
     public List<StudenteDTO> getAllStudenti() {

@@ -13,8 +13,22 @@ export function inserisciDocente(docenteDTO) {
     return eseguiOperazione('inserisciDocente', [docenteDTO]);  // Inserisci un nuovo docente
 }
 
-export function confermaVoto(studenteDTO, votoId) {
-    return eseguiOperazione('confermaVoto', [studenteDTO, votoId]);  // Conferma un voto per uno studente
+export function confermaVoto(votoId) {
+    // votoId potrebbe essere una stringa, forziamo il cast a numero:
+    const idNumerico = Number(votoId);
+    if (isNaN(idNumerico)) {
+      throw new Error("ID voto non valido");
+    }
+    return eseguiOperazione('confermaVoto', [ idNumerico ])
+      .catch(err => {
+        console.error("Errore conferma voto:", err);
+        throw new Error("Operazione non riuscita: " + (err.message || "Errore sconosciuto"));
+      });
+}
+
+
+export function getVotiInAttesa() {
+    return eseguiOperazione('getVotiInAttesa', []);
 }
 
 export function cambiaPianoDiStudi(studenteId, nuovoPiano) {
