@@ -68,9 +68,18 @@ export async function creaDocente({ nome, cognome, email, pianoDiStudi,corso }) 
     return await eseguiOperazione('creaDocente', [dto]);
 }
 
+export async function creaStudente({ nome, cognome, email, pianoDiStudi }) {
+    const dto = {
+        nome,
+        cognome,
+        email,
+        pianoDiStudi
+    };
+    console.log(dto)
+    return await eseguiOperazione('creaStudente', [dto]);
+}
+
 export  function getEsamiDisponibiliPerPiano(piano){
-
     return eseguiOperazione("getEsamiDisponibiliPerPiano",[piano]);
-
 
 }

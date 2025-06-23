@@ -63,6 +63,10 @@ public class UserServiceProxy implements UtenteService {
                 CreaDocenteDTO dto = mapper.convertValue(parametri[0], CreaDocenteDTO.class);
                 yield  segreteriaService.creaDocente(dto);
             }
+            case "creaStudente" -> {
+                CreaStudenteDTO dto = mapper.convertValue(parametri[0], CreaStudenteDTO.class);
+                yield  segreteriaService.creaStudente(dto);
+            }
             case "getProfilo" -> segreteriaService.getProfilo(subject);
             case "inserisciStudente" -> segreteriaService.inserisciStudente((StudenteDTO) parametri[0]);
             case "confermaVoto" -> {

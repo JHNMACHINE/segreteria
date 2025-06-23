@@ -262,4 +262,35 @@ public class SegreteriaService {
                                 .collect(Collectors.toList())
                 ));
     }
+
+    @Transactional
+    public Map<String, Object> creaStudente(CreaStudenteDTO dto) {
+        if (studenteRepo.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("Un studente con questa email esiste già.");
+        }
+
+        // Genera password
+        String passwordChiara = generaPassword();
+        List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(dto.getPianoDiStudi());
+
+        // Crea e salva il studente
+        Studente studente = Studente.builder()
+                .nome(dto.getNome())
+                .cognome(dto.getCognome())
+                .email(dto.getEmail())
+                .password(passwordEncoder.encode(passwordChiara))
+                .ruolo(TipoUtente.STUDENTE)
+                .pianoDiStudi(dto.getPianoDiStudi())
+                .esami(esamiDelPiano)
+                .build();
+
+        studente = studenteRepo.save(studente);
+
+        // Risposta
+        return Map.of(
+                "messaggio", "Studente creato con successo",
+                "email", studente.getEmail(),
+                "passwordProvvisoria", passwordChiara
+        );
+    }
 }
