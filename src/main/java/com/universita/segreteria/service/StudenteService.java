@@ -22,10 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,25 +48,28 @@ public class StudenteService {
         Studente studente = studenteRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Studente non trovato"));
 
-        List<Voto> voti = studente.getVoti();
-        List<Esame> superati = voti.stream()
+        // Ottieni i nomi dei corsi già superati (indipendentemente dall'appello)
+        Set<String> corsiSuperati = studente.getVoti().stream()
                 .filter(v -> v.getStato() == StatoVoto.ACCETTATO)
-                .map(Voto::getEsame)
-                .toList();
+                .map(v -> v.getEsame().getNome())
+                .collect(Collectors.toSet());
 
-        List<Esame> giaValutati = voti.stream()
-                .map(Voto::getEsame)
-                .toList();
-
+        // Ottieni gli esami già prenotati
         List<Esame> giaPrenotati = studente.getEsami();
+
+        // Ottieni gli esami già valutati (qualsiasi stato)
+        List<Esame> giaValutati = studente.getVoti().stream()
+                .map(Voto::getEsame)
+                .toList();
+
         PianoDiStudi piano = studente.getPianoDiStudi();
         LocalDate oggi = LocalDate.now();
 
         List<Esame> finalList = pianoStudiService.getEsamiPerPiano(piano).stream()
-                .filter(e -> !superati.contains(e))
-                .filter(e -> !giaValutati.contains(e))
-                .filter(e -> !giaPrenotati.contains(e))
-                .filter(e -> e.getData().isAfter(oggi))
+                .filter(e -> !corsiSuperati.contains(e.getNome())) // Escludi corsi già superati
+                .filter(e -> !giaValutati.contains(e)) // Escludi esami già valutati
+                .filter(e -> !giaPrenotati.contains(e)) // Escludi esami già prenotati
+                .filter(e -> e.getData().isAfter(oggi)) // Solo esami futuri
                 .toList();
 
         return EsameMapper.convertListEsamiToDTO(finalList);
@@ -234,56 +234,61 @@ public class StudenteService {
         return studente;
     }
 
-
     public List<EsameDTO> getCarriera(String email) {
         Studente studente = studenteRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Studente non trovato"));
 
         List<Voto> voti = votoRepo.findByStudenteId(studente.getId());
+        Map<String, EsameDTO> esamiUnici = new LinkedHashMap<>(); // Usiamo una mappa per raggruppare per nome esame
 
         PianoDiStudi piano = studente.getPianoDiStudi();
-        LocalDate oggi = LocalDate.now();
+        List<Esame> esamiPiano = pianoStudiService.getEsamiPerPiano(piano);
 
-        List<Esame> esami = pianoStudiService.getEsamiPerPiano(piano);
+        // Raggruppa gli esami per nome e mantieni solo l'ultimo stato rilevante
+        for (Esame esame : esamiPiano) {
+            String nomeEsame = esame.getNome();
 
-        return esami.stream().map(e -> {
-            Optional<Voto> votoEsame = voti.stream()
-                    .filter(v -> v.getEsame().equals(e))
-                    .findFirst();
+            // Trova tutti i voti relativi a questo esame (stesso nome)
+            List<Voto> votiEsame = voti.stream()
+                    .filter(v -> v.getEsame().getNome().equals(nomeEsame))
+                    .toList();
 
-            String stato;
-            Long idVotoPrenotazione = null;
+            StatoEsame statoAggiornato = StatoEsame.NON_SUPERATO;
+            Long votoId = null;
+            LocalDate dataEsame = null;
 
-            if (votoEsame.isPresent()) {
-                StatoVoto sv = votoEsame.get().getStato();
-                if (sv == StatoVoto.ACCETTATO) {
-                    stato = "SUPERATO";
-                } else if (sv == StatoVoto.ATTESA) {
-                    stato = "PRENOTATO";   // Esame prenotato ma non ancora valutato
-                    idVotoPrenotazione = votoEsame.get().getId();
-                } else {
-                    stato = sv.name();     // Altri stati come ASSENTE, NON_AMMESSO ecc.
-                }
-            } else {
-                // Nessun voto trovato => esame NON prenotato, prenotabile se data futura
-                if (e.getData() != null && e.getData().isAfter(oggi)) {
-                    stato = "NON_SUPERATO";
-                } else {
-                    stato = "NON_DISPONIBILE";
+            // Determina lo stato più recente/rilevante
+            for (Voto voto : votiEsame) {
+                if (voto.getStato() == StatoVoto.ACCETTATO) {
+                    statoAggiornato = StatoEsame.SUPERATO;
+                    dataEsame = voto.getEsame().getData();
+                    break; // Uno superato è sufficiente
+                } else if (voto.getStato() == StatoVoto.ATTESA) {
+                    statoAggiornato = StatoEsame.PRENOTATO;
+                    votoId = voto.getId();
+                    dataEsame = voto.getEsame().getData();
+                    // Continua a cercare: potresti trovare una versione superata
                 }
             }
 
-            return new EsameDTO(
-                    e.getId(),               // id esame
-                    e.getNome(),             // nome esame
-                    e.getCfu(),              // CFU esame
-                    e.getData(),             // data esame (se presente)
-                    StatoEsame.valueOf(stato), // lo stato calcolato (es. SUPERATO, NON_SUPERATO, PRENOTATO)
-                    idVotoPrenotazione,      // id del voto/prenotazione associata, o null
-                    e.getDocente() != null ? e.getDocente().getId() : null, // id docente, se presente
-                    e.getAula()
-            );
-        }).toList();
+            // Crea o aggiorna l'esame nella mappa
+            if (!esamiUnici.containsKey(nomeEsame) ||
+                    esamiUnici.get(nomeEsame).getStatoEsame() != StatoEsame.SUPERATO) {
+
+                esamiUnici.put(nomeEsame, new EsameDTO(
+                        esame.getId(),
+                        nomeEsame,
+                        esame.getCfu(),
+                        dataEsame,
+                        statoAggiornato,
+                        votoId,
+                        esame.getDocente() != null ? esame.getDocente().getId() : null,
+                        esame.getAula()
+                ));
+            }
+        }
+
+        return new ArrayList<>(esamiUnici.values());
     }
 
     @Transactional
