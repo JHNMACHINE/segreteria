@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docente - Cambia Password</title>
+</head>
+
+<body>
+    <h2>Al primo login è richiesto il cambio password</h2>
+
+    <form id="cambia-password-form">
+        <input type="email" id="email-input" placeholder="Email" />
+        <input type="password" id="old-password-input" placeholder="Password attuale" />
+        <input type="password" id="new-password-input" placeholder="Nuova password" />
+        <button type="submit">Cambia password</button>
+    </form>
+
+    <div id="errore" style="color: red;"></div>
+    <div id="successo" style="color: green;"></div>
+
+</body>
+
+<script type="module">
+    import { cambiaPassword } from "/js/auth.js";
+
+    cambiaPassword({
+        formId: "cambia-password-form",
+        emailId: "email-input",
+        oldPasswordId: "old-password-input",
+        newPasswordId: "new-password-input",
+        errorId: "errore",
+        successId: "successo",
+        redirectUrl: "/docente/dashboard.html"
+    });
+</script>
+
+</html>
