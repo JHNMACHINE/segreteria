@@ -15,10 +15,19 @@ export function inserisciVoto(id,data){
     return eseguiOperazione('inserisciVoto', [id,data]);
 }
 
-export function creaAppello(nome,data){
-    return eseguiOperazione('creaEsame',[nome,data]);
+export function creaAppello(nome,data,aula){
+    return eseguiOperazione('creaEsame',[nome,data,aula]);
 }
+
+export function getAuleDisponibili(data){
+    return eseguiOperazione('getAuleDisponibili',[data]);
+}
+
 
 export function trovaStudentiPerEsame(corso){
     return eseguiOperazione('trovaStudentiPerEsame', [corso]);
+}
+
+export function eliminaAppello(id){
+    return eseguiOperazione('eliminaEsame',[id]);
 }

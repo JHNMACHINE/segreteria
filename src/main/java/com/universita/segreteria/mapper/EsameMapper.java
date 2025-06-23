@@ -14,13 +14,13 @@ public final class EsameMapper {
     public static EsameDTO toDTO(Esame esame) {
         if (esame == null) return null;
 
-        return EsameDTO.builder().id(esame.getId()).nome(esame.getNome()).date(esame.getData()).statoEsame(esame.getStatoEsame()).docenteId(esame.getDocente() != null ? esame.getDocente().getId() : null).build();
+        return EsameDTO.builder().id(esame.getId()).nome(esame.getNome()).date(esame.getData()).statoEsame(esame.getStatoEsame()).docenteId(esame.getDocente() != null ? esame.getDocente().getId() : null).aula(esame.getAula()).build();
     }
 
     public static Esame fromDTO(EsameDTO dto, Docente docente) {
         if (dto == null) return null;
 
-        return Esame.builder().id(dto.getId()).nome(dto.getNome()).data(dto.getDate()).statoEsame(dto.getStatoEsame()).docente(docente).build();
+        return Esame.builder().id(dto.getId()).nome(dto.getNome()).data(dto.getDate()).statoEsame(dto.getStatoEsame()).docente(docente).aula(dto.getAula()).build();
     }
 
     public static List<EsameDTO> convertListEsamiToDTO(List<Esame> esami) {

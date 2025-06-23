@@ -20,7 +20,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -49,13 +52,26 @@ public class DocenteService {
 
 
     @Transactional
-    public EsameDTO creaEsame(String email, String nome,LocalDate data1) {
+    public EsameDTO creaEsame(String email, String nome,String dataStr,String aulaStr ) {
         Docente docente = docenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Docente non trovato"));
 
-        // Controllo sulla data
-        if (data1 == null || !data1.isAfter(LocalDate.now())) {
+        LocalDate data1;
+        try {
+            data1 = LocalDate.parse(dataStr);
+        } catch (DateTimeParseException e) {
+            throw new RuntimeException("Formato data non valido");
+        }
+        if (!data1.isAfter(LocalDate.now())) {
             throw new RuntimeException("La data dell'esame deve essere futura");
         }
+
+        Aula aula;
+        try {
+            aula = Aula.valueOf(aulaStr);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Aula non valida");
+        }
+
 
         // il docente ha già un esame nello stesso giorno?
         boolean esisteGiaEsame = esameRepo.findByDocente(docente).stream().anyMatch(e -> e.getData().equals(data1));
@@ -63,6 +79,8 @@ public class DocenteService {
         if (esisteGiaEsame) {
             throw new RuntimeException("Il docente ha già un esame previsto in questa data");
         }
+
+
         Esame es=esameRepo.findFirstByNome(nome).orElseThrow(()->new RuntimeException("Esame non trovato"));
         Esame esame=es.toBuilder()
                 .id(null)
@@ -74,6 +92,32 @@ public class DocenteService {
                 .build();
         esameRepo.save(esame);
         return EsameMapper.toDTO(esame);
+    }
+    public List<Aula> getAuleDisponibili(String dataStr) {
+        LocalDate data1;
+        try {
+            data1 = LocalDate.parse(dataStr);
+        } catch (DateTimeParseException e) {
+            throw new RuntimeException("Formato data non valido");
+        }
+        if (!data1.isAfter(LocalDate.now())) {
+            throw new RuntimeException("La data dell'esame deve essere futura");
+        }
+
+        if (data1 == null) {
+            throw new RuntimeException("Data non specificata");
+        }
+        List<Aula> tutte = Arrays.asList(Aula.values());
+
+        List<Aula> occupate = esameRepo.findByData(data1).stream()
+                .map(Esame::getAula)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        return tutte.stream()
+                .filter(a -> !occupate.contains(a))
+                .collect(Collectors.toList());
     }
 
     @Transactional

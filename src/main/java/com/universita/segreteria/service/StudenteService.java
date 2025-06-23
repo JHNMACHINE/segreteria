@@ -280,7 +280,8 @@ public class StudenteService {
                     e.getData(),             // data esame (se presente)
                     StatoEsame.valueOf(stato), // lo stato calcolato (es. SUPERATO, NON_SUPERATO, PRENOTATO)
                     idVotoPrenotazione,      // id del voto/prenotazione associata, o null
-                    e.getDocente() != null ? e.getDocente().getId() : null // id docente, se presente
+                    e.getDocente() != null ? e.getDocente().getId() : null, // id docente, se presente
+                    e.getAula()
             );
         }).toList();
     }

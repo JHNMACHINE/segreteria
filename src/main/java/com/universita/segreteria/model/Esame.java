@@ -18,6 +18,10 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 @ToString(onlyExplicitlyIncluded = true)
+@Table(
+        name = "esame",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"data", "aula"})
+)
 public class Esame {
 
     @Id
@@ -59,6 +63,10 @@ public class Esame {
     )
     @ToString.Exclude
     private List<Studente> studentiPrenotati;
+
+    @Enumerated(EnumType.STRING)
+    @ToString.Include
+    private Aula aula;
 
 }
 

@@ -1,5 +1,6 @@
 package com.universita.segreteria.dto;
 
+import com.universita.segreteria.model.Aula;
 import com.universita.segreteria.model.StatoEsame;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,4 +21,5 @@ public class EsameDTO {
     private StatoEsame statoEsame;  // stato dell'esame (SUPERATO, NON_SUPERATO, PRENOTATO ecc)
     private Long votoId;       // id del Voto se esiste (per azioni tipo prenota o disdici)
     private Long docenteId;
+    private Aula aula;
 }

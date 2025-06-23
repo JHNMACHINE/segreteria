@@ -1,0 +1,10 @@
+package com.universita.segreteria.model;
+
+public enum Aula {
+    AULA1,
+    AULA2,
+    AULA3,
+    AULA4,AULA5,AULA6,AULA7,AULA8,AULA9,AULA10,AULA11,AULA12,
+    AULA13,AULA14,AULA15,AULA16,AULA17,AULA18,AULA19,AULA20
+
+}

@@ -3,6 +3,7 @@ package com.universita.segreteria.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.universita.segreteria.controller.UtenteProxyController;
 import com.universita.segreteria.dto.*;
+import com.universita.segreteria.model.Aula;
 import com.universita.segreteria.model.PianoDiStudi;
 import com.universita.segreteria.model.TipoUtente;
 import com.universita.segreteria.proxy.UtenteService;
@@ -127,19 +128,8 @@ public class UserServiceProxy implements UtenteService {
                 InserimentoVotoDTO dto = mapper.convertValue(parametri[0], InserimentoVotoDTO.class);
                 yield docenteService.inserisciVoto(dto.getAppelloId(), dto.getMatricolaStudente(), dto.getVoto());
             }
-            case "creaEsame" -> {
-
-                String nomeCorso = (String) parametri[0];
-                String dataStr = (String) parametri[1];
-                LocalDate data;
-                try {
-                    data = LocalDate.parse(dataStr);
-                } catch (DateTimeParseException ex) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Formato data non valido");
-                }
-                yield docenteService.creaEsame(subject, nomeCorso, data);
-            }
-
+            case "creaEsame" -> docenteService.creaEsame(subject, (String) parametri[0], (String) parametri[1],(String) parametri[2]);
+            case "getAuleDisponibili" -> docenteService.getAuleDisponibili((String) parametri[0]);
             case "visualizzaPrenotazioniEsame" -> docenteService.visualizzaPrenotazioniEsame((Long) parametri[0]);
             case "eliminaEsame" -> docenteService.eliminaEsame((Long) parametri[0]);
             case "aggiornaEsame" -> docenteService.aggiornaEsame((Long) parametri[0], (EsameDTO) parametri[1]);
