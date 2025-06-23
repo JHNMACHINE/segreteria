@@ -194,15 +194,21 @@ public class SegreteriaService {
         logger.info("Numero di esami assegnati al piano: {}", esamiDelPiano.size());
 
         // Imposta il docente salvato sugli esami (relazione bidirezionale)
+
+        Esame primoEsame = null;
         for (Esame esame : esamiDelPiano) {
-            esame.setDocente(docente);
+            if (esame.getDocente() == null) {
+                esame.setDocente(docente);
+                primoEsame = esame;
+                break;
+            }
         }
 
-        // Salva gli esami aggiornati
-        pianoStudiService.save(esamiDelPiano);
+        if (primoEsame != null) {
 
-        // Imposta gli esami nel docente (opzionale, se necessario per coerenza)
-        docente.setAppelli(esamiDelPiano);
+            pianoStudiService.save(List.of(primoEsame)); // salva solo quello modificato
+            docente.setAppelli(List.of(primoEsame));     // collega solo quello
+        }
 
         // Non serve risalvare il docente se la relazione è owner sugli esami
 

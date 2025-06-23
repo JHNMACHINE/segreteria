@@ -259,11 +259,19 @@ public class DocenteService {
                 .build();
 
         // Imposta il docente sugli esami (relazione bidirezionale)
+        Esame primoEsame = null;
         for (Esame esame : esamiDelPiano) {
-            esame.setDocente(docente);
+            if (esame.getDocente() == null) {
+                esame.setDocente(docente);
+                primoEsame = esame;
+                break;
+            }
         }
-        // Imposta anche la lista nel docente (se necessario)
-        docente.setAppelli(esamiDelPiano);
+
+        if (primoEsame != null) {
+
+            docente.setAppelli(List.of(primoEsame));
+        }
 
         return docente;
     }
@@ -282,6 +290,7 @@ public class DocenteService {
         List<Esame> appelli = docente.getAppelli();
 
         return appelli.stream()
+                .filter(esame -> esame.getData()!=null)
                 .map(esame -> AppelloDTO.builder()
                         .id(esame.getId())
                         .nome(esame.getNome())
