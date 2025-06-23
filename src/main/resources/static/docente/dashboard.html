@@ -288,16 +288,21 @@
             // Rimuovi appello
             document.querySelectorAll('.btn-rimuovi-appello').forEach(btn => {
                 btn.addEventListener('click', async () => {
-                    const id = btn.getAttribute('data-id');
-                    try {
-                        await eliminaAppello(id);
-                        alert('Appello rimosso');
-                        caricaAppelli();
-                    } catch (err) {
-                        console.error('Errore rimozione appello:', err);
-                        alert('Errore durante la rimozione');
-                    }
-                });
+            const idStr = btn.getAttribute('data-id');
+            const idLong = Number(idStr); // o parseInt(idStr, 10)
+            if (isNaN(idLong)) {
+                alert('ID non valido');
+                return;
+            }
+            try {
+                await eliminaAppello(idLong);
+                alert('Appello rimosso');
+                caricaAppelli();
+            } catch (err) {
+                console.error('Errore rimozione appello:', err);
+                alert('Errore durante la rimozione');
+            }
+        });
             });
 
         } catch (err) {

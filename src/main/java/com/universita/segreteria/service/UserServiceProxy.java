@@ -131,7 +131,10 @@ public class UserServiceProxy implements UtenteService {
             case "creaEsame" -> docenteService.creaEsame(subject, (String) parametri[0], (String) parametri[1],(String) parametri[2]);
             case "getAuleDisponibili" -> docenteService.getAuleDisponibili((String) parametri[0]);
             case "visualizzaPrenotazioniEsame" -> docenteService.visualizzaPrenotazioniEsame((Long) parametri[0]);
-            case "eliminaEsame" -> docenteService.eliminaEsame((Long) parametri[0]);
+            case "eliminaEsame" -> {
+                Number num= (Number) parametri[0];
+               yield docenteService.eliminaEsame((Long) num.longValue());
+            }
             case "aggiornaEsame" -> docenteService.aggiornaEsame((Long) parametri[0], (EsameDTO) parametri[1]);
             case "getEsamiByDocente" -> docenteService.getEsamiByDocente((Long) parametri[0]);
             case "getEsameById" -> docenteService.getEsameById((Long) parametri[0]);
