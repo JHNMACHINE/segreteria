@@ -62,7 +62,7 @@ public class AuthController {
         // Aggiungi i nuovi campi
         switch (nuovo) {
             case Studente studente -> nuovo = studenteService.initStudente(request);
-            case Docente docente -> nuovo = docenteService.initDocente(request);
+            //case Docente docente -> nuovo =docenteService.initDocente(request); lo crea il segretario
             case Segretario segretario -> nuovo = segreteriaService.initSegretario(request);
             default -> {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid role");

@@ -74,7 +74,9 @@ public class DocenteService {
 
 
         // il docente ha già un esame nello stesso giorno?
-        boolean esisteGiaEsame = esameRepo.findByDocente(docente).stream().anyMatch(e -> e.getData().equals(data1));
+        boolean esisteGiaEsame = esameRepo.findByDocente(docente)
+                .stream()
+                .anyMatch(e -> Objects.equals(e.getData(), data1));
 
         if (esisteGiaEsame) {
             throw new RuntimeException("Il docente ha già un esame previsto in questa data");
@@ -241,16 +243,16 @@ public class DocenteService {
         return true;
     }
 
+    /*  Con la creazione affidata al segretario non lo usiamo più
+
     public Utente initDocente(RegisterRequest request) {
+        logger.info("Dio dimmi che ti usiamo");
         logger.info("Inizializzazione nuovo docente con email: {}", request.email());
 
-        PianoDiStudi piano = PianoDiStudi.valueOf(request.pianoDiStudi());
-        logger.info("Piano di studi selezionato: {}", piano);
+        Esame esame = esameRepo.findFirstByNome(request.corso()).orElseThrow(()->new RuntimeException("Corso non trovato"));
 
-        List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(piano);
-        logger.info("Numero di esami assegnati al piano: {}", esamiDelPiano.size());
 
-        Docente docente = Docente.builder()
+      return   Docente.builder()
                 .nome(request.nome())
                 .cognome(request.cognome())
                 .email(request.email())
@@ -258,23 +260,8 @@ public class DocenteService {
                 .ruolo(TipoUtente.DOCENTE)
                 .build();
 
-        // Imposta il docente sugli esami (relazione bidirezionale)
-        Esame primoEsame = null;
-        for (Esame esame : esamiDelPiano) {
-            if (esame.getDocente() == null) {
-                esame.setDocente(docente);
-                primoEsame = esame;
-                break;
-            }
-        }
 
-        if (primoEsame != null) {
-
-            docente.setAppelli(List.of(primoEsame));
-        }
-
-        return docente;
-    }
+    }*/
 
     public DocenteDTO getInfoDocente(String email) {
         Docente docente = docenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Docente non trovato"));
@@ -311,5 +298,7 @@ public class DocenteService {
                         .build())
                 .toList();
     }
+
+
 
 }

@@ -9,4 +9,5 @@ public class CreaDocenteDTO {
     private String cognome;
     private String email;
     private PianoDiStudi pianoDiStudi;
+    private String corso;
 }

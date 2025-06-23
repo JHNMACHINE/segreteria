@@ -56,13 +56,21 @@ export function getAllDocenti() {
   return eseguiOperazione("getAllDocenti");
 }
 
-export async function creaDocente({ nome, cognome, email, pianoDiStudi }) {
+export async function creaDocente({ nome, cognome, email, pianoDiStudi,corso }) {
     const dto = {
         nome,
         cognome,
         email,
-        pianoDiStudi
+        pianoDiStudi,
+        corso
     };
 
     return await eseguiOperazione('creaDocente', [dto]);
+}
+
+export  function getEsamiDisponibiliPerPiano(piano){
+
+    return eseguiOperazione("getEsamiDisponibiliPerPiano",[piano]);
+
+
 }

@@ -81,6 +81,7 @@ public class UserServiceProxy implements UtenteService {
                     segreteriaService.cambiaPianoDiStudi((Integer) parametri[0], (String) parametri[1]);
             case "getAllStudenti" -> segreteriaService.getAllStudenti();
             case "getAllDocenti" -> segreteriaService.getAllDocenti();
+            case "getEsamiDisponibiliPerPiano"->segreteriaService.getEsamiDisponibiliPerPiano((String) parametri[0]);
             default -> throw new RuntimeException("Operazione non consentita per la segreteria.");
         };
     }

@@ -8,10 +8,7 @@ import com.universita.segreteria.model.*;
 import com.universita.segreteria.notifier.AcceptationNotifier;
 import com.universita.segreteria.notifier.VotoNotifier;
 import com.universita.segreteria.observer.SegreteriaObserver;
-import com.universita.segreteria.repository.DocenteRepository;
-import com.universita.segreteria.repository.SegretarioRepository;
-import com.universita.segreteria.repository.StudenteRepository;
-import com.universita.segreteria.repository.VotoRepository;
+import com.universita.segreteria.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -48,7 +45,8 @@ public class SegreteriaService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private VotoNotifier votoNotifier;
-
+    @Autowired
+    private EsameRepository esameRepo;
     @Autowired
     private SegretarioRepository segretarioRepository;
 
@@ -188,28 +186,10 @@ public class SegreteriaService {
                 .build();
 
         docente = docenteRepository.save(docente);  // Ora docente ha un ID valido
+        Esame es= esameRepo.findFirstByNome(creaDocenteDTO.getCorso()).orElseThrow(()->new RuntimeException("Esame non trovato"));
 
-        // Prendi gli esami del piano
-        List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(creaDocenteDTO.getPianoDiStudi());
-        logger.info("Numero di esami assegnati al piano: {}", esamiDelPiano.size());
-
-        // Imposta il docente salvato sugli esami (relazione bidirezionale)
-
-        Esame primoEsame = null;
-        for (Esame esame : esamiDelPiano) {
-            if (esame.getDocente() == null) {
-                esame.setDocente(docente);
-                primoEsame = esame;
-                break;
-            }
-        }
-
-        if (primoEsame != null) {
-
-            pianoStudiService.save(List.of(primoEsame)); // salva solo quello modificato
-            docente.setAppelli(List.of(primoEsame));     // collega solo quello
-        }
-
+        es.setDocente(docente);
+        pianoStudiService.save(List.of(es));
         // Non serve risalvare il docente se la relazione è owner sugli esami
 
         // Risposta
@@ -255,4 +235,31 @@ public class SegreteriaService {
         return shuffledPassword.toString();
     }
 
+
+    @Transactional
+    public List<EsameDTO> getEsamiDisponibiliPerPiano(String piano1) {
+
+
+        PianoDiStudi piano=PianoDiStudi.valueOf(piano1.toUpperCase());
+        // Recupera tutti gli esami associati al piano scelto
+        List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(piano);
+
+        // Filtra esami senza docente e rimuovi duplicati per nome
+        return esamiDelPiano.stream()
+                .filter(esame -> esame.getDocente() == null)
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toMap(
+                                Esame::getNome, // chiave = nome per evitare duplicati
+                                e -> e,
+                                (e1, e2) -> e1  // in caso di duplicati, tiene il primo
+                        ),
+                        mappa -> mappa.values().stream()
+                                .map(e -> EsameDTO.builder()
+                                        .id(e.getId())
+                                        .nome(e.getNome())
+                                        .cfu(e.getCfu())
+                                        .build())
+                                .collect(Collectors.toList())
+                ));
+    }
 }

@@ -30,7 +30,7 @@ public class PianoStudiService {
             return;
         }
         List<Esame> esami = List.of(
-                new Esame(null, "Programmazione", LocalDate.now().plusWeeks(3), 10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>(), null),
+                new Esame(null, "Programmazione", null, 10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>(), null),
                 new Esame(null, "Algoritmi", null,10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>(), null),
                 new Esame(null, "Basi di dati", null,10, StatoEsame.ATTIVO,  null, new ArrayList<>(), new ArrayList<>(), null),
                 new Esame(null, "Analisi", null,10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),

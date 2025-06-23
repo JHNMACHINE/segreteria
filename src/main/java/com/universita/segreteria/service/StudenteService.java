@@ -68,7 +68,8 @@ public class StudenteService {
         List<Esame> finalList = pianoStudiService.getEsamiPerPiano(piano).stream()
                 .filter(e -> !corsiSuperati.contains(e.getNome())) // Escludi corsi già superati
                 .filter(e -> !giaValutati.contains(e)) // Escludi esami già valutati
-                .filter(e -> !giaPrenotati.contains(e)) // Escludi esami già prenotati
+                .filter(e -> !giaPrenotati.contains(e))// Escludi esami già prenotati
+                .filter(e->e.getData()!=null)
                 .filter(e -> e.getData().isAfter(oggi)) // Solo esami futuri
                 .toList();
 
