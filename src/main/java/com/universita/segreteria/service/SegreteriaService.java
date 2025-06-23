@@ -183,6 +183,7 @@ public class SegreteriaService {
                 .email(creaDocenteDTO.getEmail())
                 .password(passwordEncoder.encode(passwordChiara))
                 .ruolo(TipoUtente.DOCENTE)
+                .deveCambiarePassword(true)
                 .build();
 
         docente = docenteRepository.save(docente);  // Ora docente ha un ID valido
@@ -282,6 +283,7 @@ public class SegreteriaService {
                 .ruolo(TipoUtente.STUDENTE)
                 .pianoDiStudi(dto.getPianoDiStudi())
                 .esami(esamiDelPiano)
+                .deveCambiarePassword(true)
                 .build();
 
         studente = studenteRepo.save(studente);

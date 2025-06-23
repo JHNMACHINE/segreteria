@@ -36,4 +36,8 @@ public abstract class Utente {
     private String matricola;
     private LocalDate dataDiNascita;
     private String residenza;
+
+
+    @Column(nullable = false)
+    private boolean deveCambiarePassword = false;
 }

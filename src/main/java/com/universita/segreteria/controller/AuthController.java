@@ -2,6 +2,7 @@ package com.universita.segreteria.controller;
 
 import com.universita.segreteria.dto.AuthRequest;
 import com.universita.segreteria.dto.AuthResponse;
+import com.universita.segreteria.dto.CambiaPasswordDTO;
 import com.universita.segreteria.dto.RegisterRequest;
 import com.universita.segreteria.factory.UtenteFactory;
 import com.universita.segreteria.model.*;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -114,13 +116,31 @@ public class AuthController {
         Map<String, Object> responseBody = Map.of(
                 "message", "Login effettuato con successo",
                 "email", utente.getEmail(),
-                "role", utente.getRuolo().name() // o getRuolo().toString()
+                "role", utente.getRuolo().name(),
+                "deveCambiarePassword", utente.isDeveCambiarePassword() // FLAG CAMBIO PASSWORD
         );
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(responseBody);
     }
+
+    @PostMapping("/change-psw")
+    public ResponseEntity<?> cambiaPassword(@RequestBody CambiaPasswordDTO dto) {
+        Utente utente = utenteRepo.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
+
+        if (!passwordEncoder.matches(dto.getOldPassword(), utente.getPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password attuale non corretta");
+        }
+
+        utente.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        utente.setDeveCambiarePassword(false);
+        utenteRepo.save(utente);
+
+        return ResponseEntity.ok("Password cambiata con successo");
+    }
+
 
 
 

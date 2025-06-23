@@ -3,7 +3,7 @@ const AUTH_BASE_URL = "/api/v1/auth";
 const getValue = (id) => document.getElementById(id)?.value?.trim();
 
 
-export async function login({ formId, emailId, passwordId, errorId, redirectUrl, expectedRole }) {
+export async function login({ formId, emailId, passwordId, errorId, redirectUrl, redirectIfChange, expectedRole }) {
   const form = document.getElementById(formId);
   const errorDiv = document.getElementById(errorId);
 
@@ -30,17 +30,22 @@ export async function login({ formId, emailId, passwordId, errorId, redirectUrl,
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
-          credentials: "include"   // <-- importante!
+          credentials: "include"
         });
-
 
         if (response.ok) {
           const user = await response.json();
+
           if (user.role !== expectedRole) {
             errorDiv.textContent = "Ruolo non autorizzato.";
             return;
           }
-          window.location.href = redirectUrl;
+
+          if (user.deveCambiarePassword && redirectIfChange) {
+            window.location.href = redirectIfChange;
+          } else {
+            window.location.href = redirectUrl;
+          }
         } else {
           const errText = await response.text();
           errorDiv.textContent = errText || "Email o password non validi.";
@@ -50,6 +55,7 @@ export async function login({ formId, emailId, passwordId, errorId, redirectUrl,
         errorDiv.textContent = "Errore di connessione al server.";
       }
     });
+
     form.dataset.listenerAttached = "true";
   }
 }
@@ -183,5 +189,58 @@ export async function logout() {
     console.error("Errore nel logout:", err);
   } finally {
     window.location.href = "/";
+  }
+}
+
+export async function cambiaPassword({ formId, emailId, oldPasswordId, newPasswordId, errorId, successId, redirectUrl}) {
+  const form = document.getElementById(formId);
+  const errorDiv = document.getElementById(errorId);
+  const successDiv = document.getElementById(successId);
+
+  if (!form || !errorDiv || !successDiv) {
+    console.error("Form o elementi messaggio non trovati.");
+    return;
+  }
+
+  if (!form.dataset.listenerAttached) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorDiv.textContent = "";
+      successDiv.textContent = "";
+
+      const email = getValue(emailId);
+      const oldPassword = getValue(oldPasswordId);
+      const newPassword = getValue(newPasswordId);
+
+      if (!email || !oldPassword || !newPassword) {
+        errorDiv.textContent = "Compila tutti i campi.";
+        return;
+      }
+
+      try {
+        const response = await fetch(`${AUTH_BASE_URL}/change-psw`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email, oldPassword, newPassword })
+        });
+
+        const responseText = await response.text();
+
+        if (response.ok) {
+          successDiv.textContent = responseText;
+          if (redirectUrl) {
+            setTimeout(() => window.location.href = redirectUrl, 1500);
+          }
+        } else {
+          errorDiv.textContent = responseText || "Errore durante il cambio password.";
+        }
+      } catch (err) {
+        console.error("Errore:", err);
+        errorDiv.textContent = "Errore di rete o server.";
+      }
+    });
+
+    form.dataset.listenerAttached = "true";
   }
 }
