@@ -64,7 +64,16 @@ public class UserServiceProxy implements UtenteService {
             }
             case "getProfilo" -> segreteriaService.getProfilo(subject);
             case "inserisciStudente" -> segreteriaService.inserisciStudente((StudenteDTO) parametri[0]);
-            case "confermaVoto" -> segreteriaService.confermaVoto((StudenteDTO) parametri[0], (Long) parametri[1]);
+            case "confermaVoto" -> {
+                if (!(parametri[0] instanceof Number number)) {
+                    throw new IllegalArgumentException("ID voto non valido");
+                }
+                // Esegui davvero la conferma lato service
+                segreteriaService.confermaVoto(number.longValue());
+                // Puoi restituire un void/null oppure un DTO di conferma
+                yield null;
+            }
+            case "getVotiInAttesa" -> segreteriaService.getVotiInAttesa();
             case "cercaStudente" -> segreteriaService.cercaStudente((String) parametri[0], (String) parametri[1]);
             case "cercaStudentePerMatricola" -> segreteriaService.cercaStudentePerMatricola((String) parametri[0]);
             case "cambiaPianoDiStudi" ->
@@ -79,8 +88,14 @@ public class UserServiceProxy implements UtenteService {
         log.info("Operazione STUDENTE richiesta: '{}', parametri: {}", operazione, Arrays.toString(parametri));
         return switch (operazione) {
             case "aggiornaStatoVoto" -> {
-                Number numero = (Number) parametri[0];
-                yield studenteService.aggiornaStatoVoto(numero.longValue(), (boolean) parametri[1]);
+                Long votoId = (parametri[0] instanceof Number) ?
+                        ((Number) parametri[0]).longValue() :
+                        null;
+
+                if (votoId == null) throw new IllegalArgumentException("ID voto non valido");
+
+                studenteService.aggiornaStatoVoto(votoId, (Boolean) parametri[1]);
+                yield null;
             }
             case "prenotaEsame" -> studenteService.prenotaEsame(subject, (Integer) parametri[0]);
             case "esamiSuperati" -> studenteService.esamiSuperati((StudenteDTO) parametri[0]);

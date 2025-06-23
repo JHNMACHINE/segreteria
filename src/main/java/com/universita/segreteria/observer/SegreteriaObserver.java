@@ -6,9 +6,9 @@ public class SegreteriaObserver implements Observer {
     @Override
     public void update(Voto voto) {
         String azione = switch (voto.getStato()) {
+            case ATTESA -> "richiesto accettazione per";
             case ACCETTATO -> "accettato";
             case RIFIUTATO -> "rifiutato";
-            default -> "in attesa";
         };
 
         System.out.println("📋 Segreteria notificata: " +
