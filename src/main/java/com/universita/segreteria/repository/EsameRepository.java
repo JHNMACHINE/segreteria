@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface EsameRepository extends JpaRepository<Esame, Long> {
     Optional<Esame> findFirstByNome(String nome);
 
+    Optional<Esame> findFirstByDocente(Docente docente);
+
     List<Esame> findByDocente(Docente docente);
 
     List<Esame> findByNomeIn(List<String> list);

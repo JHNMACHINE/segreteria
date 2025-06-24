@@ -52,7 +52,7 @@ public class DocenteService {
 
 
     @Transactional
-    public EsameDTO creaEsame(String email, String nome,String dataStr,String aulaStr ) {
+    public EsameDTO creaEsame(String email,String dataStr,String aulaStr ) {
         Docente docente = docenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Docente non trovato"));
 
         LocalDate data1;
@@ -83,7 +83,7 @@ public class DocenteService {
         }
 
 
-        Esame es=esameRepo.findFirstByNome(nome).orElseThrow(()->new RuntimeException("Esame non trovato"));
+        Esame es=esameRepo.findFirstByDocente(docente).orElseThrow(()->new RuntimeException("Esame non trovato"));
         Esame esame=es.toBuilder()
                 .id(null)
                 .docente(docente)

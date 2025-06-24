@@ -132,7 +132,7 @@ public class UserServiceProxy implements UtenteService {
                 InserimentoVotoDTO dto = mapper.convertValue(parametri[0], InserimentoVotoDTO.class);
                 yield docenteService.inserisciVoto(dto.getAppelloId(), dto.getMatricolaStudente(), dto.getVoto());
             }
-            case "creaEsame" -> docenteService.creaEsame(subject, (String) parametri[0], (String) parametri[1],(String) parametri[2]);
+            case "creaEsame" -> docenteService.creaEsame(subject, (String) parametri[0], (String) parametri[1]);
             case "getAuleDisponibili" -> docenteService.getAuleDisponibili((String) parametri[0]);
             case "visualizzaPrenotazioniEsame" -> docenteService.visualizzaPrenotazioniEsame((Long) parametri[0]);
             case "eliminaEsame" -> {

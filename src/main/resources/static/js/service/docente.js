@@ -15,8 +15,8 @@ export function inserisciVoto(id,data){
     return eseguiOperazione('inserisciVoto', [id,data]);
 }
 
-export function creaAppello(nome,data,aula){
-    return eseguiOperazione('creaEsame',[nome,data,aula]);
+export function creaAppello(data,aula){
+    return eseguiOperazione('creaEsame',[data,aula]);
 }
 
 export function getAuleDisponibili(data){

@@ -62,11 +62,7 @@
             color: #000;
         }
 
-        h2 {
-            color: #000;
-        }
-
-        h4 {
+        h2, h4 {
             color: #000;
         }
 
@@ -170,7 +166,6 @@
         </table>
     </div>
 
-
     <h4 class="section-title">Inserisci voti</h4>
     <form id="votiForm" class="row g-3 mt-2">
         <div class="col-md-4">
@@ -192,10 +187,7 @@
 
     <h4 class="section-title">Crea nuovo appello</h4>
     <form id="creaAppelloForm" class="row g-3 mt-2">
-        <div class="col-md-6">
-            <label for="corso" class="form-label">Corso</label>
-            <input type="text" class="form-control" id="corso" required />
-        </div>
+        <!-- Rimosso campo "Corso" in quanto non serve più -->
         <div class="col-md-6">
             <label for="dataEsame" class="form-label">Data</label>
             <input type="date" class="form-control" id="dataEsame" required />
@@ -222,9 +214,9 @@
         getInfoDocente,
         getAppelli,
         inserisciVoto,
-        creaAppello,
+        creaAppello,          // ora non richiede nome corso, solo data e aula
         eliminaAppello,
-        trovaStudentiPerAppello, // Importa la nuova funzione
+        trovaStudentiPerAppello,
         getAuleDisponibili
     } from '/js/service/docente.js';
 
@@ -241,7 +233,7 @@
 
     // Elementi HTML
     const appelloSelect = document.getElementById('appelloSelect');
-    const appelloSelectStudenti = document.getElementById('appelloSelectStudenti'); // Nuova select per studenti
+    const appelloSelectStudenti = document.getElementById('appelloSelectStudenti');
     const studentiTable = document.getElementById('studentiList');
     const studentiBody = document.getElementById('studentiTableBody');
     const tbody = document.getElementById('appelliTableBody');
@@ -383,25 +375,24 @@
         }
     });
 
-    // Creazione nuovo appello con aula
+    // Creazione nuovo appello con sola data e aula (non serve più il nome corso)
     document.getElementById('creaAppelloForm').addEventListener('submit', async e => {
         e.preventDefault();
-        const nomeCorso = document.getElementById('corso').value.trim();
         const dataVal = dataEsameInput.value;
         const aula = aulaSelect.value;
-        if (!nomeCorso || !dataVal || !aula) {
-            alert('Compila corso, data e seleziona un’aula');
+        if (!dataVal || !aula) {
+            alert('Compila data e seleziona un’aula');
             return;
         }
         try {
-            await creaAppello(nomeCorso, dataVal, aula);
+            // qui creaAppello ora accetta solo data e aula
+            await creaAppello(dataVal, aula);
             alert('Appello creato con successo');
             e.target.reset();
             aulaSelect.innerHTML = '<option value="">Seleziona data prima</option>';
             caricaAppelli();
         } catch (err) {
             console.error('Errore creazione appello:', err);
-            // se è Response con JSON message:
             if (err instanceof Response) {
                 try {
                     const body = await err.json();
