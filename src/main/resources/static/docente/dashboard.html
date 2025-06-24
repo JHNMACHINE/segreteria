@@ -17,7 +17,6 @@
             --accent-bg: #ffe082;
             --accent-dark: #ffb300;
         }
-
         body {
             background-color: var(--light-bg);
             display: flex;
@@ -26,12 +25,10 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--text-dark);
         }
-
         .container {
             flex: 1;
             padding-bottom: 40px;
         }
-
         .section-title {
             margin-top: 40px;
             margin-bottom: 20px;
@@ -41,7 +38,6 @@
             padding-bottom: 8px;
             position: relative;
         }
-
         .section-title:after {
             content: '';
             position: absolute;
@@ -51,7 +47,6 @@
             height: 2px;
             background-color: var(--primary-color);
         }
-
         .card {
             box-shadow: var(--card-shadow);
             transition: transform 0.3s, box-shadow 0.3s;
@@ -60,53 +55,40 @@
             overflow: hidden;
             background-color: white;
         }
-
-        .card-title {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--accent-dark);
             color: var(--text-dark);
             font-weight: 500;
         }
-
         .btn-primary:hover {
             background-color: var(--accent-dark);
             border-color: var(--accent-dark);
             color: white;
         }
-
         .btn-outline-danger {
             color: #dc3545;
             border-color: #dc3545;
         }
-
         .btn-outline-danger:hover {
             background-color: #dc3545;
             color: white;
         }
-
         .navbar {
             background-color: var(--header-bg) !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-
         .navbar-brand,
         .navbar-nav .nav-link {
             color: var(--text-dark) !important;
             font-weight: 600;
         }
-
         .footer {
             background-color: white;
             border-top: 1px solid #ddd;
             padding: 15px 0;
             margin-top: auto;
         }
-
         .welcome-container {
             background: white;
             border-radius: 10px;
@@ -115,13 +97,11 @@
             margin-bottom: 30px;
             border-left: 4px solid var(--primary-color);
         }
-
         .dashboard-header {
             text-align: center;
             margin-bottom: 30px;
             position: relative;
         }
-
         .dashboard-header h1 {
             font-weight: 700;
             color: var(--text-dark);
@@ -129,7 +109,6 @@
             display: inline-block;
             padding-bottom: 15px;
         }
-
         .dashboard-header h1:after {
             content: '';
             position: absolute;
@@ -141,29 +120,22 @@
             background: var(--primary-color);
             border-radius: 3px;
         }
-
         .table thead {
             background-color: var(--accent-bg);
         }
-
         .table th {
             color: var(--text-dark);
         }
-
-        /* Rimozione highlight sulle righe delle tabelle */
         .no-hover tbody tr {
             transition: none !important;
         }
         .no-hover tbody tr:hover {
             background-color: transparent !important;
         }
-
-        /* Mantenimento highlight sui pulsanti */
         .btn-rimuovi-appello:hover {
             background-color: #dc3545 !important;
             color: white !important;
         }
-
         .notification-icon {
             background-color: #f8f0d5;
             color: var(--primary-color);
@@ -175,24 +147,20 @@
             justify-content: center;
             font-size: 1.1rem;
         }
-
         .empty-state {
             text-align: center;
             padding: 40px 20px;
             color: #6c757d;
         }
-
         .empty-state i {
             font-size: 2.5rem;
             margin-bottom: 15px;
             color: #ced4da;
         }
-
         .form-label {
             font-weight: 500;
             color: var(--text-dark);
         }
-
         .form-control:focus,
         .form-select:focus {
             border-color: var(--primary-color);
@@ -271,14 +239,10 @@
 
                 <!-- Colonna destra -->
                 <div class="col-md-6">
-                    <!-- Crea nuovo appello -->
+                    <!-- Crea nuovo appello (rimosso campo “corso”) -->
                     <h4 class="section-title">Crea nuovo appello</h4>
                     <form id="creaAppelloForm" class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label for="corso" class="form-label">Corso</label>
-                            <input type="text" class="form-control" id="corso" required />
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label for="dataEsame" class="form-label">Data</label>
                             <input type="date" class="form-control" id="dataEsame" required />
                         </div>
@@ -517,12 +481,12 @@
         }
     });
 
-    // Creazione nuovo appello
+
     document.getElementById('creaAppelloForm').addEventListener('submit', async e => {
         e.preventDefault();
         try {
+
             await creaAppello(
-                document.getElementById('corso').value.trim(),
                 dataEsameInput.value,
                 aulaSelect.value
             );
@@ -531,7 +495,7 @@
             aulaSelect.innerHTML = '<option value="">Seleziona data prima</option>';
             caricaAppelli();
         } catch (err) {
-            alert('Errore creazione appello: ' + (err.message || 'Dettagli non disponibili'));
+            alert((err.message || 'Dettagli non disponibili'));
         }
     });
 </script>

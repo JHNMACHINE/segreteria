@@ -91,6 +91,7 @@ public class DocenteService {
                 .voti(List.of())
                 .studentiPrenotati(List.of())
                 .statoEsame(StatoEsame.ATTIVO)
+                .aula(aula)
                 .build();
         esameRepo.save(esame);
         return EsameMapper.toDTO(esame);
@@ -111,11 +112,14 @@ public class DocenteService {
         }
         List<Aula> tutte = Arrays.asList(Aula.values());
 
-        List<Aula> occupate = esameRepo.findByData(data1).stream()
+        List<Esame> esamiInData = esameRepo.findByData(data1);
+        logger.info("Esami trovati per data {}: {}", data1, esamiInData);
+        List<Aula> occupate = esamiInData.stream()
                 .map(Esame::getAula)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
+        logger.info("Aule occupate in data {}: {}", data1, occupate);
 
         return tutte.stream()
                 .filter(a -> !occupate.contains(a))

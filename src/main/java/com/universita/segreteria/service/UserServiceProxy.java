@@ -45,13 +45,16 @@ public class UserServiceProxy implements UtenteService {
                 case STUDENTE -> operazioneStudente(operazione, subject, parametri);
                 case DOCENTE -> operazioneDocente(operazione, subject, parametri);
             };
-        } catch (ResponseStatusException ex) {
-            // se è già un 404, 403, etc, rilanciamola così com’è:
+        }catch (ResponseStatusException ex) {
             throw ex;
+        } catch (RuntimeException ex) {
+            // gestisci le eccezioni note dal service: restituisci 400 con il messaggio originale
+            log.warn("Errore di business durante '{}': {}", operazione, ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
         } catch (Exception ex) {
-            // logghiamo il problema imprevisto e restituiamo un 500
             log.error("Errore interno durante l’operazione '{}', ruolo {}: {}", operazione, ruolo, ex.getMessage(), ex);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Errore interno durante l’operazione \"" + operazione + "\"");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Errore interno durante l’operazione \"" + operazione + "\"");
         }
     }
 

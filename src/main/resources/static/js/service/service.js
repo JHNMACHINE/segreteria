@@ -1,26 +1,27 @@
 // service/service.js
-
 export function eseguiOperazione(nomeOperazione, parametri = []) {
   return fetch('/api/v1/operazione', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify({ nomeOperazione, parametri })
-  }).then(res => {
-    if (!res.ok) throw new Error("Errore nella richiesta");
-
-    // Controlla se la risposta è vuota
-    const contentLength = res.headers.get('Content-Length');
-    if (contentLength === '0') {
-      return null; // Ritorna null per risposte vuote
+  }).then(async res => {
+    const text = await res.text();
+    if (!res.ok) {
+      let msg = text;
+      try {
+        const obj = JSON.parse(text);
+        if (obj.message) msg = obj.message;
+      } catch {}
+      throw new Error(msg || `Errore ${res.status}`);
     }
-
-    // Prova a parsare solo se c'è contenuto
-    return res.json();
+    if (!text) return null;
+    try {
+      return JSON.parse(text);
+    } catch {
+      return null;
+    }
   });
 }
-
 
 
