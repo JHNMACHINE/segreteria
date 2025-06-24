@@ -194,62 +194,69 @@ public class StudenteService {
     }
 
 
+    @Transactional
     public List<EsameDTO> getCarriera(String email) {
         Studente studente = studenteRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Studente non trovato"));
 
         List<Voto> voti = votoRepo.findByStudenteId(studente.getId());
-        Map<String, EsameDTO> esamiUnici = new LinkedHashMap<>(); // Usiamo una mappa per raggruppare per nome esame
+        Map<String, EsameDTO> esamiUnici = new LinkedHashMap<>();
 
         PianoDiStudi piano = studente.getPianoDiStudi();
         List<Esame> esamiPiano = pianoStudiService.getEsamiPerPiano(piano);
 
-        // Raggruppa gli esami per nome e mantieni solo l'ultimo stato rilevante
         for (Esame esame : esamiPiano) {
             String nomeEsame = esame.getNome();
 
-            // Trova tutti i voti relativi a questo esame (stesso nome)
+            // Trovo tutti i voti per questo esame
             List<Voto> votiEsame = voti.stream()
                     .filter(v -> v.getEsame().getNome().equals(nomeEsame))
                     .toList();
 
             StatoEsame statoAggiornato = StatoEsame.NON_SUPERATO;
-            Long votoId = null;
+            Long votoId        = null;
+            Integer valoreVoto = null;
             LocalDate dataEsame = null;
 
-            // Determina lo stato più recente/rilevante
-            for (Voto voto : votiEsame) {
-                if (voto.getStato() == StatoVoto.ACCETTATO) {
+            for (Voto vObj : votiEsame) {
+                if (vObj.getStato() == StatoVoto.ACCETTATO) {
                     statoAggiornato = StatoEsame.SUPERATO;
-                    dataEsame = voto.getEsame().getData();
-                    break; // Uno superato è sufficiente
-                } else if (voto.getStato() == StatoVoto.ATTESA) {
+                    votoId          = vObj.getId();
+                    valoreVoto      = vObj.getVoto();           // ← qui prendo il voto numerico
+                    dataEsame       = vObj.getEsame().getData();
+                    break;
+                } else if (vObj.getStato() == StatoVoto.ATTESA) {
                     statoAggiornato = StatoEsame.PRENOTATO;
-                    votoId = voto.getId();
-                    dataEsame = voto.getEsame().getData();
-                    // Continua a cercare: potresti trovare una versione superata
+                    votoId          = vObj.getId();
+                    // valoreVoto rimane null
+                    dataEsame       = vObj.getEsame().getData();
+                    // non interrompo: potrei trovare un ACCETTATO dopo
                 }
             }
 
-            // Crea o aggiorna l'esame nella mappa
-            if (!esamiUnici.containsKey(nomeEsame) ||
-                    esamiUnici.get(nomeEsame).getStatoEsame() != StatoEsame.SUPERATO) {
+            // Inserisco o aggiorno il DTO (tenendo priorità al SUPERATO)
+            if (!esamiUnici.containsKey(nomeEsame)
+                    || esamiUnici.get(nomeEsame).getStatoEsame() != StatoEsame.SUPERATO) {
 
-                esamiUnici.put(nomeEsame, new EsameDTO(
-                        esame.getId(),
-                        nomeEsame,
-                        esame.getCfu(),
-                        dataEsame,
-                        statoAggiornato,
-                        votoId,
-                        esame.getDocente() != null ? esame.getDocente().getId() : null,
-                        esame.getAula()
-                ));
+                EsameDTO dto = EsameDTO.builder()
+                        .id(esame.getId())
+                        .nome(nomeEsame)
+                        .cfu(esame.getCfu())
+                        .date(dataEsame)
+                        .statoEsame(statoAggiornato)
+                        .votoId(votoId)
+                        .voto(valoreVoto)               // ← passo qui il voto
+                        .docenteId(esame.getDocente()!=null ? esame.getDocente().getId() : null)
+                        .aula(esame.getAula())
+                        .build();
+
+                esamiUnici.put(nomeEsame, dto);
             }
         }
 
         return new ArrayList<>(esamiUnici.values());
     }
+
 
     @Transactional
     public void pagaTassa(String email, String nomeTassa) {

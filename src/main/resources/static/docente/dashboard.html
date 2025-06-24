@@ -6,98 +6,146 @@
     <title>Dashboard Docente - Segreteria Universitaria</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         :root {
-            --main-bg: #f5eed8;
-            /* Giallo più scuro di poco */
+            --primary-color: #ffb300;
+            --secondary-color: #ffe082;
+            --light-bg: #f5eed8;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --text-dark: #5d4037;
             --header-bg: #ffd54f;
             --accent-bg: #ffe082;
             --accent-dark: #ffb300;
-            --text-dark: #5d4037;
         }
 
         body {
-            background-color: var(--main-bg);
-            padding-top: 70px;
-            color: var(--text-dark);
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--header-bg);
-            color: var(--text-dark);
-            padding: 12px 40px;
+            background-color: var(--light-bg);
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #000;
-        }
-
-        .dashboard-container {
-            max-width: 1100px;
-            margin: auto;
-            background-color: white;
-            padding: 35px;
-            border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        .container {
+            flex: 1;
+            padding-bottom: 40px;
         }
 
         .section-title {
-            margin-top: 30px;
-            border-bottom: 3px solid var(--accent-dark);
-            padding-bottom: 8px;
-            font-size: 1.2rem;
-            color: #000;
-        }
-
-        h2 {
-            color: #000;
-        }
-
-        h4 {
-            color: #000;
-        }
-
-        .lead {
+            margin-top: 40px;
+            margin-bottom: 20px;
             color: var(--text-dark);
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            position: relative;
         }
 
-        .btn-warning {
-            background-color: var(--accent-bg) !important;
-            border-color: var(--accent-dark) !important;
-            color: var(--text-dark) !important;
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .card {
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: white;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--accent-dark);
+            color: var(--text-dark);
             font-weight: 500;
-            transition: background-color 0.2s;
         }
 
-        .btn-warning:hover {
-            background-color: var(--accent-dark) !important;
-            color: white !important;
+        .btn-primary:hover {
+            background-color: var(--accent-dark);
+            border-color: var(--accent-dark);
+            color: white;
         }
 
-        .btn-success {
-            background-color: var(--accent-bg) !important;
-            border-color: var(--accent-dark) !important;
+        .btn-outline-danger {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .navbar {
+            background-color: var(--header-bg) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand,
+        .navbar-nav .nav-link {
             color: var(--text-dark) !important;
-            font-weight: 500;
-            transition: background-color 0.2s;
+            font-weight: 600;
         }
 
-        .btn-success:hover {
-            background-color: var(--accent-dark) !important;
-            color: white !important;
+        .footer {
+            background-color: white;
+            border-top: 1px solid #ddd;
+            padding: 15px 0;
+            margin-top: auto;
+        }
+
+        .welcome-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .dashboard-header h1 {
+            font-weight: 700;
+            color: var(--text-dark);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+
+        .dashboard-header h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px;
         }
 
         .table thead {
@@ -108,113 +156,177 @@
             color: var(--text-dark);
         }
 
-        footer {
-            background-color: white;
-            border-top: 1px solid #ddd;
-            padding: 20px;
+        .notification-icon {
+            background-color: #f8f0d5;
+            color: var(--primary-color);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .empty-state {
             text-align: center;
-            color: #757575;
-            margin-top: 40px;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #ced4da;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(255, 179, 0, 0.25);
         }
     </style>
 </head>
 
 <body>
-
-<header>
-    <h1>Area Docente</h1>
-    <div>
-        <span id="nomeDocente" class="me-4 fw-semibold"></span>
-        <button class="btn btn-sm btn-warning" id="logoutBtn">Logout</button>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <i class="bi bi-person-video3 me-2"></i> Area Docente
+        </a>
+        <div class="d-flex align-items-center">
+            <span id="nomeDocente" class="me-4 fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="logoutBtn">
+                <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </button>
+        </div>
     </div>
-</header>
+</nav>
 
-<div class="dashboard-container">
-    <h2 class="mb-2">Bentornato <span id="nomeCompleto"></span>!</h2>
-    <p class="lead mb-4">Gestisci con semplicità appelli, voti ed esami.</p>
-
-    <h4 class="section-title">I tuoi appelli</h4>
-    <div id="appelliList" class="table-responsive">
-        <table class="table table-bordered mt-3">
-            <thead>
-            <tr>
-                <th>Corso</th>
-                <th>Data</th>
-                <th>Azioni</th>
-            </tr>
-            </thead>
-            <tbody id="appelliTableBody"></tbody>
-        </table>
+<div class="container mt-4">
+    <div class="dashboard-header">
+        <h1>Dashboard Docente</h1>
     </div>
 
-    <h4 class="section-title mt-5">Studenti prenotati all'appello</h4>
-    <form class="row g-3 mb-3">
-        <div class="col-md-6">
-            <label for="appelloSelectStudenti" class="form-label">Seleziona appello</label>
-            <select class="form-select" id="appelloSelectStudenti">
-                <option value="">-- Seleziona un appello --</option>
-            </select>
-        </div>
-    </form>
-
-    <div id="studentiList" class="table-responsive d-none">
-        <table class="table table-bordered">
-            <thead>
-            <tr>
-                <th>Matricola</th>
-                <th>Nome</th>
-                <th>Cognome</th>
-            </tr>
-            </thead>
-            <tbody id="studentiTableBody"></tbody>
-        </table>
+    <div class="welcome-container">
+        <h2 class="mb-2">Bentornato <span id="nomeCompleto"></span>!</h2>
+        <p class="lead mb-4">Gestisci con semplicità appelli, voti ed esami.</p>
     </div>
 
+    <!-- Tutto in una sola Card -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row gx-4">
+                <!-- Colonna sinistra -->
+                <div class="col-md-6">
+                    <!-- I tuoi appelli -->
+                    <h4 class="section-title">I tuoi appelli</h4>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Corso</th>
+                                <th>Data</th>
+                                <th>Azioni</th>
+                            </tr>
+                            </thead>
+                            <tbody id="appelliTableBody"></tbody>
+                        </table>
+                    </div>
 
-    <h4 class="section-title">Inserisci voti</h4>
-    <form id="votiForm" class="row g-3 mt-2">
-        <div class="col-md-4">
-            <label for="appelloSelect" class="form-label">Appello</label>
-            <select class="form-select" id="appelloSelect" required></select>
-        </div>
-        <div class="col-md-4">
-            <label for="studenteMatricola" class="form-label">Matricola</label>
-            <input type="text" class="form-control" id="studenteMatricola" required />
-        </div>
-        <div class="col-md-4">
-            <label for="voto" class="form-label">Voto</label>
-            <input type="number" min="18" max="30" class="form-control" id="voto" required />
-        </div>
-        <div class="col-12 text-end mt-2">
-            <button type="submit" class="btn btn-warning">Aggiungi voto</button>
-        </div>
-    </form>
+                    <!-- Studenti prenotati -->
+                    <h4 class="section-title">
+                        Studenti prenotati all’appello di <span id="nomeAppelloSelezionato" class="fw-bold"></span>
+                    </h4>
+                    <select class="form-select mb-3" id="appelloSelectStudenti">
+                        <option value="">-- Seleziona un appello --</option>
+                    </select>
+                    <div id="studentiList" class="table-responsive d-none">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Matricola</th>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                            </tr>
+                            </thead>
+                            <tbody id="studentiTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
 
-    <h4 class="section-title">Crea nuovo appello</h4>
-    <form id="creaAppelloForm" class="row g-3 mt-2">
-        <div class="col-md-6">
-            <label for="corso" class="form-label">Corso</label>
-            <input type="text" class="form-control" id="corso" required />
+                <!-- Colonna destra -->
+                <div class="col-md-6">
+                    <!-- Crea nuovo appello -->
+                    <h4 class="section-title">Crea nuovo appello</h4>
+                    <form id="creaAppelloForm" class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="corso" class="form-label">Corso</label>
+                            <input type="text" class="form-control" id="corso" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="dataEsame" class="form-label">Data</label>
+                            <input type="date" class="form-control" id="dataEsame" required />
+                        </div>
+                        <div class="col-12">
+                            <label for="aulaSelect" class="form-label">Aula</label>
+                            <select class="form-select" id="aulaSelect" required>
+                                <option value="">Seleziona data prima</option>
+                            </select>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i> Crea appello
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Inserisci voti -->
+                    <h4 class="section-title">Inserisci voti</h4>
+                    <form id="votiForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="appelloSelect" class="form-label">Appello</label>
+                            <select class="form-select" id="appelloSelect" required>
+                                <option value="">Seleziona</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="studenteMatricola" class="form-label">Matricola</label>
+                            <input type="text" class="form-control" id="studenteMatricola" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="voto" class="form-label">Voto</label>
+                            <input type="number" min="18" max="30" class="form-control" id="voto" required />
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i> Aggiungi voto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6">
-            <label for="dataEsame" class="form-label">Data</label>
-            <input type="date" class="form-control" id="dataEsame" required />
-        </div>
-        <div class="col-md-4">
-            <label for="aulaSelect" class="form-label">Aula</label>
-            <select class="form-select" id="aulaSelect" required>
-                <option value="">Seleziona data prima</option>
-            </select>
-        </div>
-        <div class="col-12 text-end mt-2">
-            <button type="submit" class="btn btn-warning">Crea appello</button>
-        </div>
-    </form>
+    </div>
 </div>
 
-<footer>
-    <small>&copy; 2025 - Segreteria Universitaria</small>
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="text-center">
+            <small>&copy; 2025 - Segreteria Universitaria</small>
+        </div>
+    </div>
 </footer>
+
+<!-- Bootstrap JS + script originale con piccola aggiunta per il nome appello -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script type="module">
     import { logout } from '/js/auth.js';
@@ -224,7 +336,7 @@
         inserisciVoto,
         creaAppello,
         eliminaAppello,
-        trovaStudentiPerAppello, // Importa la nuova funzione
+        trovaStudentiPerAppello,
         getAuleDisponibili
     } from '/js/service/docente.js';
 
@@ -239,14 +351,14 @@
         })
         .catch(console.error);
 
-    // Elementi HTML
     const appelloSelect = document.getElementById('appelloSelect');
-    const appelloSelectStudenti = document.getElementById('appelloSelectStudenti'); // Nuova select per studenti
+    const appelloSelectStudenti = document.getElementById('appelloSelectStudenti');
     const studentiTable = document.getElementById('studentiList');
     const studentiBody = document.getElementById('studentiTableBody');
     const tbody = document.getElementById('appelliTableBody');
     const dataEsameInput = document.getElementById('dataEsame');
     const aulaSelect = document.getElementById('aulaSelect');
+    const nomeAppelloSpan = document.getElementById('nomeAppelloSelezionato');
 
     // Carica appelli, select e tabella
     async function caricaAppelli() {
@@ -255,6 +367,22 @@
             tbody.innerHTML = '';
             appelloSelect.innerHTML = '<option value="">Seleziona</option>';
             appelloSelectStudenti.innerHTML = '<option value="">-- Seleziona un appello --</option>';
+            nomeAppelloSpan.innerText = '';
+
+            if (appelli.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="text-center py-4">
+                            <div class="empty-state">
+                                <i class="bi bi-calendar-x"></i>
+                                <h5>Nessun appello disponibile</h5>
+                                <p>Crea un nuovo appello per iniziare</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
 
             appelli.forEach(a => {
                 const dataF = new Date(a.data).toLocaleDateString('it-IT');
@@ -264,82 +392,86 @@
                     <td>${dataF}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-danger btn-rimuovi-appello" data-id="${a.id}">
-                            Rimuovi
+                            <i class="bi bi-trash me-1"></i> Rimuovi
                         </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
 
-                // Popola la select per inserire voti
-                const optAppello = document.createElement('option');
-                optAppello.value = a.id;
-                optAppello.textContent = `${a.nome} (${dataF})`;
-                appelloSelect.appendChild(optAppello);
+                // Popola le select
+                const opt1 = document.createElement('option');
+                opt1.value = a.id;
+                opt1.textContent = `${a.nome} (${dataF})`;
+                appelloSelect.appendChild(opt1);
 
-                // Popola la select per vedere gli studenti prenotati
-                const optAppelloStudenti = document.createElement('option');
-                optAppelloStudenti.value = a.id;
-                optAppelloStudenti.textContent = `${a.nome} (${dataF})`;
-                appelloSelectStudenti.appendChild(optAppelloStudenti);
+                const opt2 = document.createElement('option');
+                opt2.value = a.id;
+                opt2.textContent = `${a.nome} (${dataF})`;
+                appelloSelectStudenti.appendChild(opt2);
             });
 
             // Rimuovi appello
             document.querySelectorAll('.btn-rimuovi-appello').forEach(btn => {
                 btn.addEventListener('click', async () => {
-                    const idStr = btn.getAttribute('data-id');
-                    const idLong = Number(idStr);
-                    if (isNaN(idLong)) {
-                        alert('ID non valido');
-                        return;
-                    }
+                    const idLong = Number(btn.dataset.id);
+                    if (isNaN(idLong)) { alert('ID non valido'); return; }
                     try {
                         await eliminaAppello(idLong);
                         alert('Appello rimosso');
                         caricaAppelli();
-                    } catch (err) {
-                        console.error('Errore rimozione appello:', err);
+                    } catch {
                         alert('Errore durante la rimozione');
                     }
                 });
             });
 
-        } catch (err) {
-            console.error('Errore caricamento appelli:', err);
+        } catch {
             tbody.innerHTML = '<tr><td colspan="3">Errore nel caricamento degli appelli</td></tr>';
         }
     }
 
-    // All’avvio
+    // All'avvio
     caricaAppelli();
 
     // Inserimento voto
     document.getElementById('votiForm').addEventListener('submit', async e => {
         e.preventDefault();
         try {
-            const appelloId = appelloSelect.value;
-            const matricola = document.getElementById('studenteMatricola').value.trim();
-            const voto = parseInt(document.getElementById('voto').value, 10);
-            await inserisciVoto({ appelloId, matricolaStudente: matricola, voto });
-            alert('Voto inserito');
+            await inserisciVoto({
+                appelloId: appelloSelect.value,
+                matricolaStudente: document.getElementById('studenteMatricola').value.trim(),
+                voto: parseInt(document.getElementById('voto').value, 10)
+            });
+            alert('Voto inserito con successo');
             e.target.reset();
-        } catch (error) {
-            console.error(error);
-            alert('Errore nell\'inserimento del voto');
+        } catch (err) {
+            alert('Errore nell\'inserimento del voto: ' + (err.message || 'Dettagli non disponibili'));
         }
     });
 
-    // Gestione cambio appello per studenti prenotati
+    // Cambio appello studenti
     appelloSelectStudenti.addEventListener('change', async () => {
-        const appelloId = appelloSelectStudenti.value;
+        const idx = appelloSelectStudenti.selectedIndex;
+        nomeAppelloSpan.innerText = appelloSelectStudenti.options[idx]?.text || '';
         studentiBody.innerHTML = '';
-        if (!appelloId) {
+        if (!appelloSelectStudenti.value) {
             studentiTable.classList.add('d-none');
             return;
         }
         try {
-            const studenti = await trovaStudentiPerAppello(appelloId);
+            const studenti = await trovaStudentiPerAppello(appelloSelectStudenti.value);
             if (studenti.length === 0) {
-                studentiBody.innerHTML = '<tr><td colspan="3">Nessuno studente prenotato</td></tr>';
+                studentiBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="text-center py-4">
+                            <div class="empty-state">
+                                <i class="bi bi-people"></i>
+                                <h5>Nessuno studente prenotato</h5>
+                                <p>Non ci sono prenotazioni per questo appello</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             } else {
                 studenti.forEach(s => {
                     const tr = document.createElement('tr');
@@ -348,75 +480,53 @@
                 });
             }
             studentiTable.classList.remove('d-none');
-        } catch (e) {
-            console.error(e);
-            alert('Errore nel caricamento degli studenti prenotati');
+        } catch {
             studentiTable.classList.add('d-none');
+            alert('Errore nel caricamento degli studenti prenotati');
         }
     });
 
     // Popola aulaSelect quando cambia dataEsame
     dataEsameInput.addEventListener('change', async () => {
-        const dataVal = dataEsameInput.value;
         aulaSelect.innerHTML = '<option value="">Caricamento aule...</option>';
-        if (!dataVal) {
+        if (!dataEsameInput.value) {
             aulaSelect.innerHTML = '<option value="">Seleziona data prima</option>';
             return;
         }
         try {
-            const listaAule = await getAuleDisponibili(dataVal);
-            aulaSelect.innerHTML = '';
-            if (Array.isArray(listaAule) && listaAule.length > 0) {
-                aulaSelect.innerHTML = '<option value="">Seleziona aula</option>';
-                listaAule.forEach(aula => {
-                    const opt = document.createElement('option');
-                    opt.value = aula;
-                    opt.textContent = aula;
-                    aulaSelect.appendChild(opt);
-                });
-            } else {
-                aulaSelect.innerHTML = '<option value="">Nessuna aula libera</option>';
-            }
-        } catch (err) {
-            console.error('Errore fetch aule disponibili', err);
+            const listaAule = await getAuleDisponibili(dataEsameInput.value);
+            aulaSelect.innerHTML = listaAule.length
+                ? '<option value="">Seleziona aula</option>'
+                : '<option value="">Nessuna aula libera</option>';
+            listaAule.forEach(aula => {
+                const opt = document.createElement('option');
+                opt.value = aula;
+                opt.textContent = aula;
+                aulaSelect.appendChild(opt);
+            });
+        } catch {
             aulaSelect.innerHTML = '<option value="">Errore caricamento aule</option>';
         }
     });
 
-    // Creazione nuovo appello con aula
+    // Creazione nuovo appello
     document.getElementById('creaAppelloForm').addEventListener('submit', async e => {
         e.preventDefault();
-        const nomeCorso = document.getElementById('corso').value.trim();
-        const dataVal = dataEsameInput.value;
-        const aula = aulaSelect.value;
-        if (!nomeCorso || !dataVal || !aula) {
-            alert('Compila corso, data e seleziona un’aula');
-            return;
-        }
         try {
-            await creaAppello(nomeCorso, dataVal, aula);
+            await creaAppello(
+                document.getElementById('corso').value.trim(),
+                dataEsameInput.value,
+                aulaSelect.value
+            );
             alert('Appello creato con successo');
             e.target.reset();
             aulaSelect.innerHTML = '<option value="">Seleziona data prima</option>';
             caricaAppelli();
         } catch (err) {
-            console.error('Errore creazione appello:', err);
-            // se è Response con JSON message:
-            if (err instanceof Response) {
-                try {
-                    const body = await err.json();
-                    alert('Errore: ' + (body.message || JSON.stringify(body)));
-                } catch {
-                    alert('Errore creazione appello');
-                }
-            } else {
-                alert('Errore creazione appello');
-            }
+            alert('Errore creazione appello: ' + (err.message || 'Dettagli non disponibili'));
         }
     });
-
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
