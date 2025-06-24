@@ -243,26 +243,6 @@ public class DocenteService {
         return true;
     }
 
-    /*  Con la creazione affidata al segretario non lo usiamo più
-
-    public Utente initDocente(RegisterRequest request) {
-        logger.info("Dio dimmi che ti usiamo");
-        logger.info("Inizializzazione nuovo docente con email: {}", request.email());
-
-        Esame esame = esameRepo.findFirstByNome(request.corso()).orElseThrow(()->new RuntimeException("Corso non trovato"));
-
-
-      return   Docente.builder()
-                .nome(request.nome())
-                .cognome(request.cognome())
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .ruolo(TipoUtente.DOCENTE)
-                .build();
-
-
-    }*/
-
     public DocenteDTO getInfoDocente(String email) {
         Docente docente = docenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Docente non trovato"));
         return DocenteDTO.builder().id(docente.getId()).nome(docente.getNome()).cognome(docente.getCognome()).matricola(docente.getMatricola()).email(docente.getEmail()).build();
@@ -288,9 +268,11 @@ public class DocenteService {
     }
 
     @Transactional
-    public List<StudenteDTO> trovaStudentiPerEsame(String nomeEsame) {
-        List<Studente> studenti = studenteRepository.findByEsamiNome(nomeEsame);
-        return studenti.stream()
+    public List<StudenteDTO> trovaStudentiPerAppello(Long appelloId) {
+        Esame esame = esameRepo.findById(appelloId)
+                .orElseThrow(() -> new RuntimeException("Esame non trovato"));
+
+        return esame.getStudentiPrenotati().stream()
                 .map(s -> StudenteDTO.builder()
                         .matricola(s.getMatricola())
                         .nome(s.getNome())
@@ -298,7 +280,6 @@ public class DocenteService {
                         .build())
                 .toList();
     }
-
 
 
 }

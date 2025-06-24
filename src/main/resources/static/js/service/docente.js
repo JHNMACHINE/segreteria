@@ -23,11 +23,11 @@ export function getAuleDisponibili(data){
     return eseguiOperazione('getAuleDisponibili',[data]);
 }
 
-
-export function trovaStudentiPerEsame(corso){
-    return eseguiOperazione('trovaStudentiPerEsame', [corso]);
-}
-
 export function eliminaAppello(id){
     return eseguiOperazione('eliminaEsame',[id]);
+}
+
+export function trovaStudentiPerAppello(appelloId) {
+    const id = Number(appelloId);
+    return eseguiOperazione('trovaStudentiPerAppello', [id]);
 }

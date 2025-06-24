@@ -63,13 +63,13 @@ export async function login({ formId, emailId, passwordId, errorId, redirectUrl,
 export function registerSegretario(params) {
   const {
     formId, nomeId, cognomeId, emailId, passwordId,
-    matricolaId, dataDiNascitaId, residenzaId,
-    errorId, successId, redirectUrl
+    dataDiNascitaId, residenzaId, errorId, successId, redirectUrl
   } = params;
 
-  const fields = [nomeId, cognomeId, emailId, passwordId, matricolaId, dataDiNascitaId, residenzaId];
+  const fields = [nomeId, cognomeId, emailId, passwordId, dataDiNascitaId, residenzaId]; // Rimosso matricolaId
   return submitRegistration(formId, fields, "SEGRETARIO", errorId, successId, redirectUrl);
 }
+
 
 export function registerStudent(params) {
   const {

@@ -61,14 +61,11 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Ruolo non valido");
         }
 
-        // Aggiungi i nuovi campi
-        switch (nuovo) {
-            case Studente studente -> nuovo = studenteService.initStudente(request);
-            //case Docente docente -> nuovo =docenteService.initDocente(request); lo crea il segretario
-            case Segretario segretario -> nuovo = segreteriaService.initSegretario(request);
-            default -> {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid role");
-            }
+        // Aggiungi i nuovi campi solo per Segretario
+        if (nuovo instanceof Segretario segretario) {
+            nuovo = segreteriaService.initSegretario(request);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid role");
         }
 
         utenteRepo.save(nuovo);
@@ -90,6 +87,7 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(Map.of("message", "Registrazione effettuata con successo"));
     }
+
 
 
 

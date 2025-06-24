@@ -1,6 +1,8 @@
 package com.universita.segreteria.service;
 
 import com.universita.segreteria.dto.*;
+import com.universita.segreteria.factory.DocenteFactory;
+import com.universita.segreteria.factory.StudenteFactory;
 import com.universita.segreteria.mapper.DocenteMapper;
 import com.universita.segreteria.mapper.StudentMapper;
 import com.universita.segreteria.mapper.VotoMapper;
@@ -154,12 +156,26 @@ public class SegreteriaService {
 
 
     public Segretario initSegretario(RegisterRequest request) {
+        // Genera matricola automaticamente
+        String matricolaPrefix = "SEG";  // Prefisso specifico per il segretario
+        List<String> matricoleEsistenti = segretarioRepository.findAllMatricoleByPrefix(matricolaPrefix);
+
+        // Ottieni il numero più alto delle matricole esistenti, estrai il numero e incrementalo
+        int maxSeq = matricoleEsistenti.stream()
+                .map(m -> m.replace(matricolaPrefix, ""))  // Rimuove il prefisso
+                .mapToInt(Integer::parseInt)  // Converte in numero
+                .max()  // Ottieni il massimo
+                .orElse(0);  // Se non ci sono matricole, inizia da 0
+
+        // Crea una nuova matricola, con un numero progressivo
+        String nuovaMatricola = matricolaPrefix + String.format("%04d", maxSeq + 1);  // Esempio: SEG0001
+
         return Segretario.builder()
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .nome(request.nome())
                 .cognome(request.cognome())
-                .matricola(request.matricola())
+                .matricola(nuovaMatricola)  // Assegna la matricola generata
                 .dataDiNascita(request.dataDiNascita())
                 .residenza(request.residenza())
                 .ruolo(TipoUtente.SEGRETARIO)
@@ -167,40 +183,39 @@ public class SegreteriaService {
     }
 
 
+
     @Transactional
     public Map<String, Object> creaDocente(CreaDocenteDTO creaDocenteDTO) {
-        // Controllo esistenza email
+        // 1. Verifica email
         if (docenteRepository.existsByEmail(creaDocenteDTO.getEmail())) {
             throw new IllegalArgumentException("Un docente con questa email esiste già.");
         }
 
-        // Genera password
+        // 2. Genera password
         String passwordChiara = generaPassword();
+        String passwordEncoded = passwordEncoder.encode(passwordChiara);
 
-        // Crea e salva il docente **prima**, senza esami
-        Docente docente = Docente.builder()
-                .nome(creaDocenteDTO.getNome())
-                .cognome(creaDocenteDTO.getCognome())
-                .email(creaDocenteDTO.getEmail())
-                .password(passwordEncoder.encode(passwordChiara))
-                .ruolo(TipoUtente.DOCENTE)
-                .deveCambiarePassword(true)
-                .build();
+        // 3. Usa la factory
+        Docente docente = DocenteFactory.creaDocente(creaDocenteDTO, passwordEncoded);
 
-        docente = docenteRepository.save(docente);  // Ora docente ha un ID valido
-        Esame es= esameRepo.findFirstByNome(creaDocenteDTO.getCorso()).orElseThrow(()->new RuntimeException("Esame non trovato"));
+        // 4. Salva il docente
+        docente = docenteRepository.save(docente);
+
+        // 5. Assegna l'esame scelto
+        Esame es = esameRepo.findFirstByNome(creaDocenteDTO.getCorso())
+                .orElseThrow(() -> new RuntimeException("Esame non trovato"));
 
         es.setDocente(docente);
         pianoStudiService.save(List.of(es));
-        // Non serve risalvare il docente se la relazione è owner sugli esami
 
-        // Risposta
+        // 6. Risposta
         return Map.of(
                 "messaggio", "Docente creato con successo",
                 "email", docente.getEmail(),
                 "passwordProvvisoria", passwordChiara
         );
     }
+
 
 
     private String generaPassword() {
@@ -267,12 +282,12 @@ public class SegreteriaService {
 
     @Transactional
     public Map<String, Object> creaStudente(CreaStudenteDTO dto) {
-        // 1) Verifica email unica
+        // 1. Verifica email
         if (studenteRepo.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("Un studente con questa email esiste già.");
         }
 
-        // 2) Determina il prefisso da usare
+        // 2. Genera matricola
         String prefix = switch (dto.getPianoDiStudi()) {
             case INFORMATICA    -> "IT";
             case MATEMATICA     -> "MT";
@@ -284,7 +299,6 @@ public class SegreteriaService {
             default -> throw new RuntimeException("Piano di studi non riconosciuto");
         };
 
-        // 3) Calcola la nuova sequenza
         List<String> matricoleEsistenti = studenteRepo.findAllMatricoleByPrefix(prefix);
         int maxSeq = matricoleEsistenti.stream()
                 .map(m -> m.replace(prefix, ""))
@@ -294,46 +308,37 @@ public class SegreteriaService {
         String nuovaSeq = String.format("%04d", maxSeq + 1);
         String matricola = prefix + nuovaSeq;
 
-        // 4) Genera la password chiara
+        // 3. Genera password chiara ed encode
         String passwordChiara = generaPassword();
+        String passwordEncoded = passwordEncoder.encode(passwordChiara);
 
-        // 5) Recupera gli esami del piano
-        List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(dto.getPianoDiStudi());
+        // 4. Recupera esami e tasse
+        List<Esame> esami = pianoStudiService.getEsamiPerPiano(dto.getPianoDiStudi());
 
-        // 6) Costruisci l'oggetto Studente (senza tasse)
-        Studente studente = Studente.builder()
-                .matricola(matricola)
-                .nome(dto.getNome())
-                .cognome(dto.getCognome())
-                .email(dto.getEmail())
-                .password(passwordEncoder.encode(passwordChiara))
-                .ruolo(TipoUtente.STUDENTE)
-                .pianoDiStudi(dto.getPianoDiStudi())
-                .dataDiNascita(LocalDate.parse(dto.getDataDiNascita()))
-                .residenza(dto.getResidenza())
-                .esami(esamiDelPiano)
-                .deveCambiarePassword(true)
-                .build();
-
-        // 7) Crea le tasse fisse e associa allo studente
-        List<Tassa> tasseIniziali = List.of(
-                Tassa.builder().nome("Tassa di Iscrizione").prezzo(100).pagata(false).studente(studente).build(),
-                Tassa.builder().nome("Tassa Annuale").prezzo(200).pagata(false).studente(studente).build(),
-                Tassa.builder().nome("Tassa Biblioteca").prezzo(50).pagata(false).studente(studente).build()
-                // … aggiungi qui eventuali altre tasse fisse …
+        List<Tassa> tasse = List.of(
+                Tassa.builder().nome("Tassa di Iscrizione").prezzo(100).pagata(false).build(),
+                Tassa.builder().nome("Tassa Annuale").prezzo(200).pagata(false).build(),
+                Tassa.builder().nome("Tassa Biblioteca").prezzo(50).pagata(false).build()
         );
-        studente.setTassePagate(tasseIniziali);
 
-        // 8) Salva studente + tasse (cascade salva anche Tassa)
+        // 5. Usa la Factory
+        Studente studente = StudenteFactory.creaStudente(dto, matricola, passwordEncoded, esami, tasse);
+
+        // 6. Associa le tasse (riferimento bidirezionale)
+        Studente finalStudente = studente;
+        tasse.forEach(t -> t.setStudente(finalStudente));
+
+        // 7. Salva
         studente = studenteRepo.save(studente);
 
-        // 9) Restituisci i dati al front-end
+        // 8. Risposta
         return Map.of(
-                "messaggio",           "Studente creato con successo",
-                "matricola",           studente.getMatricola(),
-                "email",               studente.getEmail(),
+                "messaggio", "Studente creato con successo",
+                "matricola", studente.getMatricola(),
+                "email", studente.getEmail(),
                 "passwordProvvisoria", passwordChiara
         );
     }
+
 
 }

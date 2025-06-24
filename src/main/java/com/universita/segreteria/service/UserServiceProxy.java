@@ -126,7 +126,6 @@ public class UserServiceProxy implements UtenteService {
     private Object operazioneDocente(String operazione, String subject, Object... parametri) {
         ObjectMapper mapper = new ObjectMapper();
         return switch (operazione) {
-            case "trovaStudentiPerEsame" -> docenteService.trovaStudentiPerEsame((String) parametri[0]);
             case "getAppelli" -> docenteService.getAppelli(subject);
             case "getInfoDocente" -> docenteService.getInfoDocente(subject);
             case "inserisciVoto" -> {
@@ -148,6 +147,10 @@ public class UserServiceProxy implements UtenteService {
             case "eliminaVoto" -> docenteService.eliminaVoto((Long) parametri[0]);
             case "studenteAssente" ->
                     docenteService.studenteAssente((StudenteDTO) parametri[0], (EsameDTO) parametri[1], (Integer) parametri[2]);
+            case "trovaStudentiPerAppello" -> {
+                Long appelloId = Long.parseLong(parametri[0].toString());
+                yield docenteService.trovaStudentiPerAppello(appelloId);
+            }
             default -> throw new RuntimeException("Operazione non consentita per il docente.");
         };
     }

@@ -194,47 +194,6 @@ public class StudenteService {
     }
 
 
-    @Transactional
-    public Utente initStudente(RegisterRequest request) {
-        logger.info("Inizializzazione nuovo studente con email: {}", request.email());
-
-        PianoDiStudi piano = PianoDiStudi.valueOf(request.pianoDiStudi());
-        logger.info("Piano di studi selezionato: {}", piano);
-
-        // NON POPOLARE la lista esami: verrà usata solo per le prenotazioni
-        Studente studente = Studente.builder()
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .ruolo(request.ruolo())
-                .nome(request.nome())
-                .cognome(request.cognome())
-                .matricola(request.matricola())
-                .dataDiNascita(request.dataDiNascita())
-                .residenza(request.residenza())
-                .pianoDiStudi(piano)
-                // .esami NON valorizzata all'inizio
-                .build();
-
-
-        studenteRepo.save(studente);
-
-        List<Tassa> tassePredefinite = List.of(
-                Tassa.builder().nome("Tassa di iscrizione").prezzo(100).pagata(false).studente(studente).build(),
-                Tassa.builder().nome("Tassa di esame").prezzo(50).pagata(false).studente(studente).build(),
-                Tassa.builder().nome("Tassa di laboratorio").prezzo(30).pagata(false).studente(studente).build()
-        );
-
-        // Associa le tasse allo studente
-        studente.setTassePagate(tassePredefinite);
-
-        // Salva le tasse nel database
-        tassaRepository.saveAll(tassePredefinite);
-        logger.info("Studente '{} {}' inizializzato correttamente con matricola: {}",
-                studente.getNome(), studente.getCognome(), studente.getMatricola());
-
-        return studente;
-    }
-
     public List<EsameDTO> getCarriera(String email) {
         Studente studente = studenteRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Studente non trovato"));

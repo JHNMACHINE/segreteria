@@ -147,12 +147,12 @@
         </table>
     </div>
 
-    <h4 class="section-title mt-5">Studenti iscritti al corso</h4>
+    <h4 class="section-title mt-5">Studenti prenotati all'appello</h4>
     <form class="row g-3 mb-3">
         <div class="col-md-6">
-            <label for="corsoSelect" class="form-label">Seleziona corso</label>
-            <select class="form-select" id="corsoSelect">
-                <option value="">-- Seleziona un corso --</option>
+            <label for="appelloSelectStudenti" class="form-label">Seleziona appello</label>
+            <select class="form-select" id="appelloSelectStudenti">
+                <option value="">-- Seleziona un appello --</option>
             </select>
         </div>
     </form>
@@ -224,7 +224,7 @@
         inserisciVoto,
         creaAppello,
         eliminaAppello,
-        trovaStudentiPerEsame,
+        trovaStudentiPerAppello, // Importa la nuova funzione
         getAuleDisponibili
     } from '/js/service/docente.js';
 
@@ -241,7 +241,7 @@
 
     // Elementi HTML
     const appelloSelect = document.getElementById('appelloSelect');
-    const corsoSelect = document.getElementById('corsoSelect');
+    const appelloSelectStudenti = document.getElementById('appelloSelectStudenti'); // Nuova select per studenti
     const studentiTable = document.getElementById('studentiList');
     const studentiBody = document.getElementById('studentiTableBody');
     const tbody = document.getElementById('appelliTableBody');
@@ -254,7 +254,7 @@
             const appelli = await getAppelli();
             tbody.innerHTML = '';
             appelloSelect.innerHTML = '<option value="">Seleziona</option>';
-            corsoSelect.innerHTML = '<option value="">-- Seleziona un corso --</option>';
+            appelloSelectStudenti.innerHTML = '<option value="">-- Seleziona un appello --</option>';
 
             appelli.forEach(a => {
                 const dataF = new Date(a.data).toLocaleDateString('it-IT');
@@ -270,39 +270,37 @@
                 `;
                 tbody.appendChild(tr);
 
+                // Popola la select per inserire voti
                 const optAppello = document.createElement('option');
                 optAppello.value = a.id;
                 optAppello.textContent = `${a.nome} (${dataF})`;
                 appelloSelect.appendChild(optAppello);
-            });
 
-            // Popola i corsi unici
-            const corsiUnici = [...new Set(appelli.map(a => a.nome))];
-            corsiUnici.forEach(corso => {
-                const opt = document.createElement('option');
-                opt.value = corso;
-                opt.textContent = corso;
-                corsoSelect.appendChild(opt);
+                // Popola la select per vedere gli studenti prenotati
+                const optAppelloStudenti = document.createElement('option');
+                optAppelloStudenti.value = a.id;
+                optAppelloStudenti.textContent = `${a.nome} (${dataF})`;
+                appelloSelectStudenti.appendChild(optAppelloStudenti);
             });
 
             // Rimuovi appello
             document.querySelectorAll('.btn-rimuovi-appello').forEach(btn => {
                 btn.addEventListener('click', async () => {
-            const idStr = btn.getAttribute('data-id');
-            const idLong = Number(idStr); // o parseInt(idStr, 10)
-            if (isNaN(idLong)) {
-                alert('ID non valido');
-                return;
-            }
-            try {
-                await eliminaAppello(idLong);
-                alert('Appello rimosso');
-                caricaAppelli();
-            } catch (err) {
-                console.error('Errore rimozione appello:', err);
-                alert('Errore durante la rimozione');
-            }
-        });
+                    const idStr = btn.getAttribute('data-id');
+                    const idLong = Number(idStr);
+                    if (isNaN(idLong)) {
+                        alert('ID non valido');
+                        return;
+                    }
+                    try {
+                        await eliminaAppello(idLong);
+                        alert('Appello rimosso');
+                        caricaAppelli();
+                    } catch (err) {
+                        console.error('Errore rimozione appello:', err);
+                        alert('Errore durante la rimozione');
+                    }
+                });
             });
 
         } catch (err) {
@@ -330,18 +328,18 @@
         }
     });
 
-    // Selezione corso per lista studenti
-    corsoSelect.addEventListener('change', async () => {
-        const corso = corsoSelect.value;
+    // Gestione cambio appello per studenti prenotati
+    appelloSelectStudenti.addEventListener('change', async () => {
+        const appelloId = appelloSelectStudenti.value;
         studentiBody.innerHTML = '';
-        if (!corso) {
+        if (!appelloId) {
             studentiTable.classList.add('d-none');
             return;
         }
         try {
-            const studenti = await trovaStudentiPerEsame(corso);
+            const studenti = await trovaStudentiPerAppello(appelloId);
             if (studenti.length === 0) {
-                studentiBody.innerHTML = '<tr><td colspan="3">Nessuno studente trovato</td></tr>';
+                studentiBody.innerHTML = '<tr><td colspan="3">Nessuno studente prenotato</td></tr>';
             } else {
                 studenti.forEach(s => {
                     const tr = document.createElement('tr');
@@ -352,7 +350,7 @@
             studentiTable.classList.remove('d-none');
         } catch (e) {
             console.error(e);
-            alert('Errore nel caricamento degli studenti');
+            alert('Errore nel caricamento degli studenti prenotati');
             studentiTable.classList.add('d-none');
         }
     });
