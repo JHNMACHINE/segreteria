@@ -204,13 +204,23 @@ public class DocenteService {
     }
 
 
+    @Transactional
     public boolean eliminaEsame(Long esameId) {
-        if (!esameRepo.existsById(esameId)) {
-            throw new RuntimeException("Esame non trovato");
+        // Verifica che l'esame esista
+        Esame esame = esameRepo.findById(esameId)
+                .orElseThrow(() -> new RuntimeException("Esame non trovato"));
+
+        // Rimuovi l'associazione con gli studenti prenotati
+        for (Studente studente : esame.getStudentiPrenotati()) {
+            studente.getEsami().remove(esame); // Rimuove l'esame dalla lista degli esami dello studente
         }
-        esameRepo.deleteById(esameId);
+        esame.getStudentiPrenotati().clear(); // Rimuove l'esame dalla lista di studenti prenotati nell'esame
+
+        // Elimina l'esame
+        esameRepo.delete(esame);
         return true;
     }
+
 
     public List<StudenteDTO> visualizzaPrenotazioniEsame(Long esameId) {
         Esame esame = esameRepo.findById(esameId).orElseThrow(() -> new RuntimeException("Esame non trovato"));
