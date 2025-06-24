@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <meta charset="UTF-8" />
     <title>Dashboard Docente - Segreteria Universitaria</title>
@@ -60,11 +59,6 @@
             border-radius: 10px;
             overflow: hidden;
             background-color: white;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
         }
 
         .card-title {
@@ -156,6 +150,20 @@
             color: var(--text-dark);
         }
 
+        /* Rimozione highlight sulle righe delle tabelle */
+        .no-hover tbody tr {
+            transition: none !important;
+        }
+        .no-hover tbody tr:hover {
+            background-color: transparent !important;
+        }
+
+        /* Mantenimento highlight sui pulsanti */
+        .btn-rimuovi-appello:hover {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+
         .notification-icon {
             background-color: #f8f0d5;
             color: var(--primary-color);
@@ -228,7 +236,7 @@
                     <!-- I tuoi appelli -->
                     <h4 class="section-title">I tuoi appelli</h4>
                     <div class="table-responsive mb-4">
-                        <table class="table table-hover mb-0">
+                        <table class="table mb-0 no-hover">
                             <thead>
                             <tr>
                                 <th>Corso</th>
@@ -248,7 +256,7 @@
                         <option value="">-- Seleziona un appello --</option>
                     </select>
                     <div id="studentiList" class="table-responsive d-none">
-                        <table class="table table-hover">
+                        <table class="table no-hover">
                             <thead>
                             <tr>
                                 <th>Matricola</th>
@@ -325,7 +333,7 @@
     </div>
 </footer>
 
-<!-- Bootstrap JS + script originale con piccola aggiunta per il nome appello -->
+<!-- Bootstrap JS + script originale -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script type="module">
@@ -528,5 +536,4 @@
     });
 </script>
 </body>
-
 </html>
