@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -266,33 +267,73 @@ public class SegreteriaService {
 
     @Transactional
     public Map<String, Object> creaStudente(CreaStudenteDTO dto) {
+        // 1) Verifica email unica
         if (studenteRepo.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("Un studente con questa email esiste già.");
         }
 
-        // Genera password
+        // 2) Determina il prefisso da usare
+        String prefix = switch (dto.getPianoDiStudi()) {
+            case INFORMATICA    -> "IT";
+            case MATEMATICA     -> "MT";
+            case BIOLOGIA       -> "BG";
+            case GIURISPRUDENZA -> "GZ";
+            case MEDICINA       -> "MD";
+            case INGEGNERIA     -> "IN";
+            case GRAFICA        -> "GF";
+            default -> throw new RuntimeException("Piano di studi non riconosciuto");
+        };
+
+        // 3) Calcola la nuova sequenza
+        List<String> matricoleEsistenti = studenteRepo.findAllMatricoleByPrefix(prefix);
+        int maxSeq = matricoleEsistenti.stream()
+                .map(m -> m.replace(prefix, ""))
+                .mapToInt(Integer::parseInt)
+                .max()
+                .orElse(0);
+        String nuovaSeq = String.format("%04d", maxSeq + 1);
+        String matricola = prefix + nuovaSeq;
+
+        // 4) Genera la password chiara
         String passwordChiara = generaPassword();
+
+        // 5) Recupera gli esami del piano
         List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(dto.getPianoDiStudi());
 
-        // Crea e salva il studente
+        // 6) Costruisci l'oggetto Studente (senza tasse)
         Studente studente = Studente.builder()
+                .matricola(matricola)
                 .nome(dto.getNome())
                 .cognome(dto.getCognome())
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(passwordChiara))
                 .ruolo(TipoUtente.STUDENTE)
                 .pianoDiStudi(dto.getPianoDiStudi())
+                .dataDiNascita(LocalDate.parse(dto.getDataDiNascita()))
+                .residenza(dto.getResidenza())
                 .esami(esamiDelPiano)
                 .deveCambiarePassword(true)
                 .build();
 
+        // 7) Crea le tasse fisse e associa allo studente
+        List<Tassa> tasseIniziali = List.of(
+                Tassa.builder().nome("Tassa di Iscrizione").prezzo(100).pagata(false).studente(studente).build(),
+                Tassa.builder().nome("Tassa Annuale").prezzo(200).pagata(false).studente(studente).build(),
+                Tassa.builder().nome("Tassa Biblioteca").prezzo(50).pagata(false).studente(studente).build()
+                // … aggiungi qui eventuali altre tasse fisse …
+        );
+        studente.setTassePagate(tasseIniziali);
+
+        // 8) Salva studente + tasse (cascade salva anche Tassa)
         studente = studenteRepo.save(studente);
 
-        // Risposta
+        // 9) Restituisci i dati al front-end
         return Map.of(
-                "messaggio", "Studente creato con successo",
-                "email", studente.getEmail(),
+                "messaggio",           "Studente creato con successo",
+                "matricola",           studente.getMatricola(),
+                "email",               studente.getEmail(),
                 "passwordProvvisoria", passwordChiara
         );
     }
+
 }
