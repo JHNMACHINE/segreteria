@@ -20,6 +20,7 @@ public class EsameDTO {
     private LocalDate date;
     private StatoEsame statoEsame;  // stato dell'esame (SUPERATO, NON_SUPERATO, PRENOTATO ecc)
     private Long votoId;       // id del Voto se esiste (per azioni tipo prenota o disdici)
+    private Integer voto;
     private Long docenteId;
     private Aula aula;
 }
