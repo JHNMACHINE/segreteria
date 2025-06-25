@@ -2,13 +2,19 @@ package com.universita.segreteria.util;
 
 import com.universita.segreteria.model.PianoDiStudi;
 import com.universita.segreteria.repository.StudenteRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class MatricolaGenerator {
-    @Autowired
-    static private StudenteRepository studenteRepo;
+    private static StudenteRepository studenteRepo;
+
+    public MatricolaGenerator(StudenteRepository studenteRepo) {
+        MatricolaGenerator.studenteRepo = studenteRepo;
+    }
 
     /**
      * Genera una matricola sequenziale dato un prefisso e la lista delle matricole esistenti.
