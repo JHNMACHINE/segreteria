@@ -9,7 +9,6 @@ import com.universita.segreteria.mapper.VotoMapper;
 import com.universita.segreteria.model.*;
 import com.universita.segreteria.notifier.AcceptationNotifier;
 import com.universita.segreteria.notifier.VotoNotifier;
-import com.universita.segreteria.observer.SegreteriaObserver;
 import com.universita.segreteria.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,7 +37,7 @@ public class SegreteriaService {
     @Autowired
     private AcceptationNotifier acceptationNotifier;
     @Autowired
-    private PianoStudiService pianoStudiService;
+    private PianoStudioService pianoStudioService;
     @Autowired
     private DocenteRepository docenteRepository;
     @Autowired
@@ -55,7 +51,7 @@ public class SegreteriaService {
 
     public StudenteDTO inserisciStudente(StudenteDTO studenteDTO) {
         Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
-        List<Esame> esami = pianoStudiService.getEsamiPerPiano(studente.getPianoDiStudi());
+        List<Esame> esami = pianoStudioService.getEsamiPerPiano(studente.getPianoDiStudi());
 
         studente.setEsami(esami);
         studenteRepo.save(studente);
@@ -69,7 +65,7 @@ public class SegreteriaService {
     }
 
     @Transactional
-    public void confermaVoto(Long votoId) {
+    public boolean confermaVoto(Long votoId) {
         Voto voto = votoRepo.findById(votoId)
                 .orElseThrow(() -> new RuntimeException("Voto non trovato"));
 
@@ -81,27 +77,18 @@ public class SegreteriaService {
                 votoNotifier.notifyObservers(voto);
             } catch (Exception e) {
                 logger.error("Errore nella notifica allo studente", e);
+                return false;
             }
         }
+        return false;
     }
 
     @Transactional
     public List<VotoDTO> getVotiInAttesa() {
-        List<Voto> voti = votoRepo.findByStato(StatoVoto.ATTESA);
-
-        // Forza il caricamento delle relazioni
-        voti.forEach(voto -> {
-            if (voto.getStudente() != null) {
-                // Accedi a un campo per forzare il caricamento
-                voto.getStudente().getNome();
-            }
-            if (voto.getEsame() != null) {
-                voto.getEsame().getNome();
-            }
-        });
-
+        List<Voto> voti = votoRepo.findByStatoWithDetails(StatoVoto.ATTESA);
         return VotoMapper.convertListToDTO(voti);
     }
+
 
     public List<StudenteDTO> getAllStudenti() {
         List<Studente> studenti = studenteRepo.findAll();
@@ -183,7 +170,6 @@ public class SegreteriaService {
     }
 
 
-
     @Transactional
     public Map<String, Object> creaDocente(CreaDocenteDTO creaDocenteDTO) {
         // 1. Verifica email
@@ -206,7 +192,7 @@ public class SegreteriaService {
                 .orElseThrow(() -> new RuntimeException("Esame non trovato"));
 
         es.setDocente(docente);
-        pianoStudiService.save(List.of(es));
+        pianoStudioService.save(List.of(es));
 
         // 6. Risposta
         return Map.of(
@@ -215,7 +201,6 @@ public class SegreteriaService {
                 "passwordProvvisoria", passwordChiara
         );
     }
-
 
 
     private String generaPassword() {
@@ -257,9 +242,9 @@ public class SegreteriaService {
     public List<EsameDTO> getEsamiDisponibiliPerPiano(String piano1) {
 
 
-        PianoDiStudi piano=PianoDiStudi.valueOf(piano1.toUpperCase());
+        PianoDiStudi piano = PianoDiStudi.valueOf(piano1.toUpperCase());
         // Recupera tutti gli esami associati al piano scelto
-        List<Esame> esamiDelPiano = pianoStudiService.getEsamiPerPiano(piano);
+        List<Esame> esamiDelPiano = pianoStudioService.getEsamiPerPiano(piano);
 
         // Filtra esami senza docente e rimuovi duplicati per nome
         return esamiDelPiano.stream()
@@ -268,7 +253,7 @@ public class SegreteriaService {
                         Collectors.toMap(
                                 Esame::getNome, // chiave = nome per evitare duplicati
                                 e -> e,
-                                (e1, e2) -> e1  // in caso di duplicati, tiene il primo
+                                (e1, _) -> e1  // in caso di duplicati, tiene il primo
                         ),
                         mappa -> mappa.values().stream()
                                 .map(e -> EsameDTO.builder()
@@ -289,14 +274,13 @@ public class SegreteriaService {
 
         // 2. Genera matricola
         String prefix = switch (dto.getPianoDiStudi()) {
-            case INFORMATICA    -> "IT";
-            case MATEMATICA     -> "MT";
-            case BIOLOGIA       -> "BG";
+            case INFORMATICA -> "IT";
+            case MATEMATICA -> "MT";
+            case BIOLOGIA -> "BG";
             case GIURISPRUDENZA -> "GZ";
-            case MEDICINA       -> "MD";
-            case INGEGNERIA     -> "IN";
-            case GRAFICA        -> "GF";
-            default -> throw new RuntimeException("Piano di studi non riconosciuto");
+            case MEDICINA -> "MD";
+            case INGEGNERIA -> "IN";
+            case GRAFICA -> "GF";
         };
 
         List<String> matricoleEsistenti = studenteRepo.findAllMatricoleByPrefix(prefix);
@@ -313,7 +297,7 @@ public class SegreteriaService {
         String passwordEncoded = passwordEncoder.encode(passwordChiara);
 
         // 4. Recupera esami e tasse
-        List<Esame> esami = pianoStudiService.getEsamiPerPiano(dto.getPianoDiStudi());
+        List<Esame> esami = pianoStudioService.getEsamiPerPiano(dto.getPianoDiStudi());
 
         List<Tassa> tasse = List.of(
                 Tassa.builder().nome("Tassa di Iscrizione").prezzo(100).pagata(false).build(),

@@ -20,5 +20,5 @@ public interface EsameRepository extends JpaRepository<Esame, Long> {
 
     List<Esame> findByData(LocalDate data);
 
-
+    boolean existsByDocenteAndData(Docente docente, LocalDate data);
 }

@@ -10,7 +10,7 @@ import com.universita.segreteria.observer.SegreteriaObserver;
 import com.universita.segreteria.repository.DocenteRepository;
 import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.VotoRepository;
-import com.universita.segreteria.service.PianoStudiService;
+import com.universita.segreteria.service.PianoStudioService;
 import com.universita.segreteria.service.SegreteriaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ class SegreteriaServiceUnitTest {
 	@Mock
 	private AcceptationNotifier acceptationNotifier;
 	@Mock
-	private PianoStudiService pianoStudiService;
+	private PianoStudioService pianoStudioService;
 	@Mock
 	private DocenteRepository docenteRepository;
 
@@ -57,7 +57,7 @@ class SegreteriaServiceUnitTest {
 		List<Esame> esami = List.of(new Esame());
 
 		when(studenteRepo.findByMatricola("MAT123")).thenReturn(Optional.of(studente));
-		when(pianoStudiService.getEsamiPerPiano(PianoDiStudi.INGEGNERIA)).thenReturn(esami);
+		when(pianoStudioService.getEsamiPerPiano(PianoDiStudi.INGEGNERIA)).thenReturn(esami);
 		when(studenteRepo.save(any())).thenReturn(studente);
 
 		StudenteDTO result = segreteriaService.inserisciStudente(dto);

@@ -5,6 +5,8 @@ import com.universita.segreteria.model.StatoVoto;
 import com.universita.segreteria.model.Studente;
 import com.universita.segreteria.model.Voto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +19,11 @@ public interface VotoRepository extends JpaRepository<Voto, Long> {
 
     boolean existsByStudenteAndEsame(Studente studente, Esame esame);
     List<Voto> findByStato(StatoVoto stato);
+
+    @Query("SELECT v FROM Voto v " +
+            "JOIN FETCH v.studente " +
+            "JOIN FETCH v.esame " +
+            "WHERE v.stato = :stato")
+    List<Voto> findByStatoWithDetails(@Param("stato") StatoVoto stato);
+
 }

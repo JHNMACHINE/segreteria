@@ -62,7 +62,7 @@ public class AuthController {
         }
 
         // Aggiungi i nuovi campi solo per Segretario
-        if (nuovo instanceof Segretario segretario) {
+        if (nuovo instanceof Segretario) {
             nuovo = segreteriaService.initSegretario(request);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid role");
@@ -87,9 +87,6 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(Map.of("message", "Registrazione effettuata con successo"));
     }
-
-
-
 
 
     @PostMapping("/login")
@@ -138,8 +135,6 @@ public class AuthController {
 
         return ResponseEntity.ok("Password cambiata con successo");
     }
-
-
 
 
     @PostMapping("/refresh")

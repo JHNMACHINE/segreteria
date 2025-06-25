@@ -1,9 +1,7 @@
 package com.universita.segreteria.service;
 
 
-import com.universita.segreteria.controller.UtenteProxyController;
 import com.universita.segreteria.dto.EsameDTO;
-import com.universita.segreteria.dto.RegisterRequest;
 import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.dto.TassaDTO;
 import com.universita.segreteria.mapper.EsameMapper;
@@ -14,7 +12,6 @@ import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.TassaRepository;
 import com.universita.segreteria.repository.VotoRepository;
 import jakarta.transaction.Transactional;
-import jdk.jshell.spi.ExecutionControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +33,7 @@ public class StudenteService {
     @Autowired
     private VotoRepository votoRepo;
     @Autowired
-    private PianoStudiService pianoStudiService;
+    private PianoStudioService pianoStudioService;
     @Autowired
     private TassaRepository tassaRepository;
     @Autowired
@@ -65,11 +62,11 @@ public class StudenteService {
         PianoDiStudi piano = studente.getPianoDiStudi();
         LocalDate oggi = LocalDate.now();
 
-        List<Esame> finalList = pianoStudiService.getEsamiPerPiano(piano).stream()
+        List<Esame> finalList = pianoStudioService.getEsamiPerPiano(piano).stream()
                 .filter(e -> !corsiSuperati.contains(e.getNome())) // Escludi corsi già superati
                 .filter(e -> !giaValutati.contains(e)) // Escludi esami già valutati
                 .filter(e -> !giaPrenotati.contains(e))// Escludi esami già prenotati
-                .filter(e->e.getData()!=null)
+                .filter(e -> e.getData() != null)
                 .filter(e -> e.getData().isAfter(oggi)) // Solo esami futuri
                 .toList();
 
@@ -122,13 +119,12 @@ public class StudenteService {
     }
 
 
-
     public PianoDiStudi consultaPianoStudi(String email) {
         Studente studente = studenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Studente non trovato"));
         return studente.getPianoDiStudi();
     }
 
-    public void aggiornaStatoVoto(Long votoId, boolean accetta) {
+    public boolean aggiornaStatoVoto(Long votoId, boolean accetta) {
         Voto voto = votoRepo.findById(votoId).orElseThrow(() -> new RuntimeException("Voto non assegnato"));
         if (voto.getStato() != StatoVoto.ATTESA) {
             throw new RuntimeException("Il voto è già stato accettato o rifiutato");
@@ -143,6 +139,7 @@ public class StudenteService {
             // Notifica la segreteria del rifiuto
             acceptationNotifier.notifyObservers(voto);
         }
+        return true;
     }
 
     public List<Esame> getEsamiDaSostenere(StudenteDTO studenteDTO) {
@@ -203,7 +200,7 @@ public class StudenteService {
         Map<String, EsameDTO> esamiUnici = new LinkedHashMap<>();
 
         PianoDiStudi piano = studente.getPianoDiStudi();
-        List<Esame> esamiPiano = pianoStudiService.getEsamiPerPiano(piano);
+        List<Esame> esamiPiano = pianoStudioService.getEsamiPerPiano(piano);
 
         for (Esame esame : esamiPiano) {
             String nomeEsame = esame.getNome();
@@ -214,22 +211,22 @@ public class StudenteService {
                     .toList();
 
             StatoEsame statoAggiornato = StatoEsame.NON_SUPERATO;
-            Long votoId        = null;
+            Long votoId = null;
             Integer valoreVoto = null;
             LocalDate dataEsame = null;
 
             for (Voto vObj : votiEsame) {
                 if (vObj.getStato() == StatoVoto.ACCETTATO) {
                     statoAggiornato = StatoEsame.SUPERATO;
-                    votoId          = vObj.getId();
-                    valoreVoto      = vObj.getVoto();           // ← qui prendo il voto numerico
-                    dataEsame       = vObj.getEsame().getData();
+                    votoId = vObj.getId();
+                    valoreVoto = vObj.getVoto();           // ← qui prendo il voto numerico
+                    dataEsame = vObj.getEsame().getData();
                     break;
                 } else if (vObj.getStato() == StatoVoto.ATTESA) {
                     statoAggiornato = StatoEsame.PRENOTATO;
-                    votoId          = vObj.getId();
+                    votoId = vObj.getId();
                     // valoreVoto rimane null
-                    dataEsame       = vObj.getEsame().getData();
+                    dataEsame = vObj.getEsame().getData();
                     // non interrompo: potrei trovare un ACCETTATO dopo
                 }
             }
@@ -246,7 +243,7 @@ public class StudenteService {
                         .statoEsame(statoAggiornato)
                         .votoId(votoId)
                         .voto(valoreVoto)               // ← passo qui il voto
-                        .docenteId(esame.getDocente()!=null ? esame.getDocente().getId() : null)
+                        .docenteId(esame.getDocente() != null ? esame.getDocente().getId() : null)
                         .aula(esame.getAula())
                         .build();
 
@@ -259,7 +256,7 @@ public class StudenteService {
 
 
     @Transactional
-    public void pagaTassa(String email, String nomeTassa) {
+    public boolean pagaTassa(String email, String nomeTassa) {
         Studente studente = studenteRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Studente non trovato"));
 
@@ -267,11 +264,13 @@ public class StudenteService {
                 .filter(t -> t.getNome().equalsIgnoreCase(nomeTassa))
                 .findFirst()
                 .ifPresentOrElse(t -> t.setPagata(true),
-                        () -> { throw new RuntimeException("Tassa non trovata"); });
+                        () -> {
+                            throw new RuntimeException("Tassa non trovata");
+                        });
 
         studenteRepo.save(studente);
+        return true;
     }
-
 
 
 }
