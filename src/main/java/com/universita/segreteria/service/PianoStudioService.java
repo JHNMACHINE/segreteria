@@ -49,7 +49,6 @@ public class PianoStudioService {
                         .nome(nome)
                         .cfu(10)
                         .statoEsame(StatoEsame.ATTIVO)
-                        .studentiPrenotati(List.of())
                         .voti(List.of())
                         .build())
                 .toList();
@@ -57,6 +56,7 @@ public class PianoStudioService {
         esameRepo.saveAll(esami);
         logger.info("Esami inizializzati e salvati nel database.");
     }
+
 
     /**
      * Restituisce gli esami associati a un piano di studi,

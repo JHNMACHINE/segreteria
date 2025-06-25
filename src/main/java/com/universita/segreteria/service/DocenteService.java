@@ -7,10 +7,7 @@ import com.universita.segreteria.mapper.VotoMapper;
 import com.universita.segreteria.model.*;
 import com.universita.segreteria.notifier.VotoNotifier;
 import com.universita.segreteria.observer.StudenteObserver;
-import com.universita.segreteria.repository.DocenteRepository;
-import com.universita.segreteria.repository.EsameRepository;
-import com.universita.segreteria.repository.StudenteRepository;
-import com.universita.segreteria.repository.VotoRepository;
+import com.universita.segreteria.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +29,7 @@ public class DocenteService {
     final private StudenteRepository studenteRepo;
     final private DocenteRepository docenteRepo;
     final private VotoNotifier votoNotifier;
+    final private PrenotazioneRepository prenotazioneRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(DocenteService.class);
 
@@ -47,12 +45,13 @@ public class DocenteService {
             throw new IllegalStateException("Il docente ha già un esame previsto in questa data");
         }
 
-        Esame nuovoEsame = Esame.builder().nome("Esame di " + docente.getCognome()) // o passa come parametro
-                .docente(docente).data(dataEsame).aula(aula).voti(List.of()).studentiPrenotati(List.of()).statoEsame(StatoEsame.ATTIVO).build();
+        Esame nuovoEsame = Esame.builder().nome("Esame di " + docente.getCognome()) // oppure passare come parametro
+                .docente(docente).data(dataEsame).aula(aula).voti(List.of()).statoEsame(StatoEsame.ATTIVO).build();
 
         Esame salvato = esameRepo.save(nuovoEsame);
         return EsameMapper.toDTO(salvato);
     }
+
 
     private LocalDate parseDataEsame(String dataStr) {
         try {
@@ -192,7 +191,10 @@ public class DocenteService {
 
     public List<StudenteDTO> visualizzaPrenotazioniEsame(Long esameId) {
         Esame esame = esameRepo.findById(esameId).orElseThrow(() -> new EntityNotFoundException("Esame non trovato"));
-        List<Studente> studentiPrenotati = esame.getStudentiPrenotati();
+
+        List<Prenotazione> prenotazioni = prenotazioneRepository.findByEsame(esame);
+        List<Studente> studentiPrenotati = prenotazioni.stream().map(Prenotazione::getStudente).toList();
+
         return StudentMapper.convertListStudentiToDTO(studentiPrenotati);
     }
 
@@ -244,7 +246,12 @@ public class DocenteService {
     public List<StudenteDTO> trovaStudentiPerAppello(Long appelloId) {
         Esame esame = esameRepo.findById(appelloId).orElseThrow(() -> new EntityNotFoundException("Esame non trovato"));
 
-        return esame.getStudentiPrenotati().stream().map(s -> StudenteDTO.builder().matricola(s.getMatricola()).nome(s.getNome()).cognome(s.getCognome()).build()).toList();
+        List<Prenotazione> prenotazioni = prenotazioneRepository.findByEsame(esame);
+
+        return prenotazioni.stream().map(p -> {
+            Studente s = p.getStudente();
+            return StudenteDTO.builder().matricola(s.getMatricola()).nome(s.getNome()).cognome(s.getCognome()).build();
+        }).toList();
     }
 
 
