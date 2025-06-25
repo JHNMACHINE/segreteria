@@ -7,20 +7,20 @@ import com.universita.segreteria.mapper.DocenteMapper;
 import com.universita.segreteria.mapper.StudentMapper;
 import com.universita.segreteria.mapper.VotoMapper;
 import com.universita.segreteria.model.*;
-import com.universita.segreteria.notifier.AcceptationNotifier;
 import com.universita.segreteria.notifier.VotoNotifier;
 import com.universita.segreteria.repository.*;
+import com.universita.segreteria.util.MatricolaGenerator;
+import com.universita.segreteria.util.PasswordGenerator;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,27 +30,17 @@ public class SegreteriaService {
 
     Logger logger = LoggerFactory.getLogger(SegreteriaService.class);
 
-    @Autowired
-    private StudenteRepository studenteRepo;
-    @Autowired
-    private VotoRepository votoRepo;
-    @Autowired
-    private AcceptationNotifier acceptationNotifier;
-    @Autowired
-    private PianoStudioService pianoStudioService;
-    @Autowired
-    private DocenteRepository docenteRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private VotoNotifier votoNotifier;
-    @Autowired
-    private EsameRepository esameRepo;
-    @Autowired
-    private SegretarioRepository segretarioRepository;
+    final private StudenteRepository studenteRepo;
+    final private VotoRepository votoRepo;
+    final private PianoStudioService pianoStudioService;
+    final private DocenteRepository docenteRepository;
+    final private PasswordEncoder passwordEncoder;
+    final private VotoNotifier votoNotifier;
+    final private EsameRepository esameRepo;
+    final private SegretarioRepository segretarioRepository;
 
     public StudenteDTO inserisciStudente(StudenteDTO studenteDTO) {
-        Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
+        Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new EntityNotFoundException("Matricola non valida, studente non trovato"));
         List<Esame> esami = pianoStudioService.getEsamiPerPiano(studente.getPianoDiStudi());
 
         studente.setEsami(esami);
@@ -67,21 +57,24 @@ public class SegreteriaService {
     @Transactional
     public boolean confermaVoto(Long votoId) {
         Voto voto = votoRepo.findById(votoId)
-                .orElseThrow(() -> new RuntimeException("Voto non trovato"));
+                .orElseThrow(() -> new EntityNotFoundException("Voto non trovato"));
 
-        if (voto.getStato() == StatoVoto.ATTESA) {
-            voto.setStato(StatoVoto.ACCETTATO);
-            votoRepo.save(voto);
-
-            try {
-                votoNotifier.notifyObservers(voto);
-            } catch (Exception e) {
-                logger.error("Errore nella notifica allo studente", e);
-                return false;
-            }
+        if (voto.getStato() != StatoVoto.ATTESA) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Voto non in stato di attesa");
         }
-        return false;
+
+        voto.setStato(StatoVoto.ACCETTATO);
+        votoRepo.save(voto);
+
+        try {
+            votoNotifier.notifyObservers(voto);
+        } catch (Exception e) {
+            logger.error("Errore nella notifica allo studente", e);
+            return false;
+        }
+        return true;
     }
+
 
     @Transactional
     public List<VotoDTO> getVotiInAttesa() {
@@ -97,8 +90,7 @@ public class SegreteriaService {
 
     public List<DocenteDTO> getAllDocenti() {
         List<Docente> docenti = docenteRepository.findAll();
-        return docenti.stream()
-                .map(DocenteMapper::toDTO)  // Usa il metodo di mapping per ogni Docente
+        return docenti.stream().map(DocenteMapper::toDTO)  // Usa il metodo di mapping per ogni Docente
                 .collect(Collectors.toList());  // Colleziona in una lista di DocenteDTO
     }
 
@@ -124,7 +116,7 @@ public class SegreteriaService {
         PianoDiStudi nuovoPiano = PianoDiStudi.valueOf(pianoDiStudi);
 
         // Trova lo studente e aggiorna il piano
-        Studente studente = studenteRepo.findById(studenteId.longValue()).orElseThrow(() -> new RuntimeException("Studente non trovato"));
+        Studente studente = studenteRepo.findById(studenteId.longValue()).orElseThrow(() -> new EntityNotFoundException("Studente non trovato"));
         studente.setPianoDiStudi(nuovoPiano);
         studenteRepo.save(studente);
 
@@ -134,39 +126,23 @@ public class SegreteriaService {
 
     public SegretarioDTO getProfilo(String email) {
         logger.info("getProfile({})", email);
-        return segretarioRepository.findByEmail(email)
-                .map(s -> new SegretarioDTO(s.getNome(), s.getCognome()))
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Segretario non trovato")
-                );
+        return segretarioRepository.findByEmail(email).map(s -> new SegretarioDTO(s.getNome(), s.getCognome())).orElseThrow(() -> new EntityNotFoundException("Segretario non trovato"));
     }
 
 
     public Segretario initSegretario(RegisterRequest request) {
+        if (request.email() == null || request.email().isBlank()) {
+            throw new IllegalArgumentException("Email mancante per il segretario");
+        }
+
         // Genera matricola automaticamente
         String matricolaPrefix = "SEG";  // Prefisso specifico per il segretario
         List<String> matricoleEsistenti = segretarioRepository.findAllMatricoleByPrefix(matricolaPrefix);
 
-        // Ottieni il numero più alto delle matricole esistenti, estrai il numero e incrementalo
-        int maxSeq = matricoleEsistenti.stream()
-                .map(m -> m.replace(matricolaPrefix, ""))  // Rimuove il prefisso
-                .mapToInt(Integer::parseInt)  // Converte in numero
-                .max()  // Ottieni il massimo
-                .orElse(0);  // Se non ci sono matricole, inizia da 0
+        String matricola = MatricolaGenerator.generaMatricola(matricolaPrefix, matricoleEsistenti);
 
-        // Crea una nuova matricola, con un numero progressivo
-        String nuovaMatricola = matricolaPrefix + String.format("%04d", maxSeq + 1);  // Esempio: SEG0001
-
-        return Segretario.builder()
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .nome(request.nome())
-                .cognome(request.cognome())
-                .matricola(nuovaMatricola)  // Assegna la matricola generata
-                .dataDiNascita(request.dataDiNascita())
-                .residenza(request.residenza())
-                .ruolo(TipoUtente.SEGRETARIO)
-                .build();
+        return Segretario.builder().email(request.email()).password(passwordEncoder.encode(request.password())).nome(request.nome()).cognome(request.cognome()).matricola(matricola)
+                .dataDiNascita(request.dataDiNascita()).residenza(request.residenza()).ruolo(TipoUtente.SEGRETARIO).build();
     }
 
 
@@ -178,7 +154,7 @@ public class SegreteriaService {
         }
 
         // 2. Genera password
-        String passwordChiara = generaPassword();
+        String passwordChiara = PasswordGenerator.genera();
         String passwordEncoded = passwordEncoder.encode(passwordChiara);
 
         // 3. Usa la factory
@@ -188,122 +164,51 @@ public class SegreteriaService {
         docente = docenteRepository.save(docente);
 
         // 5. Assegna l'esame scelto
-        Esame es = esameRepo.findFirstByNome(creaDocenteDTO.getCorso())
-                .orElseThrow(() -> new RuntimeException("Esame non trovato"));
+        Esame es = esameRepo.findFirstByNome(creaDocenteDTO.getCorso()).orElseThrow(() -> new RuntimeException("Esame non trovato"));
 
         es.setDocente(docente);
         pianoStudioService.save(List.of(es));
 
         // 6. Risposta
-        return Map.of(
-                "messaggio", "Docente creato con successo",
-                "email", docente.getEmail(),
-                "passwordProvvisoria", passwordChiara
-        );
-    }
-
-
-    private String generaPassword() {
-        int lunghezza = 12;
-        String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        String lower = "abcdefghijklmnopqrstuvwxyz";
-        String digits = "0123456789";
-        String special = "!@#$%&*()_+-=[]|,./?><";
-        String all = upper + lower + digits + special;
-
-        SecureRandom random = new SecureRandom();
-        StringBuilder password = new StringBuilder();
-
-        // Garantiamo almeno un carattere di ciascun tipo
-        password.append(upper.charAt(random.nextInt(upper.length())));
-        password.append(lower.charAt(random.nextInt(lower.length())));
-        password.append(digits.charAt(random.nextInt(digits.length())));
-        password.append(special.charAt(random.nextInt(special.length())));
-
-        // Completiamo con caratteri casuali
-        for (int i = 4; i < lunghezza; i++) {
-            password.append(all.charAt(random.nextInt(all.length())));
-        }
-
-        // Mischiamo i caratteri
-        List<Character> chars = password.chars()
-                .mapToObj(c -> (char) c)
-                .collect(Collectors.toList());
-        Collections.shuffle(chars, random);
-
-        StringBuilder shuffledPassword = new StringBuilder();
-        chars.forEach(shuffledPassword::append);
-
-        return shuffledPassword.toString();
+        return Map.of("messaggio", "Docente creato con successo", "email", docente.getEmail(), "passwordProvvisoria", passwordChiara);
     }
 
 
     @Transactional
     public List<EsameDTO> getEsamiDisponibiliPerPiano(String piano1) {
+        PianoDiStudi piano;
+        try {
+            piano = PianoDiStudi.valueOf(piano1.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Piano di studi non valido");
+        }
 
-
-        PianoDiStudi piano = PianoDiStudi.valueOf(piano1.toUpperCase());
         // Recupera tutti gli esami associati al piano scelto
         List<Esame> esamiDelPiano = pianoStudioService.getEsamiPerPiano(piano);
 
         // Filtra esami senza docente e rimuovi duplicati per nome
-        return esamiDelPiano.stream()
-                .filter(esame -> esame.getDocente() == null)
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toMap(
-                                Esame::getNome, // chiave = nome per evitare duplicati
-                                e -> e,
-                                (e1, _) -> e1  // in caso di duplicati, tiene il primo
-                        ),
-                        mappa -> mappa.values().stream()
-                                .map(e -> EsameDTO.builder()
-                                        .id(e.getId())
-                                        .nome(e.getNome())
-                                        .cfu(e.getCfu())
-                                        .build())
-                                .collect(Collectors.toList())
-                ));
+        return esamiDelPiano.stream().filter(esame -> esame.getDocente() == null).collect(Collectors.collectingAndThen(Collectors.toMap(Esame::getNome, // chiave = nome per evitare duplicati
+                e -> e, (e1, _) -> e1  // in caso di duplicati, tiene il primo
+        ), mappa -> mappa.values().stream().map(e -> EsameDTO.builder().id(e.getId()).nome(e.getNome()).cfu(e.getCfu()).build()).collect(Collectors.toList())));
     }
 
     @Transactional
     public Map<String, Object> creaStudente(CreaStudenteDTO dto) {
+        logger.info("Creazione studente con email: {}", dto.getEmail());
         // 1. Verifica email
         if (studenteRepo.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("Un studente con questa email esiste già.");
         }
-
-        // 2. Genera matricola
-        String prefix = switch (dto.getPianoDiStudi()) {
-            case INFORMATICA -> "IT";
-            case MATEMATICA -> "MT";
-            case BIOLOGIA -> "BG";
-            case GIURISPRUDENZA -> "GZ";
-            case MEDICINA -> "MD";
-            case INGEGNERIA -> "IN";
-            case GRAFICA -> "GF";
-        };
-
-        List<String> matricoleEsistenti = studenteRepo.findAllMatricoleByPrefix(prefix);
-        int maxSeq = matricoleEsistenti.stream()
-                .map(m -> m.replace(prefix, ""))
-                .mapToInt(Integer::parseInt)
-                .max()
-                .orElse(0);
-        String nuovaSeq = String.format("%04d", maxSeq + 1);
-        String matricola = prefix + nuovaSeq;
+        String matricola = MatricolaGenerator.generaMatricolaStudente(dto.getPianoDiStudi());
 
         // 3. Genera password chiara ed encode
-        String passwordChiara = generaPassword();
+        String passwordChiara = PasswordGenerator.genera();
         String passwordEncoded = passwordEncoder.encode(passwordChiara);
 
         // 4. Recupera esami e tasse
         List<Esame> esami = pianoStudioService.getEsamiPerPiano(dto.getPianoDiStudi());
 
-        List<Tassa> tasse = List.of(
-                Tassa.builder().nome("Tassa di Iscrizione").prezzo(100).pagata(false).build(),
-                Tassa.builder().nome("Tassa Annuale").prezzo(200).pagata(false).build(),
-                Tassa.builder().nome("Tassa Biblioteca").prezzo(50).pagata(false).build()
-        );
+        List<Tassa> tasse = List.of(Tassa.builder().nome("Tassa di Iscrizione").prezzo(100).pagata(false).build(), Tassa.builder().nome("Tassa Annuale").prezzo(200).pagata(false).build(), Tassa.builder().nome("Tassa Biblioteca").prezzo(50).pagata(false).build());
 
         // 5. Usa la Factory
         Studente studente = StudenteFactory.creaStudente(dto, matricola, passwordEncoded, esami, tasse);
@@ -316,12 +221,7 @@ public class SegreteriaService {
         studente = studenteRepo.save(studente);
 
         // 8. Risposta
-        return Map.of(
-                "messaggio", "Studente creato con successo",
-                "matricola", studente.getMatricola(),
-                "email", studente.getEmail(),
-                "passwordProvvisoria", passwordChiara
-        );
+        return Map.of("messaggio", "Studente creato con successo", "matricola", studente.getMatricola(), "email", studente.getEmail(), "passwordProvvisoria", passwordChiara);
     }
 
 

@@ -16,7 +16,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -28,12 +27,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DocenteService {
 
-    @Autowired
-    private EsameRepository esameRepo;
-    @Autowired private VotoRepository votoRepo;
-    @Autowired private StudenteRepository studenteRepo;
-    @Autowired private DocenteRepository docenteRepo;
-    @Autowired private VotoNotifier votoNotifier;
+    final private EsameRepository esameRepo;
+    final private VotoRepository votoRepo;
+    final private StudenteRepository studenteRepo;
+    final private DocenteRepository docenteRepo;
+    final private VotoNotifier votoNotifier;
 
     private static final Logger logger = LoggerFactory.getLogger(DocenteService.class);
 
