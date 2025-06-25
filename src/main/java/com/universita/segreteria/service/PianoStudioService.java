@@ -5,69 +5,73 @@ import com.universita.segreteria.model.PianoDiStudi;
 import com.universita.segreteria.model.StatoEsame;
 import com.universita.segreteria.repository.EsameRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-@Component
+@Service
+@AllArgsConstructor
 public class PianoStudioService {
+
     private static final Logger logger = LoggerFactory.getLogger(PianoStudioService.class);
 
-    @Autowired
-    private EsameRepository esameRepo;
+    private final EsameRepository esameRepo;
+
+    // Mappa di PianoDiStudi -> lista nomi esami, così eviti ripetizioni
+    private static final Map<PianoDiStudi, List<String>> ESAMI_PER_PIANO = Map.of(
+            PianoDiStudi.INFORMATICA, List.of("Programmazione", "Algoritmi", "Basi di dati"),
+            PianoDiStudi.MATEMATICA, List.of("Analisi", "Algebra", "Geometria"),
+            PianoDiStudi.BIOLOGIA, List.of("Genetica", "Biochimica", "Zoologia"),
+            PianoDiStudi.GRAFICA, List.of("Design", "Colori", "Tipografia"),
+            PianoDiStudi.INGEGNERIA, List.of("Fisica", "Chimica", "Matematica I"),
+            PianoDiStudi.MEDICINA, List.of("Biologia", "Biochimica", "Farmacologia"),
+            PianoDiStudi.GIURISPRUDENZA, List.of("Diritto Privato", "Procedura Civile", "Economia Politica")
+    );
 
     @PostConstruct
+    @Transactional
     public void initEsami() {
         if (esameRepo.count() > 0) {
             logger.info("Esami già presenti a DB.");
             return;
         }
-        List<Esame> esami = List.of(
-                new Esame(null, "Programmazione", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Algoritmi", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Basi di dati", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Analisi", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Algebra", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Geometria", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Genetica", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Biochimica", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Zoologia", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Design", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Colori", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Tipografia", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Fisica", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Chimica", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Matematica I", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Biologia", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Farmacologia", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Diritto Privato", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Procedura Civile", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null),
-                new Esame(null, "Economia Politica", null, 10, StatoEsame.ATTIVO, null, new ArrayList<>(), new ArrayList<>(), null)
-        );
+        logger.info("Inizializzo esami di default nel database...");
+
+        var esami = ESAMI_PER_PIANO.values().stream()
+                .flatMap(List::stream)
+                .distinct()
+                .map(nome -> Esame.builder()
+                        .nome(nome)
+                        .cfu(10)
+                        .statoEsame(StatoEsame.ATTIVO)
+                        .studentiPrenotati(List.of())
+                        .voti(List.of())
+                        .build())
+                .toList();
 
         esameRepo.saveAll(esami);
         logger.info("Esami inizializzati e salvati nel database.");
     }
 
-    // Metodo che restituisce gli esami associati a un piano di studi
+    /**
+     * Restituisce gli esami associati a un piano di studi,
+     * tramite la mappa statica e un singolo chiamata a DB.
+     */
     public List<Esame> getEsamiPerPiano(PianoDiStudi piano) {
-        logger.info("Piano: {}", piano);
-        return switch (piano) {
-            case INFORMATICA -> esameRepo.findByNomeIn(List.of("Programmazione", "Algoritmi", "Basi di dati"));
-            case MATEMATICA -> esameRepo.findByNomeIn(List.of("Analisi", "Algebra", "Geometria"));
-            case BIOLOGIA -> esameRepo.findByNomeIn(List.of("Genetica", "Biochimica", "Zoologia"));
-            case GRAFICA -> esameRepo.findByNomeIn(List.of("Design", "Colori", "Tipografia"));
-            case INGEGNERIA -> esameRepo.findByNomeIn(List.of("Fisica", "Chimica", "Matematica I"));
-            case MEDICINA -> esameRepo.findByNomeIn(List.of("Biologia", "Biochimica", "Farmacologia"));
-            case GIURISPRUDENZA ->
-                    esameRepo.findByNomeIn(List.of("Diritto Privato", "Procedura Civile", "Economia Politica"));
-        };
+        List<String> nomiEsami = ESAMI_PER_PIANO.get(piano);
+        if (nomiEsami == null) {
+            logger.warn("Piano di studi non riconosciuto: {}", piano);
+            return List.of();
+        }
+        return esameRepo.findByNomeIn(nomiEsami);
     }
 
+    @Transactional
     public void save(List<Esame> esamiDelPiano) {
         esameRepo.saveAll(esamiDelPiano);
     }
