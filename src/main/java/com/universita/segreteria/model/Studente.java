@@ -32,13 +32,8 @@ public class Studente extends Utente {
     @ToString.Exclude
     private List<Voto> voti;
 
+    @ManyToMany(mappedBy = "studentiPrenotati", fetch = FetchType.EAGER)
     @ToString.Exclude
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "studente_esame",
-            joinColumns = @JoinColumn(name = "studente_id"),
-            inverseJoinColumns = @JoinColumn(name = "esame_id")
-    )
     private List<Esame> esami;
 
 }
