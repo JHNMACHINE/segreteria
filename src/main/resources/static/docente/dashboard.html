@@ -170,12 +170,9 @@
 </head>
 
 <body>
-<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <i class="bi bi-person-video3 me-2"></i> Area Docente
-        </a>
+        <a class="navbar-brand" href="#"><i class="bi bi-person-video3 me-2"></i> Area Docente</a>
         <div class="d-flex align-items-center">
             <span id="nomeDocente" class="me-4 fw-semibold"></span>
             <button class="btn btn-sm btn-outline-danger" id="logoutBtn">
@@ -195,43 +192,31 @@
         <p class="lead mb-4">Gestisci con semplicità appelli, voti ed esami.</p>
     </div>
 
-    <!-- Tutto in una sola Card -->
     <div class="card mb-4">
         <div class="card-body">
             <div class="row gx-4">
                 <!-- Colonna sinistra -->
                 <div class="col-md-6">
-                    <!-- I tuoi appelli -->
                     <h4 class="section-title">I tuoi appelli</h4>
                     <div class="table-responsive mb-4">
                         <table class="table mb-0 no-hover">
                             <thead>
-                            <tr>
-                                <th>Corso</th>
-                                <th>Data</th>
-                                <th>Azioni</th>
-                            </tr>
+                            <tr><th>Corso</th><th>Data</th><th>Azioni</th></tr>
                             </thead>
                             <tbody id="appelliTableBody"></tbody>
                         </table>
                     </div>
 
-                    <!-- Studenti prenotati -->
                     <h4 class="section-title">
-                        Studenti prenotati all’appello di <span id="nomeAppelloSelezionato" class="fw-bold"></span>
+                        Studenti prenotati all’appello di
+                        <span id="nomeAppelloSelezionato" class="fw-bold"></span>
                     </h4>
                     <select class="form-select mb-3" id="appelloSelectStudenti">
                         <option value="">-- Seleziona un appello --</option>
                     </select>
                     <div id="studentiList" class="table-responsive d-none">
                         <table class="table no-hover">
-                            <thead>
-                            <tr>
-                                <th>Matricola</th>
-                                <th>Nome</th>
-                                <th>Cognome</th>
-                            </tr>
-                            </thead>
+                            <thead><tr><th>Matricola</th><th>Nome</th><th>Cognome</th></tr></thead>
                             <tbody id="studentiTableBody"></tbody>
                         </table>
                     </div>
@@ -239,12 +224,11 @@
 
                 <!-- Colonna destra -->
                 <div class="col-md-6">
-                    <!-- Crea nuovo appello (rimosso campo “corso”) -->
                     <h4 class="section-title">Crea nuovo appello</h4>
                     <form id="creaAppelloForm" class="row g-3 mb-4">
-                        <div class="col-md-12">
+                        <div class="col-12">
                             <label for="dataEsame" class="form-label">Data</label>
-                            <input type="date" class="form-control" id="dataEsame" required />
+                            <input type="date" class="form-control" id="dataEsame" required>
                         </div>
                         <div class="col-12">
                             <label for="aulaSelect" class="form-label">Aula</label>
@@ -253,13 +237,10 @@
                             </select>
                         </div>
                         <div class="col-12 text-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-plus-circle me-1"></i> Crea appello
-                            </button>
+                            <button class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Crea appello</button>
                         </div>
                     </form>
 
-                    <!-- Inserisci voti -->
                     <h4 class="section-title">Inserisci voti</h4>
                     <form id="votiForm" class="row g-3">
                         <div class="col-md-6">
@@ -270,15 +251,20 @@
                         </div>
                         <div class="col-md-6">
                             <label for="studenteMatricola" class="form-label">Matricola</label>
-                            <input type="text" class="form-control" id="studenteMatricola" required />
+                            <input type="text" class="form-control" id="studenteMatricola" required>
                         </div>
                         <div class="col-md-6">
                             <label for="voto" class="form-label">Voto</label>
-                            <input type="number" min="18" max="30" class="form-control" id="voto" required />
+                            <input type="number" min="18" max="30" class="form-control" id="voto" required>
                         </div>
                         <div class="col-12 text-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-plus-circle me-1"></i> Aggiungi voto
+                                <i class="bi bi-plus-circle me-1"></i>Aggiungi voto
+                            </button>
+                        </div>
+                        <div class="col-12 text-start">
+                            <button type="button" id="assenteBtn" class="btn btn-outline-danger">
+                                <i class="bi bi-x-circle me-1"></i>Studente Assente
                             </button>
                         </div>
                     </form>
@@ -288,18 +274,13 @@
     </div>
 </div>
 
-<!-- Footer -->
 <footer class="footer">
-    <div class="container">
-        <div class="text-center">
-            <small>&copy; 2025 - Segreteria Universitaria</small>
-        </div>
+    <div class="container text-center">
+        <small>&copy; 2025 - Segreteria Universitaria</small>
     </div>
 </footer>
 
-<!-- Bootstrap JS + script originale -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script type="module">
     import { logout } from '/js/auth.js';
     import {
@@ -309,50 +290,51 @@
         creaAppello,
         eliminaAppello,
         trovaStudentiPerAppello,
-        getAuleDisponibili
+        getAuleDisponibili,
+        studenteAssente
     } from '/js/service/docente.js';
 
-    // Logout
     document.getElementById("logoutBtn").addEventListener("click", logout);
 
-    // Mostra nome docente
     getInfoDocente()
-        .then(data => {
-            document.getElementById('nomeDocente').innerText = `${data.nome} ${data.cognome}`;
-            document.getElementById('nomeCompleto').innerText = data.nome;
+        .then(d => {
+            document.getElementById('nomeDocente').innerText = `${d.nome} ${d.cognome}`;
+            document.getElementById('nomeCompleto').innerText = d.nome;
         })
         .catch(console.error);
 
+    const tbody = document.getElementById('appelliTableBody');
     const appelloSelect = document.getElementById('appelloSelect');
     const appelloSelectStudenti = document.getElementById('appelloSelectStudenti');
     const studentiTable = document.getElementById('studentiList');
     const studentiBody = document.getElementById('studentiTableBody');
-    const tbody = document.getElementById('appelliTableBody');
     const dataEsameInput = document.getElementById('dataEsame');
     const aulaSelect = document.getElementById('aulaSelect');
     const nomeAppelloSpan = document.getElementById('nomeAppelloSelezionato');
+    const assenteBtn = document.getElementById('assenteBtn');
 
-    // Carica appelli, select e tabella
     async function caricaAppelli() {
         try {
-            const appelli = await getAppelli();
+            let appelli = await getAppelli();
+            // ordina dal più vecchio al più nuovo
+            appelli = appelli.sort((a, b) => new Date(a.data) - new Date(b.data));
+
             tbody.innerHTML = '';
             appelloSelect.innerHTML = '<option value="">Seleziona</option>';
             appelloSelectStudenti.innerHTML = '<option value="">-- Seleziona un appello --</option>';
             nomeAppelloSpan.innerText = '';
 
-            if (appelli.length === 0) {
+            if (!appelli.length) {
                 tbody.innerHTML = `
-                    <tr>
-                        <td colspan="3" class="text-center py-4">
-                            <div class="empty-state">
-                                <i class="bi bi-calendar-x"></i>
-                                <h5>Nessun appello disponibile</h5>
-                                <p>Crea un nuovo appello per iniziare</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                  <tr>
+                    <td colspan="3" class="text-center py-4">
+                      <div class="empty-state">
+                        <i class="bi bi-calendar-x"></i>
+                        <h5>Nessun appello disponibile</h5>
+                        <p>Crea un nuovo appello per iniziare</p>
+                      </div>
+                    </td>
+                  </tr>`;
                 return;
             }
 
@@ -360,29 +342,24 @@
                 const dataF = new Date(a.data).toLocaleDateString('it-IT');
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${a.nome}</td>
-                    <td>${dataF}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-danger btn-rimuovi-appello" data-id="${a.id}">
-                            <i class="bi bi-trash me-1"></i> Rimuovi
-                        </button>
-                    </td>
-                `;
+                  <td>${a.nome}</td>
+                  <td>${dataF}</td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-danger btn-rimuovi-appello" data-id="${a.id}">
+                      <i class="bi bi-trash me-1"></i>Rimuovi
+                    </button>
+                  </td>`;
                 tbody.appendChild(tr);
 
-                // Popola le select
-                const opt1 = document.createElement('option');
-                opt1.value = a.id;
-                opt1.textContent = `${a.nome} (${dataF})`;
-                appelloSelect.appendChild(opt1);
-
-                const opt2 = document.createElement('option');
-                opt2.value = a.id;
-                opt2.textContent = `${a.nome} (${dataF})`;
-                appelloSelectStudenti.appendChild(opt2);
+                // popola le select
+                [appelloSelect, appelloSelectStudenti].forEach(select => {
+                    const opt = document.createElement('option');
+                    opt.value = a.id;
+                    opt.textContent = `${a.nome} (${dataF})`;
+                    select.appendChild(opt);
+                });
             });
 
-            // Rimuovi appello
             document.querySelectorAll('.btn-rimuovi-appello').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const idLong = Number(btn.dataset.id);
@@ -402,10 +379,8 @@
         }
     }
 
-    // All'avvio
     caricaAppelli();
 
-    // Inserimento voto
     document.getElementById('votiForm').addEventListener('submit', async e => {
         e.preventDefault();
         try {
@@ -417,14 +392,32 @@
             alert('Voto inserito con successo');
             e.target.reset();
         } catch (err) {
-            alert('Errore nell\'inserimento del voto: ' + (err.message || 'Dettagli non disponibili'));
+            alert('Errore nell\'inserimento del voto: ' + (err.message||'Dettagli non disponibili'));
         }
     });
 
-    // Cambio appello studenti
+    assenteBtn.addEventListener('click', async () => {
+        const appelloId = appelloSelect.value;
+        const matricola = document.getElementById('studenteMatricola').value.trim();
+        if (!appelloId || !matricola) {
+            alert('Seleziona appello e inserisci matricola prima di marcare assente.');
+            return;
+        }
+        const studenteDTO = { matricola };
+        const nomeEsame = appelloSelect.selectedOptions[0].text.split(' ')[0];
+        const esameDTO = { nome: nomeEsame };
+        try {
+            await studenteAssente(studenteDTO, esameDTO, 0);
+            alert('Studente marcato assente con successo');
+            document.getElementById('votiForm').reset();
+        } catch (err) {
+            alert('Errore nel marcare assente: ' + (err.message||''));
+        }
+    });
+
     appelloSelectStudenti.addEventListener('change', async () => {
         const idx = appelloSelectStudenti.selectedIndex;
-        nomeAppelloSpan.innerText = appelloSelectStudenti.options[idx]?.text || '';
+        nomeAppelloSpan.innerText = appelloSelectStudenti.options[idx]?.text||'';
         studentiBody.innerHTML = '';
         if (!appelloSelectStudenti.value) {
             studentiTable.classList.add('d-none');
@@ -432,18 +425,15 @@
         }
         try {
             const studenti = await trovaStudentiPerAppello(appelloSelectStudenti.value);
-            if (studenti.length === 0) {
+            if (!studenti.length) {
                 studentiBody.innerHTML = `
-                    <tr>
-                        <td colspan="3" class="text-center py-4">
-                            <div class="empty-state">
-                                <i class="bi bi-people"></i>
-                                <h5>Nessuno studente prenotato</h5>
-                                <p>Non ci sono prenotazioni per questo appello</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                  <tr><td colspan="3" class="text-center py-4">
+                    <div class="empty-state">
+                      <i class="bi bi-people"></i>
+                      <h5>Nessuno studente prenotato</h5>
+                      <p>Non ci sono prenotazioni per questo appello</p>
+                    </div>
+                  </td></tr>`;
             } else {
                 studenti.forEach(s => {
                     const tr = document.createElement('tr');
@@ -458,7 +448,6 @@
         }
     });
 
-    // Popola aulaSelect quando cambia dataEsame
     dataEsameInput.addEventListener('change', async () => {
         aulaSelect.innerHTML = '<option value="">Caricamento aule...</option>';
         if (!dataEsameInput.value) {
@@ -470,10 +459,10 @@
             aulaSelect.innerHTML = listaAule.length
                 ? '<option value="">Seleziona aula</option>'
                 : '<option value="">Nessuna aula libera</option>';
-            listaAule.forEach(aula => {
+            listaAule.forEach(a => {
                 const opt = document.createElement('option');
-                opt.value = aula;
-                opt.textContent = aula;
+                opt.value = a;
+                opt.textContent = a;
                 aulaSelect.appendChild(opt);
             });
         } catch {
@@ -481,21 +470,16 @@
         }
     });
 
-
     document.getElementById('creaAppelloForm').addEventListener('submit', async e => {
         e.preventDefault();
         try {
-
-            await creaAppello(
-                dataEsameInput.value,
-                aulaSelect.value
-            );
+            await creaAppello(dataEsameInput.value, aulaSelect.value);
             alert('Appello creato con successo');
             e.target.reset();
             aulaSelect.innerHTML = '<option value="">Seleziona data prima</option>';
             caricaAppelli();
         } catch (err) {
-            alert((err.message || 'Dettagli non disponibili'));
+            alert(err.message||'Dettagli non disponibili');
         }
     });
 </script>

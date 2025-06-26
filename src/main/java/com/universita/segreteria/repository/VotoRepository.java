@@ -17,4 +17,6 @@ public interface VotoRepository extends JpaRepository<Voto, Long> {
 
     boolean existsByStudenteAndEsame(Studente studente, Esame esame);
     List<Voto> findByStato(StatoVoto stato);
+
+    List<Voto> findByStudenteAndStato(Studente studente, StatoVoto statoVoto);
 }

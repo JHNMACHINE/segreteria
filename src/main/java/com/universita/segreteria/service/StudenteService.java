@@ -77,17 +77,6 @@ public class StudenteService {
     }
 
 
-    public List<EsameDTO> esamiSuperati(StudenteDTO studenteDTO) {
-        if (Objects.isNull(studenteDTO.getMatricola()))
-            throw new RuntimeException("Matricola mancante, inserire matricola");
-
-        String matricola = studenteDTO.getMatricola();
-
-        Studente studente = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
-        List<Esame> esami = studente.getVoti().stream().filter(v -> v.getStato() == StatoVoto.ACCETTATO).map(Voto::getEsame).toList();
-        return EsameMapper.convertListEsamiToDTO(esami);
-    }
-
     @Transactional
     public EsameDTO prenotaEsame(String emailUtente, Integer esameId) {
         // Trova lo studente per email
@@ -109,9 +98,6 @@ public class StudenteService {
         esame.getStudentiPrenotati().add(studente);
         // Aggiungi l'esame alla lista degli esami dello studente
         studente.getEsami().add(esame);
-
-        // Modifica lo stato dell'esame a PRENOTATO
-        esame.setStatoEsame(StatoEsame.PRENOTATO);
 
         // Salva le modifiche
         esameRepo.save(esame);
@@ -143,14 +129,6 @@ public class StudenteService {
             // Notifica la segreteria del rifiuto
             acceptationNotifier.notifyObservers(voto);
         }
-    }
-
-    public List<Esame> getEsamiDaSostenere(StudenteDTO studenteDTO) {
-        String matricola = studenteDTO.getMatricola();
-
-        Studente studente = studenteRepo.findByMatricola(matricola).orElseThrow(() -> new RuntimeException("Matricola non valida, studente non trovato"));
-
-        return studente.getVoti().stream().filter(v -> v.getStato() != StatoVoto.ACCETTATO).map(Voto::getEsame).collect(Collectors.toList());
     }
 
     @Transactional  // <-- LAZY LOADING NON RIMUOVERE
@@ -271,7 +249,4 @@ public class StudenteService {
 
         studenteRepo.save(studente);
     }
-
-
-
 }

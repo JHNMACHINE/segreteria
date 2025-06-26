@@ -31,3 +31,7 @@ export function trovaStudentiPerAppello(appelloId) {
     const id = Number(appelloId);
     return eseguiOperazione('trovaStudentiPerAppello', [id]);
 }
+
+export function studenteAssente(studenteDTO, esameDTO, voto) {
+    return eseguiOperazione('studenteAssente', [studenteDTO, esameDTO, voto]);
+}

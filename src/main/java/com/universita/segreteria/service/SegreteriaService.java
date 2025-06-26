@@ -108,13 +108,6 @@ public class SegreteriaService {
         return StudentMapper.convertListStudentiToDTO(studenti);
     }
 
-    public List<DocenteDTO> getAllDocenti() {
-        List<Docente> docenti = docenteRepository.findAll();
-        return docenti.stream()
-                .map(DocenteMapper::toDTO)  // Usa il metodo di mapping per ogni Docente
-                .collect(Collectors.toList());  // Colleziona in una lista di DocenteDTO
-    }
-
 
     public List<StudenteDTO> cercaStudente(String nome, String cognome) {
         List<Studente> studenti = studenteRepo.findByNomeAndCognome(nome, cognome);
@@ -144,6 +137,27 @@ public class SegreteriaService {
         return StudentMapper.convertiStudenteInDTO(studente);
     }
 
+    private String generaMatricolaPerPiano(PianoDiStudi piano) {
+        String prefix = switch (piano) {
+            case INFORMATICA    -> "IT";
+            case MATEMATICA     -> "MT";
+            case BIOLOGIA       -> "BG";
+            case GIURISPRUDENZA -> "GZ";
+            case MEDICINA       -> "MD";
+            case INGEGNERIA     -> "IN";
+            case GRAFICA        -> "GF";
+            default -> throw new RuntimeException("Piano di studi non riconosciuto");
+        };
+
+        List<String> matricoleEsistenti = studenteRepo.findAllMatricoleByPrefix(prefix);
+        int maxSeq = matricoleEsistenti.stream()
+                .map(m -> m.replace(prefix, ""))
+                .mapToInt(Integer::parseInt)
+                .max()
+                .orElse(0);
+
+        return prefix + String.format("%04d", maxSeq + 1);
+    }
 
     public SegretarioDTO getProfilo(String email) {
         logger.info("getProfile({})", email);
@@ -252,6 +266,23 @@ public class SegreteriaService {
         return shuffledPassword.toString();
     }
 
+    @Transactional
+    public List<VotoDTO> getVotiAccettatiPerStudente(String matricola) {
+        Studente studente = studenteRepo.findByMatricola(matricola)
+                .orElseThrow(() -> new RuntimeException("Studente non trovato"));
+
+        List<Voto> voti = votoRepo.findByStudenteAndStato(studente, StatoVoto.ACCETTATO);
+
+        // Forza il caricamento delle relazioni per evitare problemi con lazy loading
+        voti.forEach(voto -> {
+            if (voto.getEsame() != null) {
+                voto.getEsame().getNome();
+            }
+        });
+
+        return VotoMapper.convertListToDTO(voti);
+    }
+
 
     @Transactional
     public List<EsameDTO> getEsamiDisponibiliPerPiano(String piano1) {
@@ -287,26 +318,8 @@ public class SegreteriaService {
             throw new IllegalArgumentException("Un studente con questa email esiste già.");
         }
 
-        // 2. Genera matricola
-        String prefix = switch (dto.getPianoDiStudi()) {
-            case INFORMATICA    -> "IT";
-            case MATEMATICA     -> "MT";
-            case BIOLOGIA       -> "BG";
-            case GIURISPRUDENZA -> "GZ";
-            case MEDICINA       -> "MD";
-            case INGEGNERIA     -> "IN";
-            case GRAFICA        -> "GF";
-            default -> throw new RuntimeException("Piano di studi non riconosciuto");
-        };
-
-        List<String> matricoleEsistenti = studenteRepo.findAllMatricoleByPrefix(prefix);
-        int maxSeq = matricoleEsistenti.stream()
-                .map(m -> m.replace(prefix, ""))
-                .mapToInt(Integer::parseInt)
-                .max()
-                .orElse(0);
-        String nuovaSeq = String.format("%04d", maxSeq + 1);
-        String matricola = prefix + nuovaSeq;
+        // 2. Genera matricola usando il metodo centralizzato
+        String matricola = generaMatricolaPerPiano(dto.getPianoDiStudi());
 
         // 3. Genera password chiara ed encode
         String passwordChiara = generaPassword();
@@ -339,6 +352,4 @@ public class SegreteriaService {
                 "passwordProvvisoria", passwordChiara
         );
     }
-
-
 }

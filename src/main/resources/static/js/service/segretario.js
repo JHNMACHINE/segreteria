@@ -77,3 +77,7 @@ export  function getEsamiDisponibiliPerPiano(piano){
     return eseguiOperazione("getEsamiDisponibiliPerPiano",[piano]);
 
 }
+
+export function getVotiAccettatiPerStudente(matricola) {
+  return eseguiOperazione("getVotiAccettatiPerStudente", [matricola]);
+}

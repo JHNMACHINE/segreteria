@@ -82,12 +82,15 @@ public class UserServiceProxy implements UtenteService {
                 yield null;
             }
             case "getVotiInAttesa" -> segreteriaService.getVotiInAttesa();
+            case "getVotiAccettatiPerStudente" -> {
+                String matricola = (String) parametri[0];
+                yield segreteriaService.getVotiAccettatiPerStudente(matricola);
+            }
             case "cercaStudente" -> segreteriaService.cercaStudente((String) parametri[0], (String) parametri[1]);
             case "cercaStudentePerMatricola" -> segreteriaService.cercaStudentePerMatricola((String) parametri[0]);
             case "cambiaPianoDiStudi" ->
                     segreteriaService.cambiaPianoDiStudi((Integer) parametri[0], (String) parametri[1]);
             case "getAllStudenti" -> segreteriaService.getAllStudenti();
-            case "getAllDocenti" -> segreteriaService.getAllDocenti();
             case "getEsamiDisponibiliPerPiano"->segreteriaService.getEsamiDisponibiliPerPiano((String) parametri[0]);
             default -> throw new RuntimeException("Operazione non consentita per la segreteria.");
         };
@@ -107,8 +110,6 @@ public class UserServiceProxy implements UtenteService {
                 yield null;
             }
             case "prenotaEsame" -> studenteService.prenotaEsame(subject, (Integer) parametri[0]);
-            case "esamiSuperati" -> studenteService.esamiSuperati((StudenteDTO) parametri[0]);
-            case "getEsamiDaSostenere" -> studenteService.getEsamiDaSostenere((StudenteDTO) parametri[0]);
             case "getCarriera" -> studenteService.getCarriera(subject );
             case "esamiPrenotabili" -> studenteService.esamiPrenotabili(subject);
             case "getInfoStudente" -> studenteService.getInfoStudente(subject);
@@ -137,19 +138,20 @@ public class UserServiceProxy implements UtenteService {
             }
             case "creaEsame" -> docenteService.creaEsame(subject, (String) parametri[0], (String) parametri[1]);
             case "getAuleDisponibili" -> docenteService.getAuleDisponibili((String) parametri[0]);
-            case "visualizzaPrenotazioniEsame" -> docenteService.visualizzaPrenotazioniEsame((Long) parametri[0]);
             case "eliminaEsame" -> {
                 Number num= (Number) parametri[0];
                yield docenteService.eliminaEsame((Long) num.longValue());
             }
-            case "aggiornaEsame" -> docenteService.aggiornaEsame((Long) parametri[0], (EsameDTO) parametri[1]);
-            case "getEsamiByDocente" -> docenteService.getEsamiByDocente((Long) parametri[0]);
-            case "getEsameById" -> docenteService.getEsameById((Long) parametri[0]);
-            case "modificaVoto" -> docenteService.modificaVoto((Long) parametri[0], (Integer) parametri[1]);
-            case "getVotiPerEsame" -> docenteService.getVotiPerEsame((Long) parametri[0]);
-            case "eliminaVoto" -> docenteService.eliminaVoto((Long) parametri[0]);
-            case "studenteAssente" ->
-                    docenteService.studenteAssente((StudenteDTO) parametri[0], (EsameDTO) parametri[1], (Integer) parametri[2]);
+            case "studenteAssente" -> {
+                // deserializzo correttamente i parametri
+                StudenteDTO studenteDTO = mapper.convertValue(parametri[0], StudenteDTO.class);
+                EsameDTO    esameDTO    = mapper.convertValue(parametri[1], EsameDTO.class);
+                Integer     voto        = (parametri[2] instanceof Number)
+                        ? ((Number) parametri[2]).intValue()
+                        : null;
+                // chiamo infine il service
+                yield docenteService.studenteAssente(studenteDTO, esameDTO, voto);
+            }
             case "trovaStudentiPerAppello" -> {
                 Long appelloId = Long.parseLong(parametri[0].toString());
                 yield docenteService.trovaStudentiPerAppello(appelloId);

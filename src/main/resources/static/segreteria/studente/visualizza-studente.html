@@ -134,8 +134,8 @@
 </div>
 
 <script type="module">
-  import { cercaStudentePerMatricola, cambiaPianoDiStudi } from '/js/service/segretario.js';
-  import { logout } from '/js/auth.js';
+  import { cercaStudentePerMatricola, cambiaPianoDiStudi, getVotiAccettatiPerStudente } from '/js/service/segretario.js';
+
   const changeModal = new bootstrap.Modal(document.getElementById('changePianoModal'));
 
   document.getElementById('btnBack').addEventListener('click', () => window.history.back());
@@ -160,6 +160,7 @@
     const params = new URLSearchParams(window.location.search);
     const matricola = params.get('matricola');
     if (!matricola) { alert('Matricola mancante.'); return; }
+
     try {
       const studente = await cercaStudentePerMatricola(matricola);
       document.getElementById('studenteId').value = studente.id;
@@ -188,22 +189,17 @@
       const votiSel = document.getElementById('votiSelect');
       votiSel.innerHTML = '';
 
-      if (Array.isArray(studente.voti) && studente.voti.length > 0) {
-        const accettati = studente.voti.filter(v => v.stato === 'ACCETTATO');
-        if (accettati.length > 0) {
-          accettati.forEach(v => {
-            const opt = document.createElement('option');
-            opt.value = v.id;
-            opt.text = `${v.esame.nomeEsame} - ${v.voto}`;
-            votiSel.appendChild(opt);
-          });
-        } else {
-          votiSel.innerHTML = '<option>-- Nessun voto accettato --</option>';
-        }
+      const votiAccettati = await getVotiAccettatiPerStudente(matricola);
+      if (Array.isArray(votiAccettati) && votiAccettati.length > 0) {
+        votiAccettati.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.id;
+          opt.text = `${v.esameNome || 'Esame'} - ${v.voto}`;
+          votiSel.appendChild(opt);
+        });
       } else {
         votiSel.innerHTML = '<option>-- Nessun voto accettato --</option>';
       }
-
     } catch (err) {
       console.error('Errore caricamento studente:', err);
       alert('Impossibile caricare i dettagli dello studente.');
@@ -212,6 +208,7 @@
 
   caricaStudente();
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

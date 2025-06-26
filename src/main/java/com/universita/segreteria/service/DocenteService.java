@@ -177,32 +177,6 @@ public class DocenteService {
 
     }
 
-    public List<EsameDTO> getEsamiByDocente(Long docenteId) {
-        Docente docente = docenteRepo.findById(docenteId).orElseThrow(() -> new RuntimeException("Docente non trovato"));
-        List<Esame> esami = esameRepo.findByDocente(docente);
-        return EsameMapper.convertListEsamiToDTO(esami);
-    }
-
-    public EsameDTO getEsameById(Long esameId) {
-        Esame esame = esameRepo.findById(esameId).orElseThrow(() -> new RuntimeException("Esame non trovato"));
-        return EsameMapper.toDTO(esame);
-    }
-
-
-    public EsameDTO aggiornaEsame(Long esameId, EsameDTO aggiornato) {
-        Esame esame = esameRepo.findById(esameId).orElseThrow(() -> new RuntimeException("Esame non trovato"));
-
-        if (aggiornato.getDate() == null || !aggiornato.getDate().isAfter(LocalDate.now())) {
-            throw new RuntimeException("La data dell'esame deve essere futura");
-        }
-
-        esame.setNome(aggiornato.getNome());
-        esame.setData(aggiornato.getDate());
-        esame.setStatoEsame(aggiornato.getStatoEsame());
-        esameRepo.save(esame);
-        return EsameMapper.toDTO(esame);
-    }
-
 
     @Transactional
     public boolean eliminaEsame(Long esameId) {
@@ -222,40 +196,6 @@ public class DocenteService {
     }
 
 
-    public List<StudenteDTO> visualizzaPrenotazioniEsame(Long esameId) {
-        Esame esame = esameRepo.findById(esameId).orElseThrow(() -> new RuntimeException("Esame non trovato"));
-        List<Studente> studentiPrenotati = esame.getStudentiPrenotati();
-        return StudentMapper.convertListStudentiToDTO(studentiPrenotati);
-    }
-
-
-    public List<VotoDTO> getVotiPerEsame(Long esameId) {
-        Esame esame = esameRepo.findById(esameId).orElseThrow(() -> new RuntimeException("Esame non trovato"));
-        List<Voto> voti = votoRepo.findByEsame(esame);
-        return VotoMapper.convertListToDTO(voti);
-    }
-
-
-    public VotoDTO modificaVoto(Long votoId, Integer nuovoVoto) {
-        Voto voto = votoRepo.findById(votoId).orElseThrow(() -> new RuntimeException("Voto non trovato"));
-
-        if (voto.getStato() != StatoVoto.ATTESA) {
-            throw new RuntimeException("Impossibile modificare: il voto è già stato accettato o rifiutato");
-        }
-
-        voto.setVoto(nuovoVoto);
-        Voto updated = votoRepo.save(voto);
-        return VotoMapper.convertiInDTO(updated);
-    }
-
-
-    public boolean eliminaVoto(Long votoId) {
-        if (!votoRepo.existsById(votoId)) {
-            throw new RuntimeException("Voto non trovato");
-        }
-        votoRepo.deleteById(votoId);
-        return true;
-    }
 
     public DocenteDTO getInfoDocente(String email) {
         Docente docente = docenteRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("Docente non trovato"));
@@ -294,6 +234,4 @@ public class DocenteService {
                         .build())
                 .toList();
     }
-
-
 }
