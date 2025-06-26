@@ -99,6 +99,15 @@
         .badge-success {
           background: var(--primary);
         }
+        .badge-warning {
+          background: #ffc107;
+          color: #212529;
+        }
+        .badge-secondary {
+          background: #e9ecef;
+          color: #212529;
+          border: 1px solid #ced4da;
+        }
         .badge-danger {
           background: #dc3545;
         }
@@ -264,9 +273,21 @@
 
         const badge = document.createElement('span');
         badge.className = 'badge rounded-pill';
-        if (e.statoEsame === 'SUPERATO') badge.classList.add('badge-success');
-        else if (e.statoEsame === 'PRENOTATO') badge.classList.add('badge-warning');
-        else badge.classList.add('badge-secondary');
+
+        switch(e.statoEsame) {
+          case 'SUPERATO':
+            badge.classList.add('badge-success');
+            break;
+          case 'PRENOTATO':
+            badge.classList.add('badge-warning');
+            break;
+          case 'NON_SUPERATO':
+            badge.classList.add('badge-secondary');
+            break;
+          default:
+            badge.classList.add('badge-light');
+        }
+
         badge.innerText = e.statoEsame;
 
         item.append(info, badge);
@@ -286,13 +307,31 @@
       appelli.forEach(a => {
         const li = document.createElement('li'); li.className = 'list-group-item';
         const date = new Date(a.date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
         const btn = document.createElement('button');
-        btn.className = 'btn btn-primary btn-sm'; btn.innerText = 'Prenota';
-        btn.onclick = () => {
-          prenotaEsame(a.id)
-            .then(() => { alert('Prenotazione avvenuta'); ul.removeChild(li); })
-            .catch(() => showError('Impossibile prenotarsi'));
-        };
+        btn.className = 'btn btn-primary btn-sm';
+
+        // Verifica se l'esame è stato prenotato precedentemente
+        const prenotato = localStorage.getItem(`esame_${a.id}_prenotato`);
+
+        if (prenotato) {
+          btn.innerText = 'Prenotato';
+          btn.disabled = true;
+        } else {
+          btn.innerText = 'Prenota';
+          btn.onclick = () => {
+            prenotaEsame(a.id)
+              .then(() => {
+                alert('Prenotazione avvenuta');
+                btn.innerText = 'Prenotato';
+                btn.disabled = true;
+                // Memorizza lo stato di prenotazione nel localStorage
+                localStorage.setItem(`esame_${a.id}_prenotato`, 'true');
+              })
+              .catch(() => showError('Impossibile prenotarsi'));
+          };
+        }
+
         li.append(`${a.nome} — ${date}`, btn);
         ul.append(li);
       });

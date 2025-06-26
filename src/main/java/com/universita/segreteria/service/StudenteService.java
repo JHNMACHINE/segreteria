@@ -1,9 +1,6 @@
 package com.universita.segreteria.service;
 
-
-import com.universita.segreteria.controller.UtenteProxyController;
 import com.universita.segreteria.dto.EsameDTO;
-import com.universita.segreteria.dto.RegisterRequest;
 import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.dto.TassaDTO;
 import com.universita.segreteria.mapper.EsameMapper;
@@ -14,7 +11,6 @@ import com.universita.segreteria.repository.StudenteRepository;
 import com.universita.segreteria.repository.TassaRepository;
 import com.universita.segreteria.repository.VotoRepository;
 import jakarta.transaction.Transactional;
-import jdk.jshell.spi.ExecutionControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +64,6 @@ public class StudenteService {
         List<Esame> finalList = pianoStudiService.getEsamiPerPiano(piano).stream()
                 .filter(e -> !corsiSuperati.contains(e.getNome())) // Escludi corsi già superati
                 .filter(e -> !giaValutati.contains(e)) // Escludi esami già valutati
-                .filter(e -> !giaPrenotati.contains(e))// Escludi esami già prenotati
                 .filter(e->e.getData()!=null)
                 .filter(e -> e.getData().isAfter(oggi)) // Solo esami futuri
                 .toList();
