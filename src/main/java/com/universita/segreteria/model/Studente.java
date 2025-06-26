@@ -36,6 +36,10 @@ public class Studente extends Utente {
     @ToString.Exclude
     private List<Esame> esami;
 
+    @OneToMany(mappedBy = "studente", cascade = CascadeType.ALL)
+    private List<Prenotazione> prenotazioni;
+
+
 }
 
 

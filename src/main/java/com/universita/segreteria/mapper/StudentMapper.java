@@ -42,27 +42,10 @@ public final class StudentMapper {
                 .build();
     }
 
-    public static Studente convertiStudenteDaDTO(StudenteDTO dto) {
-        return Studente.builder()
-                .matricola(dto.getMatricola())
-                .nome(dto.getNome())
-                .cognome(dto.getCognome())
-                .pianoDiStudi(dto.getPianoDiStudi())  // Aggiunto
-                .residenza(dto.getResidenza())  // Aggiunto
-                .dataDiNascita(dto.getDataDiNascita())  // Aggiunto
-                .build();
-    }
-
     public static List<StudenteDTO> convertListStudentiToDTO(List<Studente> studenti) {
         if (studenti == null) return Collections.emptyList();
 
         return studenti.stream().map(StudentMapper::convertiStudenteInDTO).collect(Collectors.toList());
-    }
-
-    public static List<Studente> convertListDTOToStudenti(List<StudenteDTO> dtos) {
-        if (dtos == null) return Collections.emptyList();
-
-        return dtos.stream().map(StudentMapper::convertiStudenteDaDTO).collect(Collectors.toList());
     }
 }
 

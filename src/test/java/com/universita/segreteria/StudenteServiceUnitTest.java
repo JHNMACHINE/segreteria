@@ -4,7 +4,7 @@ import com.universita.segreteria.dto.EsameDTO;
 import com.universita.segreteria.dto.StudenteDTO;
 import com.universita.segreteria.model.*;
 import com.universita.segreteria.repository.StudenteRepository;
-import com.universita.segreteria.service.PianoStudiService;
+import com.universita.segreteria.service.PianoStudioService;
 import com.universita.segreteria.service.StudenteService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ class StudenteServiceUnitTest {
     private StudenteRepository studenteRepo;
 
     @Mock
-    private PianoStudiService pianoStudiService;
+    private PianoStudioService pianoStudioService;
 
     @InjectMocks
     private StudenteService studenteService;
@@ -154,6 +154,6 @@ class StudenteServiceUnitTest {
 
     private void mockStudenteConEsami(String matricola, Studente studente, List<Esame> esamiPiano) {
         when(studenteRepo.findByMatricola(matricola)).thenReturn(Optional.of(studente));
-        when(pianoStudiService.getEsamiPerPiano(studente.getPianoDiStudi())).thenReturn(esamiPiano);
+        when(pianoStudioService.getEsamiPerPiano(studente.getPianoDiStudi())).thenReturn(esamiPiano);
     }
 }

@@ -23,12 +23,4 @@ public final class VotoMapper {
         return voti.stream().map(VotoMapper::convertiInDTO).collect(Collectors.toList());
     }
 
-    public static Voto convertiInEntity(VotoDTO dto) {
-        Voto voto = new Voto();
-        voto.setId(dto.getId());
-        voto.setVoto(dto.getVoto());
-        voto.setStato(dto.getStato());
-        return voto;
-    }
-
 }

@@ -55,14 +55,8 @@ public class Esame {
     @ToString.Exclude
     private List<Voto> voti;
 
-    @ManyToMany
-    @JoinTable(
-            name = "esame_prenotazioni",
-            joinColumns = @JoinColumn(name = "esame_id"),
-            inverseJoinColumns = @JoinColumn(name = "studente_id")
-    )
-    @ToString.Exclude
-    private List<Studente> studentiPrenotati;
+    @OneToMany(mappedBy = "esame", cascade = CascadeType.ALL)
+    private List<Prenotazione> prenotazioni;
 
     @Enumerated(EnumType.STRING)
     @ToString.Include
