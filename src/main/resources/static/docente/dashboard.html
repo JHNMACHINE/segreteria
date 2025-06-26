@@ -404,8 +404,7 @@
             return;
         }
         const studenteDTO = { matricola };
-        const nomeEsame = appelloSelect.selectedOptions[0].text.split(' ')[0];
-        const esameDTO = { nome: nomeEsame };
+        const esameDTO = { id:appelloId };
         try {
             await studenteAssente(studenteDTO, esameDTO, 0);
             alert('Studente marcato assente con successo');

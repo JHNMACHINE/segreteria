@@ -160,9 +160,7 @@ public class DocenteService {
 
     public VotoDTO studenteAssente(StudenteDTO studenteDTO, EsameDTO esameDTO, Integer voto) {
         Studente studente = studenteRepo.findByMatricola(studenteDTO.getMatricola()).orElseThrow(() -> new RuntimeException("Studente non trovato"));
-        Esame esame = esameRepo.findFirstByNome(esameDTO.getNome()).orElseThrow(() -> new RuntimeException("Esame non trovato"));
-
-        esame.setStatoEsame(StatoEsame.ASSENTE);
+        Esame esame = esameRepo.findById(esameDTO.getId()).orElseThrow(() -> new RuntimeException("Esame non trovato"));
 
         Voto votoEntity = Voto.builder().studente(studente).esame(esame).voto(0).stato(StatoVoto.RIFIUTATO).build();
 
